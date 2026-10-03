@@ -73,6 +73,9 @@
     }
 
     .hero-h1-wrap { overflow: hidden; }
+    /* Prevent FOUC if GSAP hasn't run yet — hero is visible by default,
+       GSAP animates FROM hidden. No JS = no flash of invisible content. */
+    .no-js .hero-h1, .no-js .hero-lead, .no-js .hero-ctas { opacity: 1 !important; transform: none !important; }
     .hero-h1 {
       font-family: 'DM Serif Display', serif; font-style: italic;
       font-size: clamp(40px, 5vw, 58px); line-height: 1.08;
@@ -452,18 +455,20 @@
   gsap.registerPlugin(ScrollTrigger);
 
   window.addEventListener('load', () => {
+    // Refresh after fonts/images settle
     ScrollTrigger.refresh();
-  });
 
-  /* ─────────────────────────────────────────
-     1. HERO ENTRANCE — unchanged, plays on load
-  ───────────────────────────────────────── */
-  const heroTl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-  heroTl.from('.nav',                 { autoAlpha: 0, duration: 0.5 }, 0.1);
-  heroTl.from('.hero-tag, .hero-dot', { autoAlpha: 0, y: 10, stagger: 0.07, duration: 0.5 }, 0.3);
-  heroTl.from('.hero-h1',             { y: '100%', duration: 0.95, ease: 'power4.out' }, 0.45);
-  heroTl.from('.hero-lead',           { autoAlpha: 0, y: 14, duration: 0.7 }, 0.75);
-  heroTl.from('.hero-ctas',           { autoAlpha: 0, y: 8,  duration: 0.5 }, 1.0);
+    /* ─────────────────────────────────────────
+       1. HERO ENTRANCE — fires after load so
+       font metrics are correct for y:'100%'
+    ───────────────────────────────────────── */
+    const heroTl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+    heroTl.from('.nav',                 { autoAlpha: 0, duration: 0.5 }, 0.1);
+    heroTl.from('.hero-tag, .hero-dot', { autoAlpha: 0, y: 10, stagger: 0.07, duration: 0.5 }, 0.3);
+    heroTl.from('.hero-h1',             { y: '100%', duration: 0.95, ease: 'power4.out' }, 0.45);
+    heroTl.from('.hero-lead',           { autoAlpha: 0, y: 14, duration: 0.7 }, 0.75);
+    heroTl.from('.hero-ctas',           { autoAlpha: 0, y: 8,  duration: 0.5 }, 1.0);
+  });
 
   /* ─────────────────────────────────────────
      2. HERO IMAGE — strong scrubbed parallax
