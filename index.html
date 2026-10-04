@@ -230,6 +230,186 @@
     .footer-links a.secondary { font-size: 14px; color: var(--ink-3); transition: color 0.2s ease; }
     .footer-links a.secondary:hover { color: var(--ink); }
     .footer-bottom { margin-top: 64px; font-size: 12px; color: var(--ink-3); }
+
+    /* ─────────────────────────────────────────
+       SPHERE → PROTOTYPE SEQUENCE
+    ───────────────────────────────────────── */
+    .proto-stage {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 80px var(--col-pad) 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Sphere */
+    .sphere-wrap {
+      position: relative;
+      width: 96px;
+      height: 96px;
+      cursor: pointer;
+      flex-shrink: 0;
+      opacity: 0;
+      visibility: hidden;
+    }
+    .sphere {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      position: relative;
+      background: radial-gradient(circle at 38% 115%, #3a3835 0%, #1c1b19 40%, #0a0a09 100%);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35), 0 4px 16px rgba(0,0,0,0.2), inset 0 -4px 12px rgba(0,0,0,0.4);
+    }
+    .sphere::before {
+      content: '';
+      position: absolute;
+      top: 4%; left: 8%;
+      width: 88%; height: 88%;
+      border-radius: 50%;
+      background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.06) 30%, rgba(255,255,255,0) 60%);
+      filter: blur(3px);
+      z-index: 2;
+    }
+    .sphere::after {
+      content: '';
+      position: absolute;
+      bottom: 2%; left: 15%;
+      width: 70%; height: 30%;
+      border-radius: 50%;
+      background: radial-gradient(circle at 50% 100%, rgba(180,160,120,0.18) 0%, rgba(180,160,120,0) 70%);
+      z-index: 2;
+    }
+    .sphere-shadow {
+      position: absolute;
+      bottom: -12px; left: 50%;
+      transform: translateX(-50%);
+      width: 64px; height: 12px;
+      background: radial-gradient(ellipse, rgba(0,0,0,0.2) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    /* CTA text */
+    .sphere-cta {
+      text-align: center;
+      width: 100%;
+      max-width: 560px;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .sphere-cta.is-active { pointer-events: all; }
+    .sphere-cta-label {
+      display: block;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      margin-bottom: 10px;
+    }
+    .sphere-cta-main {
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-size: clamp(24px, 3.5vw, 40px);
+      color: var(--ink);
+      line-height: 1.15;
+      display: block;
+      margin-bottom: 18px;
+    }
+    .sphere-cta-sub {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink-2);
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .sphere-cta-sub:hover { color: var(--ink); }
+    .sphere-cta-sub::after { content: '→'; }
+
+    /* Prototype card */
+    .proto-card {
+      width: 100%;
+      max-width: 100%;
+      background: var(--bg);
+      border-radius: 14px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.08), 0 24px 64px rgba(0,0,0,0.06);
+      border: 1px solid rgba(0,0,0,0.05);
+      overflow: hidden;
+      opacity: 0;
+      visibility: hidden;
+      height: 0;
+      flex-shrink: 0;
+    }
+    .proto-viewport {
+      width: 100%;
+      background: #0e0e0d;
+      position: relative;
+      overflow: hidden;
+    }
+    .proto-iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+    .proto-footer {
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      border-top: 1px solid var(--rule);
+      background: var(--bg);
+      flex-shrink: 0;
+    }
+    .proto-versions { display: flex; gap: 8px; }
+    .proto-ver-btn {
+      padding: 5px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--rule);
+      background: transparent;
+      color: var(--ink-3);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .proto-ver-btn.active { border-color: var(--ink-2); color: var(--ink); }
+    .proto-ver-btn:hover:not(.active) { border-color: var(--ink-3); color: var(--ink-2); }
+    .proto-action-btn {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      border: 1px solid var(--rule);
+      background: transparent;
+      color: var(--ink-3);
+      font-size: 12px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color 0.2s, color 0.2s;
+      line-height: 1;
+    }
+    .proto-action-btn:hover { border-color: var(--ink-2); color: var(--ink); }
+
+    /* Thumb label */
+    .proto-thumb-label {
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      margin-top: 14px;
+      opacity: 0;
+      visibility: hidden;
+    }
   </style>
 </head>
 <body>
@@ -368,6 +548,49 @@
       <span class="process-label">Day 3</span>
     </div>
   </div>
+
+  <!-- ─── SPHERE → PROTOTYPE SEQUENCE ─── -->
+  <section class="proto-stage" id="proto-stage">
+
+    <!-- State 1: Sphere -->
+    <div class="sphere-wrap" id="sphere-wrap">
+      <div class="sphere" id="sphere"></div>
+      <div class="sphere-shadow"></div>
+    </div>
+
+    <!-- State 2: CTA text -->
+    <div class="sphere-cta" id="sphere-cta">
+      <span class="sphere-cta-label">Centronic MMA · Interactive</span>
+      <span class="sphere-cta-main">Feel the interface<br>before reading about it</span>
+      <span class="sphere-cta-sub" id="cta-trigger">Explore the UI</span>
+    </div>
+
+    <!-- States 3 + 4: Prototype card -->
+    <div class="proto-card" id="proto-card">
+      <div class="proto-viewport" id="proto-viewport">
+        <iframe
+          id="proto-iframe"
+          class="proto-iframe"
+          src="/prototypes/v1/index.html"
+          title="ACP HMI Prototype V1"
+          allow="fullscreen"
+          loading="lazy"
+        ></iframe>
+      </div>
+      <div class="proto-footer">
+        <div class="proto-versions">
+          <button class="proto-ver-btn active" data-v="1">Version 1</button>
+          <button class="proto-ver-btn" data-v="2">Version 2</button>
+        </div>
+        <button class="proto-action-btn" id="proto-action-btn" title="Close">✕</button>
+      </div>
+    </div>
+
+    <!-- Thumbnail label (visible in thumbnail state) -->
+    <div class="proto-thumb-label" id="proto-thumb-label">↓ Scroll to reveal chapters</div>
+
+  </section>
+  <!-- ─── /SPHERE → PROTOTYPE SEQUENCE ─── -->
 
   <div class="container">
 
@@ -670,6 +893,136 @@
   gsap.from('.footer-links', {
     autoAlpha: 0, y: 12, duration: 0.7, delay: 0.3, ease: 'power2.out',
     scrollTrigger: { trigger: '.footer-cta', start: 'top 80%', toggleActions: 'play none none none' }
+  });
+
+})();
+</script>
+
+<!-- ─── SPHERE → PROTOTYPE SEQUENCE JS ─── -->
+<script>
+(function () {
+
+  const sphereWrap      = document.getElementById('sphere-wrap');
+  const sphere          = document.getElementById('sphere');
+  const sphereCta       = document.getElementById('sphere-cta');
+  const ctaTrigger      = document.getElementById('cta-trigger');
+  const protoCard       = document.getElementById('proto-card');
+  const protoViewport   = document.getElementById('proto-viewport');
+  const protoIframe     = document.getElementById('proto-iframe');
+  const protoActionBtn  = document.getElementById('proto-action-btn');
+  const thumbLabel      = document.getElementById('proto-thumb-label');
+
+  if (!sphereWrap) return; // guard if section not present
+
+  let floatTween = null;
+  let state = 'init';
+  const FOOTER_H = 52;
+
+  function setActionIcon(mode) {
+    protoActionBtn.textContent = mode === 'close' ? '✕' : '⤢';
+    protoActionBtn.title       = mode === 'close' ? 'Close' : 'Expand';
+  }
+
+  function hideAll() {
+    if (floatTween) { floatTween.kill(); floatTween = null; }
+    gsap.killTweensOf([sphereWrap, sphere, sphereCta, protoCard, thumbLabel]);
+    gsap.set(sphereWrap,  { autoAlpha: 0, y: 0, scale: 1 });
+    gsap.set(sphereCta,   { autoAlpha: 0, visibility: 'hidden' });
+    gsap.set(protoCard,   { autoAlpha: 0, visibility: 'hidden', height: 0, width: '100%' });
+    gsap.set(protoViewport, { height: 0 });
+    gsap.set(thumbLabel,  { autoAlpha: 0, visibility: 'hidden' });
+  }
+
+  /* STATE 1: SPHERE BOUNCE-IN */
+  function showSphere() {
+    hideAll();
+    state = 'sphere';
+    gsap.set(sphereWrap, { autoAlpha: 1, visibility: 'visible', y: -320, scale: 0.4 });
+    const tl = gsap.timeline();
+    tl.to(sphereWrap, { y: 0, scale: 1, duration: 1.1, ease: 'bounce.out' })
+      .to(sphere, { scaleY: 0.88, scaleX: 1.06, duration: 0.1, ease: 'power2.in', transformOrigin: 'bottom center' }, '-=0.04')
+      .to(sphere, { scaleY: 1, scaleX: 1, duration: 0.4, ease: 'elastic.out(1, 0.5)', transformOrigin: 'bottom center' })
+      .call(() => {
+        floatTween = gsap.to(sphereWrap, { y: -8, duration: 1.8, ease: 'sine.inOut', repeat: -1, yoyo: true });
+      }, [], '+=0.2');
+  }
+
+  /* STATE 2: SPHERE → CTA */
+  function showCta() {
+    hideAll();
+    state = 'cta';
+    gsap.set(sphereWrap, { autoAlpha: 1, visibility: 'visible', y: 0, scale: 1 });
+    gsap.set(sphereCta,  { visibility: 'visible' });
+    const tl = gsap.timeline();
+    tl.to(sphereWrap, { scale: 0, autoAlpha: 0, duration: 0.4, ease: 'power3.in' })
+      .to(sphereCta,   { autoAlpha: 1, duration: 0.5, ease: 'power2.out' }, '-=0.05')
+      .from('.sphere-cta-label', { y: 8, autoAlpha: 0, duration: 0.35, ease: 'power2.out' }, '<')
+      .from('.sphere-cta-main',  { y: 14, autoAlpha: 0, duration: 0.5, ease: 'power3.out' }, '<+0.08')
+      .from('.sphere-cta-sub',   { y: 8, autoAlpha: 0, duration: 0.3, ease: 'power2.out' }, '<+0.12');
+    sphereCta.classList.add('is-active');
+  }
+
+  /* STATE 3: EXPAND TO FULL FRAME */
+  function showFrame() {
+    hideAll();
+    state = 'frame';
+    const stage   = document.getElementById('proto-stage');
+    const availH  = window.innerHeight - 120;
+    const cardH   = Math.min(availH, 680);
+    const viewH   = cardH - FOOTER_H;
+
+    gsap.set(protoCard,     { autoAlpha: 1, visibility: 'visible', height: 0, width: '100%', borderRadius: '14px' });
+    gsap.set(protoViewport, { height: 0 });
+    setActionIcon('close');
+
+    const tl = gsap.timeline();
+    tl.to(protoCard,     { height: cardH, duration: 0.65, ease: 'power3.inOut' })
+      .to(protoViewport, { height: viewH, duration: 0.65, ease: 'power3.inOut' }, '<')
+      .from('.proto-footer', { autoAlpha: 0, y: 6, duration: 0.25, ease: 'power2.out' }, '-=0.15');
+  }
+
+  /* STATE 4: SHRINK TO THUMBNAIL */
+  function showThumbnail() {
+    hideAll();
+    state = 'thumbnail';
+    const thumbW = Math.min(820, window.innerWidth - 96);
+    const thumbH = Math.min(window.innerHeight - 96 - 40, 480);
+    const viewH  = thumbH - FOOTER_H;
+    const fullH  = Math.min(window.innerHeight - 120, 680);
+
+    setActionIcon('expand');
+    gsap.set(protoCard,     { autoAlpha: 1, visibility: 'visible', height: fullH, width: '100%', borderRadius: '14px' });
+    gsap.set(protoViewport, { height: fullH - FOOTER_H });
+    gsap.set(thumbLabel,    { autoAlpha: 1, visibility: 'visible' });
+
+    const tl = gsap.timeline();
+    tl.to(protoCard,     { width: thumbW, height: thumbH, duration: 0.7, ease: 'power3.inOut' })
+      .to(protoViewport, { height: viewH, duration: 0.7, ease: 'power3.inOut' }, '<')
+      .from(thumbLabel,  { autoAlpha: 0, y: 6, duration: 0.35, ease: 'power2.out' }, '-=0.1');
+  }
+
+  /* INLINE INTERACTIONS */
+  sphereWrap.addEventListener('click',  () => { if (state === 'sphere') showCta(); });
+  ctaTrigger.addEventListener('click',  showFrame);
+  protoActionBtn.addEventListener('click', () => {
+    if (state === 'frame')     showThumbnail();
+    else if (state === 'thumbnail') showFrame();
+  });
+
+  document.querySelectorAll('.proto-ver-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.proto-ver-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      protoIframe.src = `/prototypes/v${btn.dataset.v}/index.html`;
+    });
+  });
+
+  /* ScrollTrigger: enter viewport → trigger sphere bounce */
+  ScrollTrigger.create({
+    trigger: '#proto-stage',
+    start: 'top 70%',
+    once: true,
+    onEnter: () => showSphere()
   });
 
 })();
