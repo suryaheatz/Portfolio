@@ -245,8 +245,9 @@
       z-index: 200;
       background: #0e0e0d;
       overflow: hidden;
-      /* box-shadow set dynamically */
+      /* top/left/right/bottom/width/height/borderRadius all animated by GSAP */
     }
+    /* Sphere state: radial gradient set inline by JS */
 
     .sphere-surface {
       position: absolute;
@@ -918,307 +919,293 @@
   const trigger      = document.getElementById('proto-trigger');
   const morphEl      = document.getElementById('morph-el');
   const sphereShadow = document.getElementById('sphere-shadow');
-  const sphereSurf   = morphEl ? morphEl.querySelector('.sphere-surface') : null;
-  const protoCopy    = morphEl ? morphEl.querySelector('.proto-copy') : null;
+  const sphereSurf   = morphEl && morphEl.querySelector('.sphere-surface');
+  const protoCopy    = morphEl && morphEl.querySelector('.proto-copy');
   const protoCta     = document.getElementById('proto-cta');
   const ctaLink      = document.getElementById('cta-link');
   const protoFrame   = document.getElementById('proto-frame');
   const protoIframe  = document.getElementById('proto-iframe');
   const actionBtn    = document.getElementById('proto-action-btn');
-
   if (!trigger || !morphEl) return;
 
-  /* ── Constants ── */
-  const SPHERE_SIZE = 96;
-  const FLOOR_PAD   = 48; // gap from actual viewport bottom edge
+  const S = 96;   // sphere diameter px
+  const PAD = 40; // floor gap px
 
-  /* ── State ── */
-  let state      = 'idle';   // idle | bouncing | sphere | morphing | rect | cta | proto
+  let state = 'idle';
   let floatTween = null;
   let scrollLocked = false;
-  let shrinkST     = null;
 
-  /* ── Helpers ── */
-  function restingTop()    { return window.innerHeight - SPHERE_SIZE - FLOOR_PAD; }
-  function sphereCenterX() { return (window.innerWidth  - SPHERE_SIZE) / 2; }
+  function vw() { return window.innerWidth; }
+  function vh() { return window.innerHeight; }
 
-  /* ── Scroll lock (prevents scrolling while waiting for CTA click) ── */
-  function preventScroll(e) { e.preventDefault(); }
-  function lockScroll() {
-    if (scrollLocked) return;
-    scrollLocked = true;
-    window.addEventListener('wheel',     preventScroll, { passive: false });
-    window.addEventListener('touchmove', preventScroll, { passive: false });
-  }
-  function unlockScroll() {
-    if (!scrollLocked) return;
-    scrollLocked = false;
-    window.removeEventListener('wheel',     preventScroll);
-    window.removeEventListener('touchmove', preventScroll);
+  // Ball rests at bottom of viewport. These are its edges as CSS inset values
+  // (inset = top, right, bottom, left — all measured from viewport edges)
+  function sphereInset() {
+    var ballTop  = vh() - S - PAD;        // top edge of ball
+    var ballLeft = (vw() - S) / 2;        // left edge of ball
+    return {
+      top:    ballTop,
+      right:  vw() - ballLeft - S,        // gap from right viewport edge
+      bottom: PAD,                         // gap from bottom viewport edge
+      left:   ballLeft
+    };
   }
 
-  /* ── Initial hidden state ── */
+  // Scroll lock
+  function noScroll(e) { e.preventDefault(); }
+  function lockScroll()   { if (!scrollLocked) { scrollLocked = true;  window.addEventListener('wheel', noScroll, { passive: false }); window.addEventListener('touchmove', noScroll, { passive: false }); } }
+  function unlockScroll() { if (scrollLocked)  { scrollLocked = false; window.removeEventListener('wheel', noScroll); window.removeEventListener('touchmove', noScroll); } }
+
+  // Hide everything initially
   gsap.set(morphEl,      { display: 'none' });
   gsap.set(sphereShadow, { display: 'none' });
-  gsap.set(protoCopy,    { visibility: 'hidden', opacity: 0 });
-  gsap.set(protoCta,     { visibility: 'hidden', opacity: 0 });
-  gsap.set(protoFrame,   { visibility: 'hidden', opacity: 0 });
+  gsap.set([protoCopy, protoCta, protoFrame], { autoAlpha: 0 });
 
-  /* ── BOUNCE ── */
+  /* ─── PHASE 1: BOUNCE ─── */
   function playBounce() {
     if (state !== 'idle') return;
     state = 'bouncing';
 
-    const restY   = restingTop();
-    const centerX = sphereCenterX();
+    var ins = sphereInset();
 
-    // Show morph-el as a sphere at top of viewport
+    // Position ball above viewport, centered horizontally
     gsap.set(morphEl, {
-      display:      'block',
-      position:     'fixed',
-      width:        SPHERE_SIZE,
-      height:       SPHERE_SIZE,
+      display: 'block',
+      position: 'fixed',
+      // Use inset so all four edges are defined — morph will animate these
+      top:    -(S + 80),
+      left:   ins.left,
+      right:  ins.right,
+      bottom: 'auto',
+      width:  S,
+      height: S,
       borderRadius: '50%',
-      left:         centerX,
-      top:          -(SPHERE_SIZE + 80),
-      boxShadow:    '0 20px 60px rgba(0,0,0,0.45), 0 4px 16px rgba(0,0,0,0.25), inset 0 -4px 12px rgba(0,0,0,0.4)',
-    });
-
-    // Radial sphere appearance
-    gsap.set(morphEl, {
       background: 'radial-gradient(circle at 38% 115%, #3a3835 0%, #1c1b19 40%, #0a0a09 100%)',
+      boxShadow: '0 20px 60px rgba(0,0,0,0.45), 0 4px 16px rgba(0,0,0,0.25)',
     });
 
-    // Shadow at rest position
     gsap.set(sphereShadow, {
       display: 'block',
-      left:    centerX + (SPHERE_SIZE - 68) / 2,
-      top:     restY + SPHERE_SIZE + 2,
+      position: 'fixed',
+      left:   ins.left + (S - 68) / 2,
+      top:    ins.top + S + 2,
+      opacity: 1,
     });
 
-    // Drop with bounce
+    // Drop to floor
     gsap.to(morphEl, {
-      top:      restY,
+      top: ins.top,
       duration: 1.2,
-      ease:     'bounce.out',
-      onComplete() {
+      ease: 'bounce.out',
+      onComplete: function() {
         // Squish
         gsap.to(morphEl, {
-          scaleY:          0.82,
-          scaleX:          1.12,
-          duration:        0.08,
-          ease:            'power2.in',
-          transformOrigin: 'center bottom',
-          onComplete() {
-            // Elastic recovery
+          scaleY: 0.82, scaleX: 1.12, duration: 0.08,
+          ease: 'power2.in', transformOrigin: 'center bottom',
+          onComplete: function() {
+            // Spring back
             gsap.to(morphEl, {
-              scaleY:          1,
-              scaleX:          1,
-              duration:        0.55,
-              ease:            'elastic.out(1, 0.45)',
-              transformOrigin: 'center bottom',
-              onComplete() {
+              scaleY: 1, scaleX: 1, duration: 0.55,
+              ease: 'elastic.out(1, 0.45)', transformOrigin: 'center bottom',
+              onComplete: function() {
                 state = 'sphere';
-                // Idle float
                 floatTween = gsap.to(morphEl, {
-                  top:      restY - 7,
-                  duration: 1.7,
-                  ease:     'sine.inOut',
-                  repeat:   -1,
-                  yoyo:     true,
+                  top: ins.top - 7, duration: 1.7,
+                  ease: 'sine.inOut', repeat: -1, yoyo: true
                 });
-              },
+              }
             });
-          },
+          }
         });
-      },
+      }
     });
   }
 
-  /* ── MORPH TIMELINE (scrubbed by ScrollTrigger) ── */
-  const morphTl = gsap.timeline({ paused: true })
+  /* ─── PHASE 2: MORPH (scroll-scrubbed) ─── */
+  // Build the timeline once. At scrub-time GSAP reads live "from" values,
+  // so we set the start state explicitly in onStart / via the entry trigger.
+  var morphTl = gsap.timeline({ paused: true })
     .addLabel('start')
 
-    // Kill float, clear squish residuals, then animate sphere → full-viewport rect
-    .call(function () {
-      if (floatTween) { floatTween.kill(); floatTween = null; }
-      gsap.set(morphEl, { clearProps: 'transform,background' });
-      // Force dark solid background for the rect state
-      morphEl.style.background = '#0e0e0d';
-    })
-
+    // Step 1: ball expands outward to fill entire viewport
+    // We animate top→0, left→0, right→0, bottom→0, borderRadius→0
+    // simultaneously. This is the four-edges-outward approach.
     .to(morphEl, {
-      top:          0,
-      left:         0,
-      width:        '100vw',
-      height:       '100vh',
+      top: 0, left: 0, right: 0, bottom: 0,
+      width: '100vw', height: '100vh',
       borderRadius: 0,
-      boxShadow:    'none',
-      duration:     1,
-      ease:         'none',
+      boxShadow: 'none',
+      duration: 1, ease: 'none',
+      onStart: function() {
+        if (floatTween) { floatTween.kill(); floatTween = null; }
+        gsap.set(morphEl, { clearProps: 'transform', background: '#0e0e0d' });
+      }
     })
-    .to(sphereSurf,    { autoAlpha: 0, duration: 0.4 }, '<')
-    .to(sphereShadow,  { autoAlpha: 0, duration: 0.2 }, '<')
+    .to(sphereSurf,   { autoAlpha: 0, duration: 0.4 }, '<')
+    .to(sphereShadow, { autoAlpha: 0, duration: 0.3 }, '<')
 
     .addLabel('rect-done')
 
-    // Text rises from the abyss
+    // Step 2: text rises from inside the dark rect
     .set(protoCopy, { visibility: 'visible' }, 'rect-done')
-    .to(protoCopy,  { opacity: 1, duration: 0.01 }, 'rect-done')
     .fromTo('.proto-copy-label',
-      { y: 30, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.4, ease: 'power2.out' },
-      'rect-done+=0.05'
+      { y: 28, autoAlpha: 0 },
+      { y: 0, autoAlpha: 1, duration: 0.4, ease: 'power2.out' },
+      'rect-done'
     )
     .fromTo('.proto-copy-headline',
-      { y: 50, opacity: 0 },
-      { y: 0, opacity: 1, duration: 0.5, ease: 'power3.out' },
-      'rect-done+=0.12'
+      { y: 44, autoAlpha: 0 },
+      { y: 0, autoAlpha: 1, duration: 0.5, ease: 'power3.out' },
+      'rect-done+=0.1'
     )
 
     .addLabel('text-visible')
 
-    // Text fades, CTA appears and stays
-    .to(protoCopy,  { opacity: 0, duration: 0.35 }, 'text-visible+=0.3')
-    .set(protoCopy, { visibility: 'hidden' },        'text-visible+=0.66')
-    .set(protoCta,  { visibility: 'visible' },       'text-visible+=0.3')
-    .to(protoCta,   { opacity: 1, duration: 0.4, ease: 'power2.out' }, 'text-visible+=0.45')
+    // Step 3: text fades, CTA stays
+    .to(protoCopy, { autoAlpha: 0, duration: 0.3 }, 'text-visible+=0.2')
+    .fromTo(protoCta,
+      { autoAlpha: 0 },
+      { autoAlpha: 1, duration: 0.4, ease: 'power2.out' },
+      'text-visible+=0.35'
+    )
 
     .addLabel('cta-visible');
 
-  /* ── MORPH SCROLL TRIGGER (pins proto-trigger, scrubs morphTl) ── */
-  let lockDebounce = null;
-
+  /* ─── SCROLL TRIGGER: pin + scrub morph ─── */
   ScrollTrigger.create({
     trigger:       trigger,
     start:         'top top',
-    end:           '+=200%',
+    end:           '+=250%',
     pin:           true,
     anticipatePin: 1,
-    scrub:         1.5,
+    scrub:         1.2,
     animation:     morphTl,
-    snap: {
-      snapTo:   'labels',
-      duration: { min: 0.2, max: 0.55 },
-      delay:    0.05,
-      ease:     'power1.inOut',
-    },
-    onUpdate(self) {
-      // When morph completes (progress ≥ 0.95), lock scroll until CTA click
-      if (self.progress >= 0.95 && !scrollLocked && state === 'sphere') {
-        if (lockDebounce) clearTimeout(lockDebounce);
-        lockDebounce = setTimeout(function () {
-          if (self.progress >= 0.95 && !scrollLocked) {
-            state = 'cta';
-            protoCta.classList.add('is-active');
-            lockScroll();
-          }
-        }, 600);
+    onLeave: function() {
+      // Fully morphed — lock scroll, enable CTA
+      if (state === 'sphere' || state === 'bouncing') {
+        state = 'cta';
+        protoCta.classList.add('is-active');
+        lockScroll();
       }
     },
+    onLeaveBack: function() {
+      // User scrolled back to top — reset
+      unlockScroll();
+      state = 'idle';
+      protoCta.classList.remove('is-active');
+      // Hide morph-el; bounce will re-fire when they scroll down again
+      gsap.set(morphEl, { display: 'none' });
+      gsap.set(sphereShadow, { display: 'none', autoAlpha: 1 });
+      gsap.set([protoCopy, protoCta], { autoAlpha: 0, visibility: 'hidden' });
+    }
   });
 
-  /* ── ENTRY TRIGGER (bounce fires when proto-trigger enters viewport) ── */
+  /* ─── ENTRY TRIGGER: fire bounce when section arrives ─── */
   ScrollTrigger.create({
     trigger: trigger,
-    start:   'top 85%',
+    start:   'top 90%',
     once:    true,
     onEnter: playBounce,
   });
 
-  /* ── CTA CLICK → load prototype ── */
-  ctaLink.addEventListener('click', function () {
-    if (state !== 'cta') return;
-    state = 'proto';
-    unlockScroll();
+  /* ─── CTA CLICK: load prototype ─── */
+  if (ctaLink) {
+    ctaLink.addEventListener('click', function () {
+      if (state !== 'cta') return;
+      state = 'proto';
+      unlockScroll();
 
-    // Load iframe
-    protoIframe.src = protoIframe.dataset.src || '/prototypes/v1/index.html';
+      protoIframe.src = protoIframe.dataset.src || '/prototypes/v1/index.html';
 
-    // Fade CTA, reveal frame
-    gsap.to(protoCta, { opacity: 0, duration: 0.3, onComplete: function () {
-      gsap.set(protoCta, { visibility: 'hidden' });
-      protoCta.classList.remove('is-active');
-    }});
-
-    gsap.set(protoFrame, { visibility: 'visible' });
-    gsap.to(protoFrame, {
-      opacity:  1,
-      duration: 0.5,
-      ease:     'power2.out',
-      onComplete: function () {
-        protoFrame.classList.add('is-active');
-        setupShrinkTrigger();
-      },
-    });
-  });
-
-  /* ── SHRINK TRIGGER: scroll after prototype → morph rect → thumbnail → fade ── */
-  function setupShrinkTrigger() {
-    // Find the chapter section that lives after the proto-trigger
-    const chapterSection = document.querySelector('.chapter-list');
-    if (!chapterSection || shrinkST) return;
-
-    const thumbW = Math.min(480, window.innerWidth - 48);
-    const thumbH = Math.round(thumbW * 0.66);
-    const thumbL = (window.innerWidth  - thumbW) / 2;
-    const thumbT = (window.innerHeight - thumbH) / 2;
-
-    const shrinkTl = gsap.timeline({ paused: true })
-      .addLabel('shrink-start')
-      .to(morphEl, {
-        top:          thumbT,
-        left:         thumbL,
-        width:        thumbW,
-        height:       thumbH,
-        borderRadius: 10,
-        boxShadow:    '0 8px 40px rgba(0,0,0,0.45)',
-        duration:     1,
-        ease:         'none',
-      })
-      .addLabel('thumbnail')
-      .to(protoFrame, { opacity: 0, duration: 0.15 }, 'thumbnail')
-      .to(morphEl,    { opacity: 0, duration: 0.25, ease: 'power2.out' }, 'thumbnail+=0.1');
-
-    shrinkST = ScrollTrigger.create({
-      trigger:   chapterSection,
-      start:     'top 90%',
-      end:       '+=100%',
-      scrub:     1.5,
-      animation: shrinkTl,
+      gsap.to(protoCta, { autoAlpha: 0, duration: 0.25 });
+      gsap.set(protoFrame, { visibility: 'visible' });
+      gsap.to(protoFrame, {
+        autoAlpha: 1, duration: 0.45, ease: 'power2.out',
+        onComplete: function() {
+          protoFrame.classList.add('is-active');
+          setupShrink();
+        }
+      });
     });
   }
 
-  /* ── Shrink button (manual) ── */
-  if (actionBtn) {
-    actionBtn.addEventListener('click', function () {
-      if (state === 'proto') {
-        // Manual trigger: simulate shrink
-        protoFrame.classList.remove('is-active');
-        gsap.to(protoFrame, { opacity: 0, duration: 0.3 });
-        const thumbW = Math.min(480, window.innerWidth - 48);
-        const thumbH = Math.round(thumbW * 0.66);
-        const thumbL = (window.innerWidth  - thumbW) / 2;
-        const thumbT = (window.innerHeight - thumbH) / 2;
+  /* ─── SHRINK: two separate scroll phases ─── */
+  // Phase A: proto rect → thumbnail (locks in place)
+  // Phase B: thumbnail sits still → chapters appear below
+  function setupShrink() {
+    var chapters = document.querySelector('.chapter-list');
+    if (!chapters) return;
+
+    var thumbW = Math.min(460, vw() - 48);
+    var thumbH = Math.round(thumbW * 0.65);
+    var thumbL = (vw()  - thumbW) / 2;
+    var thumbT = (vh() - thumbH) / 2;
+
+    // Phase A: scroll 150vh → rect shrinks to thumbnail, stays fixed
+    var shrinkTl = gsap.timeline({ paused: true })
+      .to(protoFrame, { autoAlpha: 0, duration: 0.2 }, 0)
+      .to(morphEl, {
+        top: thumbT, left: thumbL, right: 'auto', bottom: 'auto',
+        width: thumbW, height: thumbH,
+        borderRadius: 10,
+        boxShadow: '0 8px 40px rgba(0,0,0,0.35)',
+        duration: 1, ease: 'none'
+      }, 0);
+
+    // A spacer div below the chapter list that gives scroll room for Phase A
+    var spacer = document.createElement('div');
+    spacer.style.cssText = 'height:150vh;pointer-events:none;';
+    chapters.parentElement.insertBefore(spacer, chapters);
+
+    ScrollTrigger.create({
+      trigger:   spacer,
+      start:     'top bottom',
+      end:       'bottom bottom',
+      scrub:     1.2,
+      animation: shrinkTl,
+      onLeave: function() {
+        // Phase A done — thumbnail is locked. Now fade it and let chapters rise.
         gsap.to(morphEl, {
-          top: thumbT, left: thumbL, width: thumbW, height: thumbH,
-          borderRadius: 10, duration: 0.7, ease: 'power3.inOut',
-          onComplete: function () {
-            gsap.to(morphEl, { opacity: 0, duration: 0.4, ease: 'power2.out' });
+          autoAlpha: 0, duration: 0.4, ease: 'power2.out',
+          onComplete: function() {
+            gsap.set(morphEl, { display: 'none' });
+            // Remove spacer so chapters flow naturally
+            if (spacer.parentElement) spacer.parentElement.removeChild(spacer);
+            ScrollTrigger.refresh();
           }
         });
       }
     });
   }
 
-  /* ── V1 / V2 version buttons ── */
-  document.querySelectorAll('.proto-ver-btn').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      document.querySelectorAll('.proto-ver-btn').forEach(function (b) { b.classList.remove('active'); });
+  /* ─── Version buttons ─── */
+  document.querySelectorAll('.proto-ver-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.proto-ver-btn').forEach(function(b) { b.classList.remove('active'); });
       btn.classList.add('active');
       protoIframe.src = '/prototypes/v' + btn.dataset.v + '/index.html';
     });
   });
+
+  /* ─── Shrink button ─── */
+  if (actionBtn) {
+    actionBtn.addEventListener('click', function() {
+      if (state !== 'proto') return;
+      protoFrame.classList.remove('is-active');
+      var thumbW = Math.min(460, vw() - 48);
+      var thumbH = Math.round(thumbW * 0.65);
+      gsap.to(protoFrame, { autoAlpha: 0, duration: 0.25 });
+      gsap.to(morphEl, {
+        top: (vh()-thumbH)/2, left: (vw()-thumbW)/2,
+        right: 'auto', bottom: 'auto',
+        width: thumbW, height: thumbH,
+        borderRadius: 10, duration: 0.6, ease: 'power3.inOut',
+        onComplete: function() {
+          gsap.to(morphEl, { autoAlpha: 0, delay: 0.3, duration: 0.4 });
+        }
+      });
+    });
+  }
 
 })();
 </script>
