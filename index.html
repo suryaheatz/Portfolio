@@ -938,16 +938,11 @@
   function vw() { return window.innerWidth; }
   function vh() { return window.innerHeight; }
 
-  // Ball rests at bottom of viewport. These are its edges as CSS inset values
-  // (inset = top, right, bottom, left — all measured from viewport edges)
-  function sphereInset() {
-    var ballTop  = vh() - S - PAD;        // top edge of ball
-    var ballLeft = (vw() - S) / 2;        // left edge of ball
+  // Sphere resting position — top-left corner only (width/height explicit)
+  function spherePos() {
     return {
-      top:    ballTop,
-      right:  vw() - ballLeft - S,        // gap from right viewport edge
-      bottom: PAD,                         // gap from bottom viewport edge
-      left:   ballLeft
+      top:  vh() - S - PAD,
+      left: (vw() - S) / 2,
     };
   }
 
@@ -966,37 +961,38 @@
     if (state !== 'idle') return;
     state = 'bouncing';
 
-    var ins = sphereInset();
+    var pos = spherePos();
 
-    // Position ball above viewport, centered horizontally
+    // Position ball above viewport — explicit top+left+width+height ONLY (no right/bottom)
+    // This avoids the CSS conflict where position:fixed with left+right+width is ambiguous
     gsap.set(morphEl, {
-      display: 'block',
-      position: 'fixed',
-      // Use inset so all four edges are defined — morph will animate these
-      top:    -(S + 80),
-      left:   ins.left,
-      right:  ins.right,
-      bottom: 'auto',
-      width:  S,
-      height: S,
+      display:      'block',
+      position:     'fixed',
+      top:          -(S + 80),
+      left:         pos.left,
+      right:        'auto',
+      bottom:       'auto',
+      width:        S,
+      height:       S,
       borderRadius: '50%',
-      background: 'radial-gradient(circle at 38% 115%, #3a3835 0%, #1c1b19 40%, #0a0a09 100%)',
-      boxShadow: '0 20px 60px rgba(0,0,0,0.45), 0 4px 16px rgba(0,0,0,0.25)',
+      background:   'radial-gradient(circle at 38% 115%, #3a3835 0%, #1c1b19 40%, #0a0a09 100%)',
+      boxShadow:    '0 20px 60px rgba(0,0,0,0.45), 0 4px 16px rgba(0,0,0,0.25)',
+      clearProps:   'transform',
     });
 
     gsap.set(sphereShadow, {
-      display: 'block',
+      display:  'block',
       position: 'fixed',
-      left:   ins.left + (S - 68) / 2,
-      top:    ins.top + S + 2,
-      opacity: 1,
+      left:     pos.left + (S - 68) / 2,
+      top:      vh() - PAD + 2,
+      opacity:  1,
     });
 
     // Drop to floor
     gsap.to(morphEl, {
-      top: ins.top,
+      top:      pos.top,
       duration: 1.2,
-      ease: 'bounce.out',
+      ease:     'bounce.out',
       onComplete: function() {
         // Squish
         gsap.to(morphEl, {
@@ -1008,9 +1004,22 @@
               scaleY: 1, scaleX: 1, duration: 0.55,
               ease: 'elastic.out(1, 0.45)', transformOrigin: 'center bottom',
               onComplete: function() {
+                // Clear squish transform and SWITCH to pure inset mode
+                // (right/bottom instead of width/height) — visually identical,
+                // but now position:fixed uses all four edges → morph can expand cleanly
+                var pos2 = spherePos();
+                gsap.set(morphEl, {
+                  clearProps: 'transform,scaleX,scaleY',
+                  top:    pos2.top,
+                  left:   pos2.left,
+                  right:  vw() - pos2.left - S,
+                  bottom: PAD,
+                  width:  'auto',
+                  height: 'auto',
+                });
                 state = 'sphere';
                 floatTween = gsap.to(morphEl, {
-                  top: ins.top - 7, duration: 1.7,
+                  top: pos2.top - 7, duration: 1.7,
                   ease: 'sine.inOut', repeat: -1, yoyo: true
                 });
               }
@@ -1022,31 +1031,26 @@
   }
 
   /* ─── PHASE 2: MORPH (scroll-scrubbed) ─── */
-  // Build the timeline once. At scrub-time GSAP reads live "from" values,
-  // so we set the start state explicitly in onStart / via the entry trigger.
+  // Pure inset animation — no width/height, just all four edges → 0
+  // This makes position:fixed expand outward in all directions from the ball's center
   var morphTl = gsap.timeline({ paused: true })
     .addLabel('start')
 
-    // Step 1: ball expands outward to fill entire viewport
-    // We animate top→0, left→0, right→0, bottom→0, borderRadius→0
-    // simultaneously. This is the four-edges-outward approach.
     .to(morphEl, {
       top: 0, left: 0, right: 0, bottom: 0,
-      width: '100vw', height: '100vh',
+      // NO width/height — insets alone define the rect; avoids CSS conflict
       borderRadius: 0,
-      boxShadow: 'none',
-      duration: 1, ease: 'none',
-      onStart: function() {
-        if (floatTween) { floatTween.kill(); floatTween = null; }
-        gsap.set(morphEl, { clearProps: 'transform', background: '#0e0e0d' });
-      }
+      boxShadow:    'none',
+      background:   '#0e0e0d',
+      duration:     1,
+      ease:         'none',
     })
     .to(sphereSurf,   { autoAlpha: 0, duration: 0.4 }, '<')
     .to(sphereShadow, { autoAlpha: 0, duration: 0.3 }, '<')
 
     .addLabel('rect-done')
 
-    // Step 2: text rises from inside the dark rect
+    // Text rises from inside the dark rect
     .set(protoCopy, { visibility: 'visible' }, 'rect-done')
     .fromTo('.proto-copy-label',
       { y: 28, autoAlpha: 0 },
@@ -1061,7 +1065,7 @@
 
     .addLabel('text-visible')
 
-    // Step 3: text fades, CTA stays
+    // Text fades, CTA stays
     .to(protoCopy, { autoAlpha: 0, duration: 0.3 }, 'text-visible+=0.2')
     .fromTo(protoCta,
       { autoAlpha: 0 },
@@ -1080,9 +1084,25 @@
     anticipatePin: 1,
     scrub:         1.2,
     animation:     morphTl,
+    onEnter: function() {
+      // Kill float tween before scrub takes over top/left/right/bottom
+      if (floatTween) { floatTween.kill(); floatTween = null; }
+      // Snap morph-el to live inset values from its current visual position
+      // (getBoundingClientRect gives true rendered position after float animation)
+      var rect = morphEl.getBoundingClientRect();
+      gsap.set(morphEl, {
+        top:    rect.top,
+        left:   rect.left,
+        right:  vw() - rect.right,
+        bottom: vh() - rect.bottom,
+        width:  'auto',
+        height: 'auto',
+        clearProps: 'transform',
+      });
+    },
     onLeave: function() {
       // Fully morphed — lock scroll, enable CTA
-      if (state === 'sphere' || state === 'bouncing') {
+      if (state !== 'proto' && state !== 'cta') {
         state = 'cta';
         protoCta.classList.add('is-active');
         lockScroll();
@@ -1093,7 +1113,6 @@
       unlockScroll();
       state = 'idle';
       protoCta.classList.remove('is-active');
-      // Hide morph-el; bounce will re-fire when they scroll down again
       gsap.set(morphEl, { display: 'none' });
       gsap.set(sphereShadow, { display: 'none', autoAlpha: 1 });
       gsap.set([protoCopy, protoCta], { autoAlpha: 0, visibility: 'hidden' });
@@ -1145,8 +1164,11 @@
     var shrinkTl = gsap.timeline({ paused: true })
       .to(protoFrame, { autoAlpha: 0, duration: 0.2 }, 0)
       .to(morphEl, {
-        top: thumbT, left: thumbL, right: 'auto', bottom: 'auto',
-        width: thumbW, height: thumbH,
+        // Inset-only: no width/height — avoids position:fixed CSS conflict
+        top:    thumbT,
+        left:   thumbL,
+        right:  vw() - thumbL - thumbW,
+        bottom: vh() - thumbT - thumbH,
         borderRadius: 10,
         boxShadow: '0 8px 40px rgba(0,0,0,0.35)',
         duration: 1, ease: 'none'
@@ -1195,10 +1217,11 @@
       var thumbW = Math.min(460, vw() - 48);
       var thumbH = Math.round(thumbW * 0.65);
       gsap.to(protoFrame, { autoAlpha: 0, duration: 0.25 });
+      var tL = (vw()-thumbW)/2, tT = (vh()-thumbH)/2;
       gsap.to(morphEl, {
-        top: (vh()-thumbH)/2, left: (vw()-thumbW)/2,
-        right: 'auto', bottom: 'auto',
-        width: thumbW, height: thumbH,
+        top: tT, left: tL,
+        right: vw()-tL-thumbW, bottom: vh()-tT-thumbH,
+        width: 'auto', height: 'auto',
         borderRadius: 10, duration: 0.6, ease: 'power3.inOut',
         onComplete: function() {
           gsap.to(morphEl, { autoAlpha: 0, delay: 0.3, duration: 0.4 });
