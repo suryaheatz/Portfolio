@@ -236,10 +236,12 @@
     ───────────────────────────────────────── */
     .proto-stage {
       width: 100%;
+      min-height: 80vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 80px var(--col-pad) 80px;
+      justify-content: center;
+      padding: 100px var(--col-pad);
       position: relative;
       overflow: hidden;
     }
@@ -510,43 +512,6 @@
       </div>
     </div>
 
-    <!-- CHAPTER LIST -->
-    <div class="section">
-      <p class="chapter-heading">Case study</p>
-      <ul class="chapter-list">
-        <li><span class="ch-num">01</span><span class="ch-title">The Context</span><span class="ch-desc">Why Level 4 changes everything about HMI design</span></li>
-        <li><span class="ch-num">02</span><span class="ch-title">Workshop</span><span class="ch-desc">Three days, twelve frameworks, one recurring insight</span></li>
-        <li><span class="ch-num">03</span><span class="ch-title">Research</span><span class="ch-desc">Commuter studies and the idle hand problem</span></li>
-        <li><span class="ch-num">04</span><span class="ch-title">Scenario</span><span class="ch-desc">What the cabin actually looks and feels like at speed</span></li>
-        <li><span class="ch-num">05</span><span class="ch-title">Information Architecture</span><span class="ch-desc">Six modes, zero hierarchies — the spatial IA argument</span></li>
-        <li><span class="ch-num">06</span><span class="ch-title">Hardware</span><span class="ch-desc">Industrial design of the Centronic ACP demonstrator</span></li>
-        <li><span class="ch-num">07</span><span class="ch-title">Wireframes &amp; Gesture Mapping</span><span class="ch-desc">How the knob and the screen negotiate meaning</span></li>
-        <li><span class="ch-num">08</span><span class="ch-title">Interaction Model</span><span class="ch-desc">Haptic zones, resistance values, and why the knob knows where you are</span></li>
-        <li><span class="ch-num">09</span><span class="ch-title">Design Evolution</span><span class="ch-desc">V1 → V2 → V3 — three generations, each a different hypothesis</span></li>
-        <li><span class="ch-num">10</span><span class="ch-title">Ambient Language</span><span class="ch-desc">Light, motion, and the knob as a passive information surface</span></li>
-        <li><span class="ch-num">11</span><span class="ch-title">Prototype</span><span class="ch-desc">Working MRF demonstrator with real haptic resistance</span></li>
-        <li><span class="ch-num">12</span><span class="ch-title">Impact &amp; Foresight</span><span class="ch-desc">Where the industry went next, and what this work said first</span></li>
-      </ul>
-    </div>
-
-    <!-- PROCESS label -->
-    <p class="chapter-heading" style="margin-bottom:16px;">Workshop · 3 days</p>
-  </div>
-
-  <!-- PROCESS STRIP full-bleed -->
-  <div class="process-strip">
-    <div class="process-strip-item">
-      <img src="/images/b8f283366d056c2bbe3b15b5a169202f.png" alt="Workshop Day 1">
-      <span class="process-label">Day 1</span>
-    </div>
-    <div class="process-strip-item">
-      <img src="/images/fcdec57ea0f75654030e858a5768e3b8.png" alt="Workshop Day 2">
-      <span class="process-label">Day 2</span>
-    </div>
-    <div class="process-strip-item">
-      <img src="/images/0d34723b817147da0427df4e681388fe.png" alt="Workshop Day 3">
-      <span class="process-label">Day 3</span>
-    </div>
   </div>
 
   <!-- ─── SPHERE → PROTOTYPE SEQUENCE ─── -->
@@ -591,6 +556,47 @@
 
   </section>
   <!-- ─── /SPHERE → PROTOTYPE SEQUENCE ─── -->
+
+  <div class="container">
+
+    <!-- CHAPTER LIST -->
+    <div class="section">
+      <p class="chapter-heading">Case study</p>
+      <ul class="chapter-list">
+        <li><span class="ch-num">01</span><span class="ch-title">The Context</span><span class="ch-desc">Why Level 4 changes everything about HMI design</span></li>
+        <li><span class="ch-num">02</span><span class="ch-title">Workshop</span><span class="ch-desc">Three days, twelve frameworks, one recurring insight</span></li>
+        <li><span class="ch-num">03</span><span class="ch-title">Research</span><span class="ch-desc">Commuter studies and the idle hand problem</span></li>
+        <li><span class="ch-num">04</span><span class="ch-title">Scenario</span><span class="ch-desc">What the cabin actually looks and feels like at speed</span></li>
+        <li><span class="ch-num">05</span><span class="ch-title">Information Architecture</span><span class="ch-desc">Six modes, zero hierarchies — the spatial IA argument</span></li>
+        <li><span class="ch-num">06</span><span class="ch-title">Hardware</span><span class="ch-desc">Industrial design of the Centronic ACP demonstrator</span></li>
+        <li><span class="ch-num">07</span><span class="ch-title">Wireframes &amp; Gesture Mapping</span><span class="ch-desc">How the knob and the screen negotiate meaning</span></li>
+        <li><span class="ch-num">08</span><span class="ch-title">Interaction Model</span><span class="ch-desc">Haptic zones, resistance values, and why the knob knows where you are</span></li>
+        <li><span class="ch-num">09</span><span class="ch-title">Design Evolution</span><span class="ch-desc">V1 → V2 → V3 — three generations, each a different hypothesis</span></li>
+        <li><span class="ch-num">10</span><span class="ch-title">Ambient Language</span><span class="ch-desc">Light, motion, and the knob as a passive information surface</span></li>
+        <li><span class="ch-num">11</span><span class="ch-title">Prototype</span><span class="ch-desc">Working MRF demonstrator with real haptic resistance</span></li>
+        <li><span class="ch-num">12</span><span class="ch-title">Impact &amp; Foresight</span><span class="ch-desc">Where the industry went next, and what this work said first</span></li>
+      </ul>
+    </div>
+
+    <!-- PROCESS label -->
+    <p class="chapter-heading" style="margin-bottom:16px;">Workshop · 3 days</p>
+  </div>
+
+  <!-- PROCESS STRIP full-bleed -->
+  <div class="process-strip">
+    <div class="process-strip-item">
+      <img src="/images/b8f283366d056c2bbe3b15b5a169202f.png" alt="Workshop Day 1">
+      <span class="process-label">Day 1</span>
+    </div>
+    <div class="process-strip-item">
+      <img src="/images/fcdec57ea0f75654030e858a5768e3b8.png" alt="Workshop Day 2">
+      <span class="process-label">Day 2</span>
+    </div>
+    <div class="process-strip-item">
+      <img src="/images/0d34723b817147da0427df4e681388fe.png" alt="Workshop Day 3">
+      <span class="process-label">Day 3</span>
+    </div>
+  </div>
 
   <div class="container">
 
@@ -901,111 +907,157 @@
 <!-- ─── SPHERE → PROTOTYPE SEQUENCE JS ─── -->
 <script>
 (function () {
+  if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
 
-  const sphereWrap      = document.getElementById('sphere-wrap');
-  const sphere          = document.getElementById('sphere');
-  const sphereCta       = document.getElementById('sphere-cta');
-  const ctaTrigger      = document.getElementById('cta-trigger');
-  const protoCard       = document.getElementById('proto-card');
-  const protoViewport   = document.getElementById('proto-viewport');
-  const protoIframe     = document.getElementById('proto-iframe');
-  const protoActionBtn  = document.getElementById('proto-action-btn');
-  const thumbLabel      = document.getElementById('proto-thumb-label');
+  const stage          = document.getElementById('proto-stage');
+  const sphereWrap     = document.getElementById('sphere-wrap');
+  const sphere         = document.getElementById('sphere');
+  const sphereCta      = document.getElementById('sphere-cta');
+  const ctaTrigger     = document.getElementById('cta-trigger');
+  const protoCard      = document.getElementById('proto-card');
+  const protoViewport  = document.getElementById('proto-viewport');
+  const protoIframe    = document.getElementById('proto-iframe');
+  const protoActionBtn = document.getElementById('proto-action-btn');
+  const thumbLabel     = document.getElementById('proto-thumb-label');
 
-  if (!sphereWrap) return; // guard if section not present
+  if (!stage || !sphereWrap) return;
 
-  let floatTween = null;
-  let state = 'init';
   const FOOTER_H = 52;
+  let state = 'idle';
+  let floatTween = null;
+  let frameScrollHandler = null;
 
   function setActionIcon(mode) {
     protoActionBtn.textContent = mode === 'close' ? '✕' : '⤢';
-    protoActionBtn.title       = mode === 'close' ? 'Close' : 'Expand';
+    protoActionBtn.title       = mode === 'close' ? 'Shrink' : 'Expand';
   }
 
-  function hideAll() {
+  function killAll() {
     if (floatTween) { floatTween.kill(); floatTween = null; }
-    gsap.killTweensOf([sphereWrap, sphere, sphereCta, protoCard, thumbLabel]);
-    gsap.set(sphereWrap,  { autoAlpha: 0, y: 0, scale: 1 });
-    gsap.set(sphereCta,   { autoAlpha: 0, visibility: 'hidden' });
-    gsap.set(protoCard,   { autoAlpha: 0, visibility: 'hidden', height: 0, width: '100%' });
+    if (frameScrollHandler) {
+      window.removeEventListener('scroll', frameScrollHandler);
+      frameScrollHandler = null;
+    }
+    gsap.killTweensOf([sphereWrap, sphere, sphereCta, protoCard, protoViewport, thumbLabel]);
+  }
+
+  function resetAll() {
+    killAll();
+    gsap.set(sphereWrap,    { autoAlpha: 0, y: 0, scale: 1 });
+    gsap.set(sphereCta,     { autoAlpha: 0, visibility: 'hidden' });
+    gsap.set(protoCard,     { autoAlpha: 0, visibility: 'hidden', height: 0, width: '100%' });
     gsap.set(protoViewport, { height: 0 });
-    gsap.set(thumbLabel,  { autoAlpha: 0, visibility: 'hidden' });
+    gsap.set(thumbLabel,    { autoAlpha: 0, visibility: 'hidden' });
+    sphereCta.classList.remove('is-active');
   }
 
-  /* STATE 1: SPHERE BOUNCE-IN */
-  function showSphere() {
-    hideAll();
+  resetAll();
+
+  /* ── STATE 1: Sphere bounce-in (scroll-triggered on entry) ── */
+  function playSphereEntrance() {
+    if (state !== 'idle') return;
     state = 'sphere';
-    gsap.set(sphereWrap, { autoAlpha: 1, visibility: 'visible', y: -320, scale: 0.4 });
-    const tl = gsap.timeline();
-    tl.to(sphereWrap, { y: 0, scale: 1, duration: 1.1, ease: 'bounce.out' })
-      .to(sphere, { scaleY: 0.88, scaleX: 1.06, duration: 0.1, ease: 'power2.in', transformOrigin: 'bottom center' }, '-=0.04')
-      .to(sphere, { scaleY: 1, scaleX: 1, duration: 0.4, ease: 'elastic.out(1, 0.5)', transformOrigin: 'bottom center' })
-      .call(() => {
+    gsap.set(sphereWrap, { autoAlpha: 1, visibility: 'visible', y: -280, scale: 0.5 });
+    const tl = gsap.timeline({
+      onComplete: () => {
         floatTween = gsap.to(sphereWrap, { y: -8, duration: 1.8, ease: 'sine.inOut', repeat: -1, yoyo: true });
-      }, [], '+=0.2');
+      }
+    });
+    tl.to(sphereWrap, { y: 0, scale: 1, duration: 1.2, ease: 'bounce.out' })
+      .to(sphere,     { scaleY: 0.88, scaleX: 1.06, duration: 0.1, ease: 'power2.in', transformOrigin: 'bottom center' }, '-=0.05')
+      .to(sphere,     { scaleY: 1, scaleX: 1, duration: 0.45, ease: 'elastic.out(1, 0.5)', transformOrigin: 'bottom center' });
   }
 
-  /* STATE 2: SPHERE → CTA */
-  function showCta() {
-    hideAll();
+  /* ── STATE 2: Sphere → CTA (scroll-triggered as stage rises in viewport) ── */
+  function playCtaTransition() {
+    if (state !== 'sphere') return;
     state = 'cta';
-    gsap.set(sphereWrap, { autoAlpha: 1, visibility: 'visible', y: 0, scale: 1 });
-    gsap.set(sphereCta,  { visibility: 'visible' });
+    killAll();
+    gsap.set(sphereCta, { visibility: 'visible', autoAlpha: 0 });
+    sphereCta.classList.add('is-active');
     const tl = gsap.timeline();
-    tl.to(sphereWrap, { scale: 0, autoAlpha: 0, duration: 0.4, ease: 'power3.in' })
-      .to(sphereCta,   { autoAlpha: 1, duration: 0.5, ease: 'power2.out' }, '-=0.05')
+    tl.to(sphereWrap,           { scale: 0, autoAlpha: 0, duration: 0.4, ease: 'power3.in' })
+      .to(sphereCta,             { autoAlpha: 1, duration: 0.5, ease: 'power2.out' }, '-=0.05')
       .from('.sphere-cta-label', { y: 8, autoAlpha: 0, duration: 0.35, ease: 'power2.out' }, '<')
       .from('.sphere-cta-main',  { y: 14, autoAlpha: 0, duration: 0.5, ease: 'power3.out' }, '<+0.08')
       .from('.sphere-cta-sub',   { y: 8, autoAlpha: 0, duration: 0.3, ease: 'power2.out' }, '<+0.12');
-    sphereCta.classList.add('is-active');
   }
 
-  /* STATE 3: EXPAND TO FULL FRAME */
+  /* ── STATE 3: Frame expand (click CTA "Explore the UI") ── */
   function showFrame() {
-    hideAll();
+    if (state !== 'cta' && state !== 'thumbnail') return;
     state = 'frame';
-    const stage   = document.getElementById('proto-stage');
-    const availH  = window.innerHeight - 120;
-    const cardH   = Math.min(availH, 680);
-    const viewH   = cardH - FOOTER_H;
-
-    gsap.set(protoCard,     { autoAlpha: 1, visibility: 'visible', height: 0, width: '100%', borderRadius: '14px' });
+    killAll();
+    const cardH = Math.min(window.innerHeight - 120, 680);
+    const viewH = cardH - FOOTER_H;
+    gsap.set(protoCard,     { autoAlpha: 0, visibility: 'visible', height: 0, width: '100%' });
     gsap.set(protoViewport, { height: 0 });
+    gsap.set(sphereCta,     { autoAlpha: 0, visibility: 'hidden' });
     setActionIcon('close');
-
-    const tl = gsap.timeline();
-    tl.to(protoCard,     { height: cardH, duration: 0.65, ease: 'power3.inOut' })
-      .to(protoViewport, { height: viewH, duration: 0.65, ease: 'power3.inOut' }, '<')
+    const tl = gsap.timeline({
+      onComplete: attachFrameScrollWatcher
+    });
+    tl.to(protoCard,        { autoAlpha: 1, height: cardH, duration: 0.65, ease: 'power3.inOut' })
+      .to(protoViewport,    { height: viewH, duration: 0.65, ease: 'power3.inOut' }, '<')
       .from('.proto-footer', { autoAlpha: 0, y: 6, duration: 0.25, ease: 'power2.out' }, '-=0.15');
   }
 
-  /* STATE 4: SHRINK TO THUMBNAIL */
-  function showThumbnail() {
-    hideAll();
-    state = 'thumbnail';
-    const thumbW = Math.min(820, window.innerWidth - 96);
-    const thumbH = Math.min(window.innerHeight - 96 - 40, 480);
-    const viewH  = thumbH - FOOTER_H;
-    const fullH  = Math.min(window.innerHeight - 120, 680);
-
-    setActionIcon('expand');
-    gsap.set(protoCard,     { autoAlpha: 1, visibility: 'visible', height: fullH, width: '100%', borderRadius: '14px' });
-    gsap.set(protoViewport, { height: fullH - FOOTER_H });
-    gsap.set(thumbLabel,    { autoAlpha: 1, visibility: 'visible' });
-
-    const tl = gsap.timeline();
-    tl.to(protoCard,     { width: thumbW, height: thumbH, duration: 0.7, ease: 'power3.inOut' })
-      .to(protoViewport, { height: viewH, duration: 0.7, ease: 'power3.inOut' }, '<')
-      .from(thumbLabel,  { autoAlpha: 0, y: 6, duration: 0.35, ease: 'power2.out' }, '-=0.1');
+  /* ── Attach scroll watcher: any downward scroll while frame is open → thumbnail ── */
+  function attachFrameScrollWatcher() {
+    const baseY = window.scrollY;
+    frameScrollHandler = () => {
+      if (state === 'frame' && window.scrollY > baseY + 80) {
+        showThumbnail();
+      }
+    };
+    window.addEventListener('scroll', frameScrollHandler, { passive: true });
   }
 
-  /* INLINE INTERACTIONS */
-  sphereWrap.addEventListener('click',  () => { if (state === 'sphere') showCta(); });
-  ctaTrigger.addEventListener('click',  showFrame);
+  /* ── STATE 4: Thumbnail (scroll-triggered after frame is open) ── */
+  function showThumbnail() {
+    if (state !== 'frame') return;
+    state = 'thumbnail';
+    killAll();
+    const thumbW = Math.min(820, window.innerWidth - 96);
+    const thumbH = Math.min(window.innerHeight - 136, 480);
+    const viewH  = thumbH - FOOTER_H;
+    const fullH  = Math.min(window.innerHeight - 120, 680);
+    setActionIcon('expand');
+    gsap.set(protoCard,     { autoAlpha: 1, visibility: 'visible', height: fullH, width: '100%' });
+    gsap.set(protoViewport, { height: fullH - FOOTER_H });
+    const tl = gsap.timeline({
+      onComplete: () => {
+        gsap.set(thumbLabel, { visibility: 'visible' });
+        gsap.to(thumbLabel, { autoAlpha: 1, y: 0, duration: 0.35, ease: 'power2.out' });
+      }
+    });
+    tl.to(protoCard,    { width: thumbW, height: thumbH, duration: 0.7, ease: 'power3.inOut' })
+      .to(protoViewport,{ height: viewH, duration: 0.7, ease: 'power3.inOut' }, '<');
+  }
+
+  /* ── SCROLL TRIGGERS ── */
+
+  // T1: Stage enters viewport (bottom of viewport) → sphere bounce
+  ScrollTrigger.create({
+    trigger: stage,
+    start: 'top 75%',
+    once: true,
+    onEnter: playSphereEntrance,
+  });
+
+  // T2: Stage has scrolled up to upper 25% of viewport → CTA morph
+  // Gap between T1 and T2 is ~50vh of scroll, giving sphere time to settle
+  ScrollTrigger.create({
+    trigger: stage,
+    start: 'top 25%',
+    once: true,
+    onEnter: playCtaTransition,
+  });
+
+  /* ── CLICK HANDLERS ── */
+  ctaTrigger.addEventListener('click', showFrame);
   protoActionBtn.addEventListener('click', () => {
-    if (state === 'frame')     showThumbnail();
+    if (state === 'frame')          showThumbnail();
     else if (state === 'thumbnail') showFrame();
   });
 
@@ -1015,14 +1067,6 @@
       btn.classList.add('active');
       protoIframe.src = `/prototypes/v${btn.dataset.v}/index.html`;
     });
-  });
-
-  /* ScrollTrigger: enter viewport → trigger sphere bounce */
-  ScrollTrigger.create({
-    trigger: '#proto-stage',
-    start: 'top 70%',
-    once: true,
-    onEnter: () => showSphere()
   });
 
 })();
