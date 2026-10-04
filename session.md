@@ -57,6 +57,8 @@
 |--------|-----|
 | `ad8faa7` | Hero H1 invisible fix — moved `heroTl` inside `window.addEventListener('load')` |
 | `4041eea` | Images not loading — simplified `vercel.json` to `{"version": 2}` |
+| `11d9425` | Added `session.md` handoff log |
+| `f6e9c96` | Prototype embed + sphere sequence — `/prototypes/v1/`, `/prototypes/v2/`, integrated into `index.html` |
 
 ---
 
@@ -74,12 +76,20 @@
 
 ## Pending Tasks
 
-- [ ] Get prototype URLs (V1 and V2) from Surya — to embed inside the frame
-- [ ] Integrate approved sphere sequence into main `index.html`
+- [ ] **Clarify V2 prototype** — ZIP only had one `.dc.html` file (`ACP HMI Menu.dc.html`). Currently both V1 and V2 buttons serve the same file. Surya to provide a separate V2 file → drop it in `/prototypes/v2/` as `index.html` with all assets.
 - [ ] Horizontal marquee text section (GSAP horizontal-text demo style)
 - [ ] Pinned panels with overscroll (for workshop day images)
 - [ ] ScrollTo navigation for chapters
 - [ ] Verify images load on Vercel after `4041eea`
+
+## Completed Tasks
+
+- [x] Copy prototype files to `/prototypes/v1/` and `/prototypes/v2/` — commit `f6e9c96`
+- [x] Integrate sphere → CTA → frame → thumbnail sequence into `index.html` after process strip
+- [x] Prototype renders in `<iframe src="/prototypes/v1/index.html">` — same-origin, no watermark
+- [x] V1/V2 footer buttons swap iframe `src`
+- [x] Action button ✕ (close → thumbnail) / ⤢ (expand → full frame)
+- [x] Sphere bounce triggered by ScrollTrigger on `#proto-stage` enter (once)
 
 ---
 
@@ -129,6 +139,7 @@
 ## Session Notes
 
 - **2026-10-03:** Built standalone sphere animation demo. User requested `session.md` to track all repo links and serve as handoff doc.
+- **2026-10-04:** Extracted prototype ZIP (`Animate_ACP-HMI-handoff.zip`). Found only one `.dc.html` file (`ACP HMI Menu.dc.html`). Copied into `/prototypes/v1/` and `/prototypes/v2/` (same file until V2 provided). Integrated sphere → CTA → frame sequence into `index.html` after process strip; triggered by ScrollTrigger on viewport enter. Prototype serves from same Vercel origin via `<iframe>` — no watermark, no X-Frame-Options issue.
 - Sphere uses real CSS 3D technique (dual radial-gradient — body gradient `circle at 38% 115%`, specular `::before` `circle at 50% 0%` with `filter: blur(3px)`, rim light `::after`)
 - GSAP bounce sequence: `bounce.out` drop → squish (scaleY 0.88 / scaleX 1.06) → `elastic.out(1, 0.5)` recovery → idle `sine.inOut` float repeat
 - Chapter cursor-tracking: `gsap.ticker.add()` with lerp factor 0.12 for smooth follow
