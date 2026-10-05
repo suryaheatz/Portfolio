@@ -1088,6 +1088,7 @@
   var floatTween  = null;
   var scrollLocked = false;
   var bounceCount  = 0;
+  var thumbScrollY = 0; // page scroll Y when thumbnail is shown
 
   function vw() { return window.innerWidth; }
   function vh() { return window.innerHeight; }
@@ -1269,6 +1270,13 @@
       if (state !== 'proto') return;
       state = 'collapsing';
 
+      // Reset page scroll WHILE CURTAIN STILL COVERS — jump is invisible.
+      // Position viewport so chapters are just ~80px below the fold,
+      // meaning any downward nudge immediately reveals them.
+      var chapterStart = trigger.offsetTop + trigger.offsetHeight;
+      thumbScrollY = Math.max(0, chapterStart - window.innerHeight + 80);
+      window.scrollTo({ top: thumbScrollY, behavior: 'instant' });
+
       // Fade out proto frame first
       protoFrame.classList.remove('is-active');
       gsap.to(protoFrame, { autoAlpha: 0, duration: 0.25 });
@@ -1301,6 +1309,16 @@
   function showThumb() {
     // Set thumb iframe src (same as main)
     thumbIframe.src = protoIframe.src;
+
+    // Ensure scroll is positioned so chapters are ~80px below the fold.
+    // The collapse handler already does this while curtain is up (invisible).
+    // Recalculate here as a guard in case thumbScrollY drifted or was 0.
+    var cs = trigger.offsetTop + trigger.offsetHeight;
+    var targetY = Math.max(0, cs - window.innerHeight + 80);
+    if (Math.abs(window.scrollY - targetY) > 5) {
+      window.scrollTo({ top: targetY, behavior: 'instant' });
+    }
+    thumbScrollY = targetY;
 
     gsap.set(protoThumb, { display: 'flex', opacity: 0 });
     gsap.to(protoThumb, {
@@ -1350,14 +1368,14 @@
   /* ─── Dismiss thumbnail on scroll so chapters are reachable ─── */
   window.addEventListener('scroll', function() {
     if (state !== 'thumb') return;
-    // Once user scrolls past the proto-trigger section, hide thumbnail
-    var triggerBottom = trigger.getBoundingClientRect().bottom;
-    if (triggerBottom < 0) {
+    // Fire as soon as user scrolls 30px past the reset position.
+    // Chapters are already ~80px below the fold at that point.
+    if (window.scrollY > thumbScrollY + 30) {
+      state = 'chapters';
       gsap.to(protoThumb, {
         opacity: 0, duration: 0.3,
         onComplete: function() { gsap.set(protoThumb, { display: 'none' }); }
       });
-      state = 'chapters';
     }
   }, { passive: true });
 
