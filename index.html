@@ -194,7 +194,6 @@
     /* PULL QUOTE */
     .pull-quote {
       padding: 80px 0;
-      min-height: 100vh;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -244,6 +243,39 @@
     /* Once thumb is showing, trigger shrinks to card height */
     #proto-trigger.thumb-mode {
       height: auto;
+    }
+
+    /* Idle-phase hint — sits centered in the 100vh trigger zone */
+    .proto-scroll-hint {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      pointer-events: none;
+      opacity: 1;
+      transition: opacity 0.3s ease;
+    }
+    .proto-scroll-hint.hidden { opacity: 0; }
+    #proto-trigger.thumb-mode .proto-scroll-hint { display: none; }
+    .proto-scroll-hint-label {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+    }
+    .proto-scroll-hint-bar {
+      width: 1px;
+      height: 48px;
+      background: linear-gradient(to bottom, transparent, var(--ink-3));
+      animation: scroll-bar-pulse 1.8s ease-in-out infinite;
+    }
+    @keyframes scroll-bar-pulse {
+      0%, 100% { opacity: 0.3; transform: scaleY(0.6); transform-origin: top; }
+      50% { opacity: 1; transform: scaleY(1); }
     }
 
     /* ── Sphere (morph-el) — ball only, no morphing ── */
@@ -648,6 +680,11 @@
   <!-- This section replaces the old climate image slot in the page layout -->
   <!-- proto-thumb lives INSIDE the trigger so it occupies this same space when shown -->
   <section id="proto-trigger">
+    <!-- Scroll hint — visible in idle phase while sphere hasn't fired yet -->
+    <div id="proto-scroll-hint" class="proto-scroll-hint">
+      <span class="proto-scroll-hint-label">PROTOTYPE</span>
+      <div class="proto-scroll-hint-bar"></div>
+    </div>
     <!-- Collapsed / thumbnail view — shown after collapse, sits in-page here -->
     <div id="proto-thumb" class="proto-thumb">
       <div class="proto-thumb-inner">
@@ -919,33 +956,29 @@
   });
 
   /* ─────────────────────────────────────────
-     5. CHAPTER LIST — PINNED SCRUB
-     The chapter section pins in place.
-     Each chapter row reveals as you scroll through
-     the pinned window — the scroll drives the reveal.
+     5. CHAPTER LIST — one ScrollTrigger per row
+     Each row has its own trigger so they fire
+     in sequence as the user scrolls, not all at once.
   ───────────────────────────────────────── */
   const chapterSection = document.querySelector('.chapter-list')
     ? document.querySelector('.chapter-list').closest('.section') : null;
 
   if (chapterSection) {
     const chItems = gsap.utils.toArray('.chapter-list li');
+    gsap.set(chItems, { autoAlpha: 0, x: -14 });
 
-    // Hidden until section enters viewport
-    gsap.set(chItems, { autoAlpha: 0, y: 10 });
-
-    // Stagger in as section scrolls into view — no pin, no scrub.
-    // Start fires when section top hits 80% down the viewport (well before center).
-    gsap.to(chItems, {
-      autoAlpha: 1, y: 0,
-      duration: 0.55,
-      ease: 'power2.out',
-      stagger: 0.055,
-      scrollTrigger: {
-        trigger: chapterSection,
-        start: 'top 78%',
-        toggleActions: 'play none none none',
-        invalidateOnRefresh: true,
-      }
+    chItems.forEach((item) => {
+      gsap.to(item, {
+        autoAlpha: 1, x: 0,
+        duration: 0.5,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: item,
+          start: 'top 88%',       // fires as each row enters viewport
+          toggleActions: 'play none none none',
+          invalidateOnRefresh: true,
+        }
+      });
     });
   }
 
@@ -966,34 +999,25 @@
   });
 
   /* ─────────────────────────────────────────
-     7. PULL QUOTE — PINNED SCRUB
-     Quote pins, the border-left sweeps up
-     and the text fades in through scrub
+     7. PULL QUOTE — simple scroll-in, no pin
+     Pin was creating ~400px dead scroll space
   ───────────────────────────────────────── */
   const pullQuote = document.querySelector('.pull-quote');
   if (pullQuote) {
-    const bq = pullQuote.querySelector('blockquote');
+    const bq   = pullQuote.querySelector('blockquote');
     const cite = pullQuote.querySelector('cite');
 
-    gsap.set(bq, { autoAlpha: 0, y: 30 });
+    gsap.set(bq,   { autoAlpha: 0, y: 28 });
     gsap.set(cite, { autoAlpha: 0 });
 
-    const quoteTl = gsap.timeline({
-      scrollTrigger: {
-        trigger: pullQuote,
-        pin: true,
-        start: 'top top',
-        end: '+=400',
-        scrub: 1,
-      }
+    gsap.to(bq, {
+      autoAlpha: 1, y: 0, duration: 0.85, ease: 'power2.out',
+      scrollTrigger: { trigger: pullQuote, start: 'top 78%', toggleActions: 'play none none none' }
     });
-
-    quoteTl
-      .addLabel('enter')
-      .to(bq, { autoAlpha: 1, y: 0, ease: 'power2.out', duration: 0.6 }, 'enter')
-      .to(cite, { autoAlpha: 1, ease: 'power2.out', duration: 0.4 }, 'enter+=0.4')
-      .addLabel('hold')
-      .to({}, { duration: 0.4 }, 'hold');  // hold frame at end before unpinning
+    gsap.to(cite, {
+      autoAlpha: 1, duration: 0.6, delay: 0.35, ease: 'power2.out',
+      scrollTrigger: { trigger: pullQuote, start: 'top 78%', toggleActions: 'play none none none' }
+    });
   }
 
   /* ─────────────────────────────────────────
@@ -1060,6 +1084,36 @@
   gsap.from('.footer-links', {
     autoAlpha: 0, y: 12, duration: 0.7, delay: 0.3, ease: 'power2.out',
     scrollTrigger: { trigger: '.footer-cta', start: 'top 80%', toggleActions: 'play none none none' }
+  });
+
+  /* ─────────────────────────────────────────
+     11. GENERIC ANIM-BLOCK CATCH-ALL
+     Elements with .anim-block that don't have
+     a dedicated handler get a simple fade-in.
+     Runs last so dedicated handlers fire first
+     and GSAP won't double-animate those.
+     Excludes: .pull-quote (handled in #7),
+     .impact-left (handled in #8), .callout (handled in #8),
+     .footer-cta (handled in #10), chapter section (handled in #5)
+  ───────────────────────────────────────── */
+  gsap.utils.toArray('.anim-block').forEach(function(el) {
+    // Skip elements that already have a GSAP tween so we don't double-animate
+    if (
+      el.classList.contains('pull-quote') ||
+      el.classList.contains('impact-left') ||
+      el.classList.contains('callout') ||
+      el.classList.contains('footer-cta') ||
+      el.querySelector('.chapter-list')
+    ) return;
+
+    gsap.from(el, {
+      autoAlpha: 0, y: 14, duration: 0.65, ease: 'power2.out',
+      scrollTrigger: {
+        trigger: el,
+        start: 'top 88%',
+        toggleActions: 'play none none none',
+      }
+    });
   });
 
 })();
@@ -1134,6 +1188,10 @@
   function startBounce() {
     if (state !== 'idle') return;
     state = 'bouncing';
+
+    // Hide the idle scroll hint
+    var scrollHint = document.getElementById('proto-scroll-hint');
+    if (scrollHint) scrollHint.classList.add('hidden');
 
     var restTop  = sphereRestTop();
     var restLeft = sphereRestLeft();
