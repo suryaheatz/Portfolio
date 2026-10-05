@@ -1388,10 +1388,10 @@
     onEnter: startBounce,
   });
 
-  /* ─── Hide sphere elements when scrolling back up past the section ─── */
+  /* ─── Hide sphere elements + unlock scroll when scrolling back up ─── */
   ScrollTrigger.create({
     trigger: trigger,
-    start:   'top bottom',
+    start:   'top center',
     onLeaveBack: function() {
       unlockScroll();
       gsap.to(sphereText,   { autoAlpha: 0, duration: 0.2 });
