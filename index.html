@@ -1246,16 +1246,18 @@
       openCurtain(function() {
         // Load iframe
         protoIframe.src = protoIframe.dataset.src || '/prototypes/v1/index.html';
-        // Show prototype frame inside curtain
-        gsap.set(protoFrame, { visibility: 'visible' });
-        gsap.to(protoFrame, {
-          autoAlpha: 1, duration: 0.35, ease: 'power2.out',
-          onComplete: function() {
-            protoFrame.classList.add('is-active');
-            state = 'proto';
-            unlockScroll();
-          }
-        });
+
+        // Advance state IMMEDIATELY — don't park it in an onComplete.
+        // If the GSAP ticker pauses (iframe-load focus shift, tab backgrounded),
+        // the tween below may never call its onComplete, leaving state stuck
+        // at 'curtain-open' and making the collapse button a no-op.
+        protoFrame.classList.add('is-active');
+        state = 'proto';
+        unlockScroll();
+
+        // Purely cosmetic fade-in — state is already set above.
+        gsap.set(protoFrame, { autoAlpha: 0, visibility: 'visible' });
+        gsap.to(protoFrame, { autoAlpha: 1, duration: 0.35, ease: 'power2.out' });
       });
     });
   }
@@ -1320,15 +1322,13 @@
     }
     thumbScrollY = targetY;
 
+    // Advance state IMMEDIATELY — same ticker-freeze defence as above.
+    state = 'thumb';
+    unlockScroll();
+
+    // Purely cosmetic fade-in.
     gsap.set(protoThumb, { display: 'flex', opacity: 0 });
-    gsap.to(protoThumb, {
-      opacity: 1, duration: 0.4, ease: 'power2.out',
-      onComplete: function() {
-        state = 'thumb';
-        // Unlock scroll so user can scroll past proto-trigger to chapters
-        unlockScroll();
-      }
-    });
+    gsap.to(protoThumb, { opacity: 1, duration: 0.4, ease: 'power2.out' });
   }
 
   /* ─── Expand from thumbnail ─── */
@@ -1342,14 +1342,12 @@
         onComplete: function() {
           gsap.set(protoThumb, { display: 'none' });
           openCurtain(function() {
-            gsap.set(protoFrame, { visibility: 'visible' });
-            gsap.to(protoFrame, {
-              autoAlpha: 1, duration: 0.35, ease: 'power2.out',
-              onComplete: function() {
-                protoFrame.classList.add('is-active');
-                state = 'proto';
-              }
-            });
+            // Advance state immediately — same ticker-freeze defence.
+            protoFrame.classList.add('is-active');
+            state = 'proto';
+
+            gsap.set(protoFrame, { autoAlpha: 0, visibility: 'visible' });
+            gsap.to(protoFrame, { autoAlpha: 1, duration: 0.35, ease: 'power2.out' });
           });
         }
       });
