@@ -433,9 +433,12 @@
       border-color: rgba(245,244,240,0.25);
     }
 
-    /* ── Thumbnail / collapsed view ── */
+    /* ── Thumbnail / collapsed view ──
+       Sits in-page inside #proto-trigger space.
+       Position: absolute relative to the trigger section.
+       Not a full-screen overlay. ── */
     .proto-thumb {
-      position: fixed;
+      position: absolute;
       inset: 0;
       z-index: 250;
       display: none;
@@ -634,7 +637,32 @@
 
   <!-- ─── PROTO SEQUENCE: SPHERE → CURTAIN → PROTOTYPE ─── -->
   <!-- This section replaces the old climate image slot in the page layout -->
-  <section id="proto-trigger"></section>
+  <!-- proto-thumb lives INSIDE the trigger so it occupies this same space when shown -->
+  <section id="proto-trigger">
+    <!-- Collapsed / thumbnail view — shown after collapse, sits in-page here -->
+    <div id="proto-thumb" class="proto-thumb">
+      <div class="proto-thumb-inner">
+        <div class="proto-thumb-header">
+          <span class="proto-thumb-label">PROTOTYPE EMBED</span>
+          <button class="proto-thumb-expand" id="proto-thumb-expand" title="Expand prototype">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M10 2L6.5 5.5M10 2H7M10 2V5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M2 10L5.5 6.5M2 10H5M2 10V7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            ↗
+          </button>
+        </div>
+        <div class="proto-thumb-viewport">
+          <iframe id="proto-thumb-iframe" class="proto-iframe" src="" title="ACP HMI Prototype" style="pointer-events:none;"></iframe>
+        </div>
+        <div class="proto-thumb-footer">
+          <button class="proto-thumb-ver active" data-v="1">Version 1</button>
+          <button class="proto-thumb-ver" data-v="2">Version 2</button>
+        </div>
+      </div>
+      <p class="proto-thumb-hint">↓ SCROLL TO REVEAL CHAPTERS</p>
+    </div>
+  </section>
 
   <!-- Sphere element — only ever a ball, never morphs to full-screen -->
   <div id="morph-el">
@@ -685,39 +713,15 @@
     </div>
   </div>
 
-  <!-- Collapsed / thumbnail view — shown after collapse -->
-  <div id="proto-thumb" class="proto-thumb">
-    <div class="proto-thumb-inner">
-      <div class="proto-thumb-header">
-        <span class="proto-thumb-label">PROTOTYPE EMBED</span>
-        <button class="proto-thumb-expand" id="proto-thumb-expand" title="Expand prototype">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M10 2L6.5 5.5M10 2H7M10 2V5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M2 10L5.5 6.5M2 10H5M2 10V7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          ↗
-        </button>
-      </div>
-      <div class="proto-thumb-viewport">
-        <iframe id="proto-thumb-iframe" class="proto-iframe" src="" title="ACP HMI Prototype" style="pointer-events:none;"></iframe>
-      </div>
-      <div class="proto-thumb-footer">
-        <button class="proto-thumb-ver active" data-v="1">Version 1</button>
-        <button class="proto-thumb-ver" data-v="2">Version 2</button>
-      </div>
-    </div>
-    <p class="proto-thumb-hint">↓ SCROLL TO REVEAL CHAPTERS</p>
-  </div>
-
   <!-- Separate shadow element under the sphere -->
   <div id="sphere-shadow"></div>
   <!-- ─── /PROTO SEQUENCE ─── -->
 
   <div class="container">
 
-    <!-- CHAPTER LIST -->
-    <div class="section">
-      <p class="chapter-heading">Case study</p>
+    <!-- CHAPTER LIST — hidden until proto collapses, revealed by GSAP -->
+    <div class="section" id="chapter-section" style="visibility:hidden;">
+      <p class="chapter-heading" id="chapter-heading">Case study</p>
       <ul class="chapter-list">
         <li><span class="ch-num">01</span><span class="ch-title">The Context</span><span class="ch-desc">Why Level 4 changes everything about HMI design</span></li>
         <li><span class="ch-num">02</span><span class="ch-title">Workshop</span><span class="ch-desc">Three days, twelve frameworks, one recurring insight</span></li>
@@ -924,9 +928,10 @@
       scrollTrigger: {
         trigger: chapterSection,
         pin: true,
-        start: 'top top',
-        end: '+=' + (chItems.length * 80),  // 80px scroll budget per item
+        start: 'top top',   // pins when section reaches top of viewport
+        end: '+=' + (chItems.length * 80),
         scrub: 1,
+        invalidateOnRefresh: true,  // recalculate after showThumb() calls ScrollTrigger.refresh()
         snap: {
           snapTo: 1 / (chItems.length - 1),
           duration: { min: 0.15, max: 0.6 },
@@ -1272,12 +1277,9 @@
       if (state !== 'proto') return;
       state = 'collapsing';
 
-      // Reset page scroll WHILE CURTAIN STILL COVERS — jump is invisible.
-      // Position viewport so chapters are just ~80px below the fold,
-      // meaning any downward nudge immediately reveals them.
-      var chapterStart = trigger.offsetTop + trigger.offsetHeight;
-      thumbScrollY = Math.max(0, chapterStart - window.innerHeight + 80);
-      window.scrollTo({ top: thumbScrollY, behavior: 'instant' });
+      // Scroll back to the trigger section while curtain covers (invisible jump).
+      // Thumbnail is in-page inside #proto-trigger — we need it visible.
+      window.scrollTo({ top: trigger.offsetTop, behavior: 'instant' });
 
       // Fade out proto frame first
       protoFrame.classList.remove('is-active');
@@ -1312,19 +1314,22 @@
     // Set thumb iframe src (same as main)
     thumbIframe.src = protoIframe.src;
 
-    // Ensure scroll is positioned so chapters are ~80px below the fold.
-    // The collapse handler already does this while curtain is up (invisible).
-    // Recalculate here as a guard in case thumbScrollY drifted or was 0.
-    var cs = trigger.offsetTop + trigger.offsetHeight;
-    var targetY = Math.max(0, cs - window.innerHeight + 80);
-    if (Math.abs(window.scrollY - targetY) > 5) {
-      window.scrollTo({ top: targetY, behavior: 'instant' });
-    }
-    thumbScrollY = targetY;
+    // Scroll back to the trigger section so the thumbnail is in view.
+    // Thumbnail is position:absolute inside #proto-trigger (in-page, not fixed).
+    var targetY = trigger.offsetTop;
+    window.scrollTo({ top: targetY, behavior: 'instant' });
 
     // Advance state IMMEDIATELY — same ticker-freeze defence as above.
     state = 'thumb';
     unlockScroll();
+
+    // Reveal chapter section now (it was visibility:hidden until collapse)
+    var chapterSection = document.getElementById('chapter-section');
+    if (chapterSection) {
+      gsap.set(chapterSection, { visibility: 'visible' });
+      // Kick ScrollTrigger so it recalculates positions with the section visible
+      ScrollTrigger.refresh();
+    }
 
     // Purely cosmetic fade-in.
     gsap.set(protoThumb, { display: 'flex', opacity: 0 });
@@ -1363,19 +1368,8 @@
     });
   });
 
-  /* ─── Dismiss thumbnail on scroll so chapters are reachable ─── */
-  window.addEventListener('scroll', function() {
-    if (state !== 'thumb') return;
-    // Fire as soon as user scrolls 30px past the reset position.
-    // Chapters are already ~80px below the fold at that point.
-    if (window.scrollY > thumbScrollY + 30) {
-      state = 'chapters';
-      gsap.to(protoThumb, {
-        opacity: 0, duration: 0.3,
-        onComplete: function() { gsap.set(protoThumb, { display: 'none' }); }
-      });
-    }
-  }, { passive: true });
+  /* ─── Thumbnail stays in-page (no scroll-dismiss).
+     Chapters are revealed below it in normal page flow. ─── */
 
   /* ─── Version buttons (thumbnail) ─── */
   document.querySelectorAll('.proto-thumb-ver').forEach(function(btn) {
