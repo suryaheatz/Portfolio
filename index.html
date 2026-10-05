@@ -1398,10 +1398,16 @@
     onEnter: startBounce,
   });
 
-  /* ─── Hide sphere elements + unlock scroll when scrolling back up ─── */
+  /* ─── Hide/show sphere text when scrolling back up or down ─── */
   ScrollTrigger.create({
     trigger: trigger,
     start:   'top center',
+    onEnter: function() {
+      // Ball already fired (once:true above). On re-entry just show the text.
+      if (state === 'cta' || state === 'thumb') {
+        gsap.to(sphereText, { autoAlpha: 1, duration: 0.3 });
+      }
+    },
     onLeaveBack: function() {
       unlockScroll();
       gsap.to(sphereText,   { autoAlpha: 0, duration: 0.2 });
