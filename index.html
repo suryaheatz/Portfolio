@@ -983,71 +983,76 @@
 
   gsap.registerPlugin(ScrollTrigger);
 
-  /* ─────────────────────────────────────────
-     1. HERO MARQUEE — ContainerAnimation + SplitText
-     Meta row fades in on load.
-     H1 chars tumble in as the user scrolls right.
-  ───────────────────────────────────────── */
-  const marqueeWrapper = document.getElementById('hero-marquee');
-  const marqueeText    = document.getElementById('hero-marquee-text');
-  const metaRow        = document.getElementById('hero-meta-row');
+  window.addEventListener('load', () => {
+    // Refresh after fonts + images settle so ScrollTrigger measures correctly
+    ScrollTrigger.refresh();
 
-  // Nav entrance
-  gsap.from('.nav', { autoAlpha: 0, duration: 0.5, ease: 'power3.out', delay: 0.1 });
+    /* ─────────────────────────────────────────
+       1. HERO MARQUEE — ContainerAnimation + SplitText
+       Meta row fades in immediately.
+       H1 chars tumble in as the user scrolls.
+    ───────────────────────────────────────── */
+    const marqueeWrapper = document.getElementById('hero-marquee');
+    const marqueeText    = document.getElementById('hero-marquee-text');
+    const metaRow        = document.getElementById('hero-meta-row');
 
-  if (marqueeWrapper && marqueeText && typeof SplitText !== 'undefined') {
-    gsap.registerPlugin(SplitText);
+    // Nav entrance
+    gsap.from('.nav', { autoAlpha: 0, duration: 0.5, ease: 'power3.out', delay: 0.1 });
 
-    // Meta row entrance — start invisible, animate in after brief delay
-    gsap.set(metaRow, { autoAlpha: 0, y: 8 });
-    gsap.to(metaRow, { autoAlpha: 1, y: 0, duration: 0.65, ease: 'power2.out', delay: 0.4 });
+    if (marqueeWrapper && marqueeText && typeof SplitText !== 'undefined') {
+      gsap.registerPlugin(SplitText);
 
-    // Push text off-screen right before scroll begins
-    gsap.set(marqueeText, { paddingLeft: '100vw' });
+      // Meta row entrance
+      gsap.set(metaRow, { autoAlpha: 0, y: 8 });
+      gsap.to(metaRow, { autoAlpha: 1, y: 0, duration: 0.65, ease: 'power2.out', delay: 0.3 });
 
-    // Split h1 into chars (ignore the · separators)
-    const split = SplitText.create(marqueeText, {
-      type: 'chars',
-      ignore: '.word-sep',
-      charsClass: 'char',
-    });
+      // Push h1 off-screen right — GSAP will scroll it into view
+      gsap.set(marqueeText, { paddingLeft: '100vw' });
 
-    // Horizontal scroll tween — pins the section, scrolls text left
-    const scrollTween = gsap.to(marqueeText, {
-      xPercent: -100,
-      ease: 'none',
-      scrollTrigger: {
-        trigger: marqueeWrapper,
-        pin: true,
-        end: '+=4000px',
-        scrub: 0.6,
-      }
-    });
+      // Split h1 into chars (ignore the · separators)
+      const split = SplitText.create(marqueeText, {
+        type: 'chars',
+        ignore: '.word-sep',
+        charsClass: 'char',
+      });
 
-    // Each char tumbles in as it enters the viewport during horizontal scroll
-    split.chars.forEach((char) => {
-      const yDir = Math.random() > 0.5 ? 1 : -1;
-      const yMag = 60 + Math.random() * 120;
-      const rot  = (Math.random() - 0.5) * 22;
-
-      gsap.from(char, {
-        yPercent: yDir * yMag,
-        rotation: rot,
-        autoAlpha: 0,
-        ease: 'back.out(1.4)',
+      // Horizontal scroll tween — pins the section and scrolls text left
+      const scrollTween = gsap.to(marqueeText, {
+        xPercent: -100,
+        ease: 'none',
         scrollTrigger: {
-          trigger: char,
-          containerAnimation: scrollTween,
-          start: 'left 105%',
-          end: 'left 55%',
-          scrub: 0.8,
+          trigger: marqueeWrapper,
+          pin: true,
+          end: '+=4000px',
+          scrub: 0.6,
         }
       });
-    });
-  } else {
-    // Graceful fallback if SplitText unavailable
-    if (metaRow) gsap.to(metaRow, { autoAlpha: 1, duration: 0.5, delay: 0.3 });
-  }
+
+      // Each char tumbles in as it scrolls into the viewport
+      split.chars.forEach((char) => {
+        const yDir = Math.random() > 0.5 ? 1 : -1;
+        const yMag = 60 + Math.random() * 120;
+        const rot  = (Math.random() - 0.5) * 22;
+
+        gsap.from(char, {
+          yPercent: yDir * yMag,
+          rotation: rot,
+          autoAlpha: 0,
+          ease: 'back.out(1.4)',
+          scrollTrigger: {
+            trigger: char,
+            containerAnimation: scrollTween,
+            start: 'left 105%',
+            end: 'left 55%',
+            scrub: 0.8,
+          }
+        });
+      });
+    } else {
+      // Graceful fallback if SplitText unavailable
+      if (metaRow) gsap.to(metaRow, { autoAlpha: 1, duration: 0.5, delay: 0.3 });
+    }
+  }); // end window load
 
   /* ─────────────────────────────────────────
      2. HERO IMAGE — strong scrubbed parallax
