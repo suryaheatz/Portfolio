@@ -11,17 +11,50 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/SplitText.min.js"></script>
 
   <style>
+    /* ═══════════════════════════════════════════════════════════════════
+       DESIGN SYSTEM — ZF CENTRONIC PORTFOLIO
+       Every spacing, colour and type decision lives here as a token.
+       Nothing on the page uses a hard-coded px value that belongs here.
+    ═══════════════════════════════════════════════════════════════════ */
     :root {
+      /* ── Colour ── */
       --bg:      #f5f4f0;
       --ink:     #111110;
       --ink-2:   #545450;
       --ink-3:   #9a9a94;
       --rule:    #dddad0;
       --teal:    #0c7a66;
-      --page-w:  1080px;
-      --col-pad: 48px;
+
+      /* ── Layout ── */
+      --page-w:    1080px;   /* max-width of the .container */
+      --col-pad:   48px;     /* horizontal gutter — the ONE value used everywhere */
+
+      /* ── Spacing scale (8px base) ── */
+      --sp-1:   4px;
+      --sp-2:   8px;
+      --sp-3:  12px;
+      --sp-4:  16px;
+      --sp-5:  20px;
+      --sp-6:  24px;
+      --sp-8:  32px;
+      --sp-10: 40px;
+      --sp-12: 48px;   /* = --col-pad */
+      --sp-16: 64px;
+      --sp-20: 80px;
+      --sp-24: 96px;
+      --sp-26: 104px;
+
+      /* ── Typography ── */
+      --text-label:   11px;  /* caps labels, meta tags — weight 500, ls 0.14em */
+      --text-caption: 12px;  /* image captions, footer small — ls 0.03em */
+      --text-body-sm: 13px;  /* secondary text, chapter desc */
+      --text-body:    16px;  /* main prose, 1.6 line-height */
+      --text-serif-sm: clamp(22px, 2.8vw, 32px);   /* footer CTA */
+      --text-serif-md: clamp(26px, 3.2vw, 38px);   /* pull quote */
+      --text-serif-lg: clamp(52px, 7.5vw, 96px);   /* hero marquee */
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -60,61 +93,132 @@
     .nav-back:hover { color: var(--ink); text-decoration: none; }
     .nav-name { font-size: 13px; letter-spacing: 0.02em; color: var(--ink-3); }
 
-    /* HERO */
-    .hero { padding: 88px 0 0; }
-    .hero-meta { display: flex; align-items: center; gap: 20px; margin-bottom: 36px; }
+    /* ══════════════════════════════
+       META TAG + DOT  (shared)
+    ══════════════════════════════ */
     .hero-tag {
-      font-size: 11px; font-weight: 500; letter-spacing: 0.14em;
-      text-transform: uppercase; color: var(--ink-3);
+      font-size: var(--text-label);
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-3);
     }
     .hero-dot {
-      width: 3px; height: 3px; border-radius: 50%;
-      background: var(--rule); flex-shrink: 0;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--rule);
+      flex-shrink: 0;
     }
 
-    .hero-h1-wrap { overflow: hidden; }
-    /* Prevent FOUC if GSAP hasn't run yet — hero is visible by default,
-       GSAP animates FROM hidden. No JS = no flash of invisible content. */
-    .no-js .hero-h1, .no-js .hero-lead, .no-js .hero-ctas { opacity: 1 !important; transform: none !important; }
-    .hero-h1 {
-      font-family: 'DM Serif Display', serif; font-style: italic;
-      font-size: clamp(40px, 5vw, 58px); line-height: 1.08;
-      letter-spacing: -0.01em; color: var(--ink);
-      max-width: 780px; margin-bottom: 32px;
+    /* ══════════════════════════════
+       HERO MARQUEE
+       Full-bleed horizontally.
+       Meta row and scroll hint align
+       to --col-pad — same as .container.
+    ══════════════════════════════ */
+    .hero-marquee {
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      /* Break out of .container's horizontal constraints */
+      width: 100vw;
+      margin-left: calc(-1 * var(--col-pad));
     }
-    .hero-lead {
-      font-size: 17px; line-height: 1.7; color: var(--ink-2);
-      max-width: 620px; margin-bottom: 48px;
-    }
-    .hero-ctas { display: flex; align-items: center; gap: 24px; }
-    .btn-primary {
-      display: inline-flex; align-items: center;
-      background: var(--ink); color: var(--bg);
-      font-size: 14px; font-weight: 500;
-      padding: 12px 22px; border-radius: 4px;
-      transition: background 0.2s ease, transform 0.2s ease;
-    }
-    .btn-primary:hover { background: #2a2a28; text-decoration: none; transform: translateY(-1px); }
-    .btn-secondary {
-      font-size: 14px; color: var(--ink-2);
-      display: flex; align-items: center; gap: 6px;
-      transition: color 0.2s ease;
-    }
-    .btn-secondary::after { content: '↓'; }
-    .btn-secondary:hover { color: var(--ink); text-decoration: none; }
 
-    /* HERO IMAGE full-bleed */
+    /* Meta row: sits INSIDE a full-bleed section.
+       Use max-width + auto margin to mirror what .container does,
+       then left-pad with --col-pad — identical rail to every other section. */
+    .hero-marquee-meta {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-5);
+      max-width: var(--page-w);
+      margin: 0 auto var(--sp-10);
+      padding: 0 var(--col-pad);   /* same as .container — aligns to the left grid guide */
+    }
+
+    .hero-marquee-text {
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-size: var(--text-serif-lg);
+      font-weight: 400;
+      line-height: 1.0;
+      letter-spacing: -0.025em;
+      color: var(--ink);
+      white-space: nowrap;
+      display: flex;
+      width: max-content;
+      align-items: baseline;
+      gap: 5vw;
+      /* GSAP sets padding-left to 100vw so text starts off-screen right */
+      padding-left: 100vw;
+    }
+
+    .hero-marquee-text .word-sep {
+      color: var(--ink-3);
+      font-size: 0.55em;
+      letter-spacing: 0;
+    }
+
+    .hero-marquee-text .char {
+      display: inline-block;
+      transform-origin: 50% 100%;
+      will-change: transform, opacity;
+    }
+
+    /* Scroll nudge — left edge mirrors the container rail */
+    .hero-marquee-hint {
+      position: absolute;
+      bottom: var(--sp-12);
+      left: max(var(--col-pad), calc((100% - var(--page-w)) / 2 + var(--col-pad)));
+      font-size: var(--text-label);
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      display: flex;
+      align-items: center;
+      gap: var(--sp-3);
+    }
+    .hero-marquee-hint::after {
+      content: '';
+      display: block;
+      width: 32px;
+      height: 1px;
+      background: var(--ink-3);
+      animation: hint-line 1.6s ease-in-out infinite;
+    }
+    @keyframes hint-line {
+      0%, 100% { transform: scaleX(0.4); opacity: 0.5; transform-origin: left; }
+      50%       { transform: scaleX(1);   opacity: 1; }
+    }
+
+    /* ══════════════════════════════
+       HERO IMAGE — full bleed
+    ══════════════════════════════ */
     .hero-image-section {
-      background: #1e1c1a; margin-top: 64px; padding: 60px 0 0;
-      width: 100vw; position: relative;
-      left: 50%; margin-left: -50vw; margin-right: -50vw;
+      background: #1e1c1a;
+      margin-top: var(--sp-16);
+      padding: var(--sp-16) 0 0;
+      width: 100vw;
+      position: relative;
+      left: 50%;
+      margin-left: -50vw;
+      margin-right: -50vw;
       overflow: hidden;
     }
     #hero-img { width: 100%; display: block; }
     .hero-image-caption {
-      max-width: var(--page-w); margin: 0 auto;
-      padding: 16px var(--col-pad) 40px;
-      font-size: 12px; color: #888784; letter-spacing: 0.03em;
+      max-width: var(--page-w);
+      margin: 0 auto;
+      padding: var(--sp-4) var(--col-pad) var(--sp-10);
+      font-size: var(--text-caption);
+      color: #888784;
+      letter-spacing: 0.03em;
     }
 
     /* IMAGES */
@@ -595,29 +699,20 @@
       <span class="nav-name">Surya Konijeti</span>
     </nav>
 
-    <!-- HERO -->
-    <header class="hero">
-      <div class="hero-meta">
+    <!-- HERO MARQUEE — full-bleed, breaks out of .container -->
+    <section class="hero-marquee" id="hero-marquee">
+      <div class="hero-marquee-meta" id="hero-meta-row">
         <span class="hero-tag">ZF Friedrichshafen AG · 2019</span>
         <span class="hero-dot"></span>
         <span class="hero-tag">Sr. UX Designer</span>
         <span class="hero-dot"></span>
         <span class="hero-tag">HMI / Autonomous Vehicles</span>
       </div>
-      <div class="hero-h1-wrap">
-        <h1 class="hero-h1">Case study — Reimagining the HMI for SAE Level 4 autonomous cars.</h1>
-      </div>
-      <p class="hero-lead">
-        SAE Level 4 means the car is driving. The person sitting in front is no longer a driver —
-        they're a passenger who happens to be in the driver's seat. I was a Senior UX Designer at
-        ZF's India Technology Centre when this brief came through: design a physical HMI for a
-        cabin where driving is no longer the primary task.
-      </p>
-      <div class="hero-ctas">
-        <a class="btn-primary" href="#">Read the case study</a>
-        <a class="btn-secondary" href="#">Jump to prototype</a>
-      </div>
-    </header>
+      <h1 class="hero-marquee-text" id="hero-marquee-text">
+        Case study<span class="word-sep">·</span>Reimagining the HMI<span class="word-sep">·</span>for SAE Level 4<span class="word-sep">·</span>autonomous cars
+      </h1>
+      <div class="hero-marquee-hint">Scroll</div>
+    </section>
 
   </div>
 
@@ -889,21 +984,68 @@
 
   gsap.registerPlugin(ScrollTrigger);
 
-  window.addEventListener('load', () => {
-    // Refresh after fonts/images settle
-    ScrollTrigger.refresh();
+  /* ─────────────────────────────────────────
+     1. HERO MARQUEE — ContainerAnimation + SplitText
+     Meta row fades in on load.
+     H1 chars tumble in as the user scrolls right.
+  ───────────────────────────────────────── */
+  const marqueeWrapper = document.getElementById('hero-marquee');
+  const marqueeText    = document.getElementById('hero-marquee-text');
+  const metaRow        = document.getElementById('hero-meta-row');
 
-    /* ─────────────────────────────────────────
-       1. HERO ENTRANCE — fires after load so
-       font metrics are correct for y:'100%'
-    ───────────────────────────────────────── */
-    const heroTl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-    heroTl.from('.nav',                 { autoAlpha: 0, duration: 0.5 }, 0.1);
-    heroTl.from('.hero-tag, .hero-dot', { autoAlpha: 0, y: 10, stagger: 0.07, duration: 0.5 }, 0.3);
-    heroTl.from('.hero-h1',             { y: '100%', duration: 0.95, ease: 'power4.out' }, 0.45);
-    heroTl.from('.hero-lead',           { autoAlpha: 0, y: 14, duration: 0.7 }, 0.75);
-    heroTl.from('.hero-ctas',           { autoAlpha: 0, y: 8,  duration: 0.5 }, 1.0);
-  });
+  // Nav entrance
+  gsap.from('.nav', { autoAlpha: 0, duration: 0.5, ease: 'power3.out', delay: 0.1 });
+
+  if (marqueeWrapper && marqueeText && typeof SplitText !== 'undefined') {
+    gsap.registerPlugin(SplitText);
+
+    // Meta row entrance
+    gsap.set(metaRow, { autoAlpha: 0, y: 8 });
+    gsap.to(metaRow, { autoAlpha: 1, y: 0, duration: 0.65, ease: 'power2.out', delay: 0.3 });
+
+    // Split h1 into chars (ignore the · separators)
+    const split = SplitText.create(marqueeText, {
+      type: 'chars',
+      ignore: '.word-sep',
+      charsClass: 'char',
+    });
+
+    // Horizontal scroll tween — pins the section, scrolls text left
+    const scrollTween = gsap.to(marqueeText, {
+      xPercent: -100,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: marqueeWrapper,
+        pin: true,
+        end: '+=4000px',
+        scrub: 0.6,
+      }
+    });
+
+    // Each char tumbles in as it enters the viewport during horizontal scroll
+    split.chars.forEach((char) => {
+      const yDir = Math.random() > 0.5 ? 1 : -1;
+      const yMag = 60 + Math.random() * 120;
+      const rot  = (Math.random() - 0.5) * 22;
+
+      gsap.from(char, {
+        yPercent: yDir * yMag,
+        rotation: rot,
+        autoAlpha: 0,
+        ease: 'back.out(1.4)',
+        scrollTrigger: {
+          trigger: char,
+          containerAnimation: scrollTween,
+          start: 'left 105%',
+          end: 'left 55%',
+          scrub: 0.8,
+        }
+      });
+    });
+  } else {
+    // Graceful fallback if SplitText unavailable
+    if (metaRow) gsap.to(metaRow, { autoAlpha: 1, duration: 0.5, delay: 0.3 });
+  }
 
   /* ─────────────────────────────────────────
      2. HERO IMAGE — strong scrubbed parallax
