@@ -1393,6 +1393,7 @@
     trigger: trigger,
     start:   'top bottom',
     onLeaveBack: function() {
+      unlockScroll();
       gsap.to(sphereText,   { autoAlpha: 0, duration: 0.2 });
       gsap.to(morphEl,      { autoAlpha: 0, duration: 0.2 });
       gsap.to(sphereShadow, { autoAlpha: 0, duration: 0.2 });
