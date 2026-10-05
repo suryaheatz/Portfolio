@@ -144,38 +144,48 @@
     /* ══════════════════════════════
        HERO IMAGE — full bleed
     ══════════════════════════════ */
+
+    /* Outer wrapper — stacking context for the whole transition zone */
+    .transition-stack {
+      position: relative;
+    }
+
     .hero-image-section {
       background: #1e1c1a;
-      margin-top: 0;
-      padding: var(--sp-8) 0 0;
       width: 100vw;
       position: relative;
       left: 50%;
       margin-left: -50vw;
       margin-right: -50vw;
       overflow: hidden;
-      z-index: 1;
+      /* NO z-index here — image sits at natural stack order, cards go over it */
     }
 
-    /* ══════════════════════════════
-       SECTION TRANSITION CARDS
-       Pin-over-pin scroll stack
-    ══════════════════════════════ */
+    /* ══════════════════════════════════════════════════
+       SECTION TRANSITION CARDS — CSS sticky stack
+       Brief sticks to top while scope scrolls over it.
+       No GSAP pin needed — native sticky is reliable.
+    ══════════════════════════════════════════════════ */
     .st-card {
       position: relative;
-      z-index: 1;
       width: 100%;
     }
+
+    /* Brief: sticky so it stays visible while scope slides over */
     .st-brief {
       background: var(--bg);
       border-radius: 20px 20px 0 0;
-      /* Offset the full-bleed left shift the image has, to align correctly */
-      margin-top: -20px; /* overlap image edge for seamless card reveal */
+      position: sticky;
+      top: 0;
+      z-index: 2;
     }
+
+    /* Scope: slides up on top of brief */
     .st-scope {
       background: #1a1917;
       border-radius: 20px 20px 0 0;
-      margin-top: -20px;
+      position: relative;
+      z-index: 3;
     }
 
     /* Dark scope overrides */
@@ -697,14 +707,16 @@
     <h1 class="hero-scroll-text">Reimagining the HMI for SAE&nbsp;Level&nbsp;4 autonomous cars</h1>
   </section>
 
-  <!-- HERO IMAGE — pinned, brief slides over it -->
-  <div class="hero-image-section" data-st-01="pin">
+  <!-- TRANSITION STACK: image → brief card → scope card -->
+  <div class="transition-stack">
+
+  <div class="hero-image-section">
     <img id="hero-img" src="/images/e6c6f4f7d31f7ae1dce7f9c49d5f9f71.png" alt="ZF Centronic ACP demonstrator — armrest control unit with MRF knob paired with tablet display">
     <p class="hero-image-caption">Centronic ACP demonstrator — the MRF knob, gear selector, and ambient light surface paired with the UI tablet</p>
   </div>
 
-  <!-- BRIEF — slides over image, pins while scope slides over it -->
-  <section class="st-card st-brief" data-st-01="pin">
+  <!-- BRIEF — sticky card, stays while scope slides over it -->
+  <section class="st-card st-brief">
     <div class="container">
       <hr class="rule" style="margin-top:72px;">
       <div class="section">
@@ -755,6 +767,8 @@
       </div>
     </div>
   </section>
+
+  </div><!-- end .transition-stack -->
 
   <div class="container">
 
@@ -966,34 +980,6 @@
 </div>
 
 <script>
-/* ─── sectionTransition01 ───────────────────────────────────────────────────
-   Pin-over-pin scroll stack. Reads data-st-01="pin" on sibling sections.
-   Each pinned section is held in place while the next section scrolls over it.
-   Call once after DOM is ready.
-────────────────────────────────────────────────────────────────────────────── */
-function sectionTransition01() {
-  const pinEls = document.querySelectorAll('[data-st-01="pin"]');
-
-  pinEls.forEach((section, i) => {
-    // The section that will scroll over this one is the very next sibling
-    const nextSection = section.nextElementSibling;
-    if (!nextSection) return;
-
-    ScrollTrigger.create({
-      trigger: nextSection,
-      start: "top bottom",
-      end: "top top",
-      pin: section,
-      pinSpacing: false,
-    });
-  });
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
-    sectionTransition01();
-  }
-});
 
 (function () {
   if (typeof gsap === 'undefined') return;
