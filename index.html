@@ -111,37 +111,12 @@
     }
 
     /* ══════════════════════════════════════════════════════
-       HERO SCROLL-REVEAL
-       Sticky section pinned to the top for 200vh of scroll.
-       Three-state sweep tied to the document scroll() timeline.
+       HERO — static, no scroll animation
     ══════════════════════════════════════════════════════ */
 
-    /* ── Colour tokens ── */
-    :root {
-      --hero-dim:   #c0bbb0;
-      --hero-sweep: #c45a1a;
-      --hero-lit:   #111110;
-    }
-
-    /* Outer — tall so the sticky section has scroll room */
-    .hero-scroll-outer {
-      height: 220vh;
-    }
-
-    /* Sticky frame — full viewport, centred content */
-    .hero-scroll-sticky {
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
+    .hero-section {
+      padding: 80px 0 64px;
       text-align: center;
-      background: var(--bg);
-      /* Offset for nav bar so text is visually centred in the visible area */
-      padding-top: 64px;
-      box-sizing: border-box;
     }
 
     /* Meta row */
@@ -150,97 +125,20 @@
       align-items: center;
       justify-content: center;
       gap: var(--sp-5);
-      margin-bottom: var(--sp-8);
-      opacity: 0;
-      animation: meta-fade-in 0.6s ease forwards 0.25s;
+      margin-bottom: var(--sp-6);
     }
-    @keyframes meta-fade-in { to { opacity: 1; } }
 
-    /* h1 — 2 lines at 1280px, centred */
+    /* h1 — 2 lines max */
     .hero-scroll-text {
       font-family: 'DM Serif Display', serif;
       font-style: italic;
-      font-size: clamp(32px, 4.8vw, 68px);
+      font-size: clamp(36px, 5.5vw, 76px);
       font-weight: 400;
-      line-height: 1.18;
+      line-height: 1.15;
       letter-spacing: -0.02em;
-      max-width: min(960px, 88vw);
-      margin: 0;
-    }
-
-    /* ── Three-colour sweep via background-clip: text ──
-       --_p is the sweep position (0% → 110%).
-       Layer 1: orange band around --_p
-       Layer 2: lit ink filling everything left of --_p
-       Layer 3: dim grey base everywhere               */
-    @property --_p {
-      syntax: '<percentage>';
-      inherits: false;
-      initial-value: 0%;
-    }
-
-    .hero-reveal-span {
-      /*
-        Three layers, back-to-front (last layer is bottom):
-        3 (bottom) — dim grey everywhere (base)
-        2 — lit ink from 0 → --_p  (left of sweep)
-        1 (top)    — orange band centred on --_p, ±4ch wide
-      */
-      background-image:
-        linear-gradient(90deg,
-          transparent            calc(var(--_p) - 4ch),
-          var(--hero-sweep)      calc(var(--_p) - 2ch),
-          var(--hero-sweep)      calc(var(--_p) + 2ch),
-          transparent            calc(var(--_p) + 4ch)
-        ),
-        linear-gradient(90deg,
-          var(--hero-lit)  calc(var(--_p) - 2ch),
-          transparent      calc(var(--_p) - 2ch)
-        ),
-        linear-gradient(90deg, var(--hero-dim), var(--hero-dim));
-
-      background-size: 100% 100%;
-      background-repeat: no-repeat;
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-
-      /* scroll(root block) timeline — 0%→30% of total page scroll */
-      animation: hero-reveal linear both;
-      animation-timeline: scroll(root block);
-      animation-range: 0% 30%;
-    }
-
-    @keyframes hero-reveal {
-      from { --_p: -10%; }
-      to   { --_p: 110%; }
-    }
-
-    /* Scroll hint */
-    .hero-scroll-hint {
-      position: absolute;
-      bottom: var(--sp-12);
-      left: max(var(--col-pad), calc((100% - var(--page-w)) / 2 + var(--col-pad)));
-      font-size: var(--text-label);
-      font-weight: 500;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--ink-3);
-      display: flex;
-      align-items: center;
-      gap: var(--sp-3);
-    }
-    .hero-scroll-hint::after {
-      content: '';
-      display: block;
-      width: 32px;
-      height: 1px;
-      background: var(--ink-3);
-      animation: hint-line 1.6s ease-in-out infinite;
-    }
-    @keyframes hint-line {
-      0%, 100% { transform: scaleX(0.4); opacity: 0.5; transform-origin: left; }
-      50%       { transform: scaleX(1);   opacity: 1; }
+      max-width: min(1100px, 92vw);
+      margin: 0 auto;
+      color: var(--ink);
     }
 
     /* ══════════════════════════════
@@ -248,8 +146,8 @@
     ══════════════════════════════ */
     .hero-image-section {
       background: #1e1c1a;
-      margin-top: var(--sp-16);
-      padding: var(--sp-16) 0 0;
+      margin-top: 0;
+      padding: var(--sp-8) 0 0;
       width: 100vw;
       position: relative;
       left: 50%;
@@ -747,22 +645,17 @@
 
   </div>
 
-  <!-- HERO SCROLL-REVEAL — sticky section, pure CSS scroll-driven -->
-  <div class="hero-scroll-outer" id="hero-scroll-outer">
-    <section class="hero-scroll-sticky">
-      <div class="hero-scroll-meta" id="hero-meta-row">
-        <span class="hero-tag">ZF Friedrichshafen AG · 2019</span>
-        <span class="hero-dot"></span>
-        <span class="hero-tag">Sr. UX Designer</span>
-        <span class="hero-dot"></span>
-        <span class="hero-tag">HMI / Autonomous Vehicles</span>
-      </div>
-      <h1 class="hero-scroll-text">
-        <span class="hero-reveal-span">Case study · Reimagining the HMI · for SAE Level 4 · autonomous cars</span>
-      </h1>
-      <div class="hero-scroll-hint">Scroll</div>
-    </section>
-  </div>
+  <!-- HERO -->
+  <section class="hero-section">
+    <div class="hero-scroll-meta">
+      <span class="hero-tag">ZF Friedrichshafen AG · 2019</span>
+      <span class="hero-dot"></span>
+      <span class="hero-tag">Sr. UX Designer</span>
+      <span class="hero-dot"></span>
+      <span class="hero-tag">HMI / Autonomous Vehicles</span>
+    </div>
+    <h1 class="hero-scroll-text">Reimagining the HMI for SAE&nbsp;Level&nbsp;4 autonomous cars</h1>
+  </section>
 
   <!-- HERO IMAGE — true full bleed -->
   <div class="hero-image-section">
