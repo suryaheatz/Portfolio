@@ -153,8 +153,8 @@
 
     /* CHAPTERS */
     .chapter-heading { font-size: 11px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 24px; }
-    /* Give the chapter section a solid height for the pin to work cleanly */
-    .section:has(.chapter-list) { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; }
+    /* Chapter section — natural height, no forced viewport fill */
+    .section:has(.chapter-list) { padding-top: 72px; padding-bottom: 72px; }
     .chapter-list { list-style: none; }
     .chapter-list li {
       display: flex; align-items: baseline; gap: 20px;
@@ -238,8 +238,12 @@
       position: relative;
       height: 100vh;
       width: 100%;
-      /* Spacer that anchors the scroll position — the actual animation
-         elements are all position:fixed and don't live in this flow */
+      /* Spacer that anchors scroll during sphere/curtain animation.
+         JS collapses this to 'auto' height once thumb is shown. */
+    }
+    /* Once thumb is showing, trigger shrinks to card height */
+    #proto-trigger.thumb-mode {
+      height: auto;
     }
 
     /* ── Sphere (morph-el) — ball only, no morphing ── */
@@ -434,68 +438,72 @@
     }
 
     /* ── Thumbnail / collapsed view ──
-       Sits in-page inside #proto-trigger space.
-       Position: absolute relative to the trigger section.
-       Not a full-screen overlay. ── */
+       In-page block — sits inside #proto-trigger which shrinks to wrap it.
+       No fixed/absolute positioning — flows naturally before the chapters. ── */
     .proto-thumb {
-      position: absolute;
-      inset: 0;
-      z-index: 250;
-      display: none;
+      display: none;          /* shown by JS */
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      padding: 64px 48px 80px;
       background: #f5f4f0;
+      width: 100%;
     }
     .proto-thumb-inner {
-      width: 60vw;
-      max-width: 860px;
-      min-width: 280px;
-      border: 1px solid rgba(14,14,13,0.12);
-      border-radius: 10px;
+      width: 100%;
+      max-width: 780px;
+      border: 1px solid rgba(14,14,13,0.10);
+      border-radius: 12px;
       background: #ffffff;
       overflow: hidden;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04);
+      box-shadow:
+        0 2px 8px rgba(0,0,0,0.04),
+        0 8px 32px rgba(0,0,0,0.06),
+        0 24px 64px rgba(0,0,0,0.04);
     }
     .proto-thumb-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 14px;
-      border-bottom: 1px solid rgba(14,14,13,0.07);
+      padding: 11px 16px 10px;
+      border-bottom: 1px solid rgba(14,14,13,0.06);
+      background: #fafaf8;
     }
     .proto-thumb-label {
-      font-size: 9px;
-      font-weight: 600;
-      letter-spacing: 0.14em;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.10em;
       text-transform: uppercase;
-      color: rgba(14,14,13,0.3);
+      color: rgba(14,14,13,0.35);
     }
     .proto-thumb-expand {
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 5px;
       background: transparent;
-      border: 1px solid rgba(14,14,13,0.1);
-      border-radius: 4px;
-      padding: 2px 7px 2px 5px;
+      border: 1px solid rgba(14,14,13,0.12);
+      border-radius: 6px;
+      padding: 4px 10px 4px 8px;
       cursor: pointer;
       font-size: 11px;
-      color: rgba(14,14,13,0.35);
-      transition: color 0.2s, border-color 0.2s;
+      font-weight: 500;
+      color: rgba(14,14,13,0.45);
+      letter-spacing: 0.02em;
+      transition: color 0.18s, border-color 0.18s, background 0.18s;
     }
     .proto-thumb-expand:hover {
-      color: rgba(14,14,13,0.65);
-      border-color: rgba(14,14,13,0.25);
+      color: rgba(14,14,13,0.75);
+      border-color: rgba(14,14,13,0.22);
+      background: rgba(14,14,13,0.03);
     }
     .proto-thumb-expand svg { flex-shrink: 0; }
     .proto-thumb-viewport {
       position: relative;
       width: 100%;
-      /* 16:10 aspect ratio for the prototype preview */
+      /* 16:10 — matches HMI prototype native ratio */
       padding-bottom: 62.5%;
       background: #0e0e0d;
       overflow: hidden;
+      border-top: none;
     }
     .proto-thumb-viewport .proto-iframe {
       position: absolute;
@@ -503,43 +511,44 @@
       width: 100%;
       height: 100%;
       transform-origin: top left;
-      /* scaled down visually via JS to fit */
     }
     .proto-thumb-footer {
       display: flex;
       align-items: center;
       gap: 6px;
-      padding: 9px 14px;
-      border-top: 1px solid rgba(14,14,13,0.07);
+      padding: 10px 16px;
+      border-top: 1px solid rgba(14,14,13,0.06);
+      background: #fafaf8;
     }
     .proto-thumb-ver {
-      padding: 3px 12px;
-      border-radius: 4px;
+      padding: 4px 14px;
+      border-radius: 5px;
       border: 1px solid rgba(14,14,13,0.12);
       background: transparent;
       color: rgba(14,14,13,0.4);
       font-family: 'DM Sans', sans-serif;
       font-size: 11px;
       font-weight: 500;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.04em;
       cursor: pointer;
-      transition: border-color 0.2s, color 0.2s;
+      transition: border-color 0.18s, color 0.18s, background 0.18s;
     }
     .proto-thumb-ver.active {
-      border-color: rgba(14,14,13,0.3);
+      border-color: rgba(14,14,13,0.28);
       color: rgba(14,14,13,0.75);
+      background: rgba(14,14,13,0.04);
     }
     .proto-thumb-ver:hover:not(.active) {
-      border-color: rgba(14,14,13,0.2);
+      border-color: rgba(14,14,13,0.18);
       color: rgba(14,14,13,0.55);
     }
     .proto-thumb-hint {
-      margin-top: 18px;
-      font-size: 9px;
+      margin-top: 20px;
+      font-size: 10px;
       font-weight: 500;
-      letter-spacing: 0.16em;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
-      color: rgba(14,14,13,0.28);
+      color: rgba(14,14,13,0.25);
     }
   </style>
 </head>
@@ -921,31 +930,22 @@
   if (chapterSection) {
     const chItems = gsap.utils.toArray('.chapter-list li');
 
-    // Set initial state — all rows hidden
-    gsap.set(chItems, { autoAlpha: 0, x: -16 });
+    // Hidden until section enters viewport
+    gsap.set(chItems, { autoAlpha: 0, y: 10 });
 
-    const chapterTl = gsap.timeline({
+    // Stagger in as section scrolls into view — no pin, no scrub.
+    // Start fires when section top hits 80% down the viewport (well before center).
+    gsap.to(chItems, {
+      autoAlpha: 1, y: 0,
+      duration: 0.55,
+      ease: 'power2.out',
+      stagger: 0.055,
       scrollTrigger: {
         trigger: chapterSection,
-        pin: true,
-        start: 'top top',   // pins when section reaches top of viewport
-        end: '+=' + (chItems.length * 80),
-        scrub: 1,
-        invalidateOnRefresh: true,  // recalculate after showThumb() calls ScrollTrigger.refresh()
-        snap: {
-          snapTo: 1 / (chItems.length - 1),
-          duration: { min: 0.15, max: 0.6 },
-          delay: 0.05,
-          ease: 'power1.inOut',
-        },
+        start: 'top 78%',
+        toggleActions: 'play none none none',
+        invalidateOnRefresh: true,
       }
-    });
-
-    // Each item animates in sequentially as scrub advances
-    chItems.forEach((item, i) => {
-      chapterTl.to(item, {
-        autoAlpha: 1, x: 0, duration: 1, ease: 'power2.out'
-      }, i);  // each item at its own label position
     });
   }
 
@@ -1123,7 +1123,7 @@
   gsap.set(sphereShadow, { autoAlpha: 0, display: 'none' });
   gsap.set(sphereText,   { autoAlpha: 0, display: 'block', bottom: PAD + S + 16, top: 'auto' });
   gsap.set(protoCurtain, { display: 'none' });
-  gsap.set(protoThumb,   { display: 'none', opacity: 0 });
+  // protoThumb starts hidden via CSS display:none — no GSAP override needed
 
   /* ─────────────────────────────────────────────────
      PHASE 1: SINGLE DROP with bounce.out ease
@@ -1323,17 +1323,25 @@
     state = 'thumb';
     unlockScroll();
 
-    // Reveal chapter section now (it was visibility:hidden until collapse)
-    var chapterSection = document.getElementById('chapter-section');
-    if (chapterSection) {
-      gsap.set(chapterSection, { visibility: 'visible' });
-      // Kick ScrollTrigger so it recalculates positions with the section visible
-      ScrollTrigger.refresh();
+    // Switch trigger to auto-height so it wraps the card (no empty space below)
+    trigger.classList.add('thumb-mode');
+
+    // Reveal chapter section (was visibility:hidden until now)
+    var chapterSectionEl = document.getElementById('chapter-section');
+    if (chapterSectionEl) {
+      gsap.set(chapterSectionEl, { visibility: 'visible' });
     }
 
-    // Purely cosmetic fade-in.
-    gsap.set(protoThumb, { display: 'flex', opacity: 0 });
-    gsap.to(protoThumb, { opacity: 1, duration: 0.4, ease: 'power2.out' });
+    // Purely cosmetic fade-in — use style.display directly so flex layout works
+    protoThumb.style.display = 'flex';
+    gsap.set(protoThumb, { opacity: 0 });
+    gsap.to(protoThumb, {
+      opacity: 1, duration: 0.5, ease: 'power2.out',
+      onComplete: function() {
+        // Refresh ScrollTrigger after layout has settled with new heights
+        ScrollTrigger.refresh();
+      }
+    });
   }
 
   /* ─── Expand from thumbnail ─── */
