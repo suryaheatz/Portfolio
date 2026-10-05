@@ -238,6 +238,8 @@
       position: relative;
       height: 100vh;
       width: 100%;
+      /* Spacer that anchors the scroll position — the actual animation
+         elements are all position:fixed and don't live in this flow */
     }
 
     /* ── Sphere (morph-el) — ball only, no morphing ── */
@@ -295,8 +297,8 @@
       text-align: center;
       width: min(580px, 80vw);
       pointer-events: none;
-      display: none;
-      /* bottom is set by JS to align with ball resting position */
+      /* JS sets display:block + bottom, then fades in via opacity */
+      /* Never in document flow */
     }
     .sphere-text-label {
       display: block;
@@ -606,14 +608,6 @@
       </div>
     </div>
 
-    <!-- CLIMATE IMAGE -->
-    <div class="anim-block" style="width:78%;margin:0 auto 12px;">
-      <div class="img-block">
-        <img src="/images/c443c4c22d3888ef777c32efb66c17cb.png" alt="Climate control module — teal bubble UI showing Driver Zone Climate Controls">
-      </div>
-    </div>
-    <p class="image-caption anim-block" style="text-align:center;">Climate module, V1 — zone-based bubbles map directly to cabin areas. Knob resistance increases as you approach edges of a thermal zone.</p>
-
     <!-- SCOPE STRIP -->
     <div class="section anim-block" style="padding-bottom:0;">
       <div class="scope-strip">
@@ -639,6 +633,7 @@
   </div>
 
   <!-- ─── PROTO SEQUENCE: SPHERE → CURTAIN → PROTOTYPE ─── -->
+  <!-- This section replaces the old climate image slot in the page layout -->
   <section id="proto-trigger"></section>
 
   <!-- Sphere element — only ever a ball, never morphs to full-screen -->
@@ -1117,144 +1112,78 @@
     }
   }
 
-  // Initial state — hide everything
-  gsap.set(morphEl,      { display: 'none' });
-  gsap.set(sphereShadow, { display: 'none' });
-  gsap.set(sphereText,   { display: 'none', opacity: 0 });
+  // Initial state — hide everything, sphere-text stays out of view via opacity+display
+  gsap.set(morphEl,      { autoAlpha: 0, display: 'none' });
+  gsap.set(sphereShadow, { autoAlpha: 0, display: 'none' });
+  gsap.set(sphereText,   { autoAlpha: 0, display: 'block', bottom: PAD + S + 16, top: 'auto' });
   gsap.set(protoCurtain, { display: 'none' });
-  gsap.set(protoThumb,   { display: 'none' });
+  gsap.set(protoThumb,   { display: 'none', opacity: 0 });
 
   /* ─────────────────────────────────────────────────
-     PHASE 1: 3-BOUNCE SEQUENCE
-     Ball drops from above, bounces exactly 3 times.
-     On the 3rd landing: ball disappears, text fades in.
+     PHASE 1: SINGLE DROP with bounce.out ease
+     bounce.out naturally produces ~3 diminishing
+     sub-bounces in one tween. onComplete = ball settled.
   ───────────────────────────────────────────────── */
 
-  function doBounce(onLand) {
-    // A single drop-and-land cycle
-    // Uses bounce.out ease so it naturally settles after one fall
+  function startBounce() {
+    if (state !== 'idle') return;
+    state = 'bouncing';
+
     var restTop  = sphereRestTop();
     var restLeft = sphereRestLeft();
 
-    gsap.set(morphEl, {
-      top:          -(S + 80),
-      left:         restLeft,
-      width:        S,
-      height:       S,
-      right:        'auto',
-      bottom:       'auto',
-      borderRadius: '50%',
-      background:   'radial-gradient(circle at 38% 115%, #3a3835 0%, #1c1b19 40%, #0a0a09 100%)',
-      boxShadow:    '0 20px 60px rgba(0,0,0,0.45), 0 4px 16px rgba(0,0,0,0.25)',
-      clearProps:   'transform,scaleX,scaleY',
-    });
-
-    gsap.to(morphEl, {
-      top:      restTop,
-      duration: 1.1,
-      ease:     'bounce.out',
-      onComplete: function() {
-        // Squish on land
-        gsap.to(morphEl, {
-          scaleY: 0.80, scaleX: 1.14, duration: 0.07,
-          ease: 'power2.in', transformOrigin: 'center bottom',
-          onComplete: function() {
-            // Spring back
-            gsap.to(morphEl, {
-              scaleY: 1, scaleX: 1, duration: 0.5,
-              ease: 'elastic.out(1, 0.4)', transformOrigin: 'center bottom',
-              onComplete: function() {
-                gsap.set(morphEl, { clearProps: 'transform,scaleX,scaleY' });
-                if (onLand) onLand();
-              }
-            });
-          }
-        });
-      }
-    });
-  }
-
-  function startBounceSequence() {
-    if (state !== 'idle') return;
-    state = 'bouncing';
-    bounceCount = 0;
-
-    var restLeft = sphereRestLeft();
-
-    // Show ball and shadow
+    // Position ball above viewport
     gsap.set(morphEl, {
       display:      'block',
       position:     'fixed',
       top:          -(S + 80),
       left:         restLeft,
-      width:        S,
-      height:       S,
       right:        'auto',
       bottom:       'auto',
+      width:        S,
+      height:       S,
       borderRadius: '50%',
       background:   'radial-gradient(circle at 38% 115%, #3a3835 0%, #1c1b19 40%, #0a0a09 100%)',
       boxShadow:    '0 20px 60px rgba(0,0,0,0.45), 0 4px 16px rgba(0,0,0,0.25)',
+      autoAlpha:    1,
     });
     gsap.set(sphereShadow, {
       display: 'block',
       left:    restLeft + (S - 68) / 2,
       top:     vh() - PAD + 2,
-      opacity: 1,
+      autoAlpha: 1,
     });
 
-    function runBounce() {
-      bounceCount++;
-      var isLast = (bounceCount === 3);
+    // Single drop — bounce.out handles the 3 natural sub-bounces
+    gsap.to(morphEl, {
+      top:      restTop,
+      duration: 1.6,
+      ease:     'bounce.out',
+      onComplete: ballToText,
+    });
 
-      doBounce(function() {
-        if (isLast) {
-          // 3rd landing: ball disappears, text appears
-          ballToText();
-        } else {
-          // Short pause, then next bounce — rise slightly before next drop
-          var restTop  = sphereRestTop();
-          var restLeft = sphereRestLeft();
-          // Brief float up then next drop
-          gsap.to(morphEl, {
-            top:      restTop - 18,
-            duration: 0.22,
-            ease:     'power1.out',
-            onComplete: function() {
-              gsap.set(morphEl, {
-                top:     -(S + 80),
-                left:    restLeft,
-                clearProps: 'transform,scaleX,scaleY',
-              });
-              runBounce();
-            }
-          });
-        }
-      });
-    }
-
-    runBounce();
+    // Shadow pulses in sync with the bounces
+    gsap.to(sphereShadow, {
+      scaleX: 1.4, opacity: 0.12, duration: 1.6,
+      ease: 'bounce.out',
+    });
   }
 
   function ballToText() {
-    // Hide ball + shadow
-    gsap.to(morphEl,      { autoAlpha: 0, duration: 0.15, onComplete: function() { gsap.set(morphEl, { display: 'none' }); } });
-    gsap.to(sphereShadow, { autoAlpha: 0, duration: 0.15, onComplete: function() { gsap.set(sphereShadow, { display: 'none' }); } });
-
-    // Position text block at the ball's resting position
-    // Align bottom of text block to just above the floor
-    var textBottom = PAD + S + 16; // gap above ball position
-    gsap.set(sphereText, {
-      display: 'block',
-      bottom:  textBottom,
-      top:     'auto',
-      opacity: 0,
+    // Ball settled — snap to final rest position then disappear
+    gsap.to(morphEl, {
+      autoAlpha: 0, duration: 0.18,
+      onComplete: function() { gsap.set(morphEl, { display: 'none' }); }
+    });
+    gsap.to(sphereShadow, {
+      autoAlpha: 0, duration: 0.18,
+      onComplete: function() { gsap.set(sphereShadow, { display: 'none' }); }
     });
 
-    // Fade in text
+    // Text is already positioned (set in initial state), fade it in
     gsap.to(sphereText, {
-      opacity: 1, duration: 0.6, ease: 'power2.out',
+      autoAlpha: 1, duration: 0.55, ease: 'power2.out',
       onComplete: function() {
-        // Enable CTA after text is visible
         ctaWrap.classList.add('is-active');
         state = 'cta';
         lockScroll();
@@ -1262,12 +1191,12 @@
     });
   }
 
-  /* ─── ScrollTrigger: fire bounce when proto section enters view ─── */
+  /* ─── ScrollTrigger: fire bounce when proto section reaches viewport center ─── */
   ScrollTrigger.create({
     trigger: trigger,
-    start:   'top 80%',
+    start:   'top center',
     once:    true,
-    onEnter: startBounceSequence,
+    onEnter: startBounce,
   });
 
   /* ─────────────────────────────────────────────────
@@ -1376,7 +1305,11 @@
     gsap.set(protoThumb, { display: 'flex', opacity: 0 });
     gsap.to(protoThumb, {
       opacity: 1, duration: 0.4, ease: 'power2.out',
-      onComplete: function() { state = 'thumb'; }
+      onComplete: function() {
+        state = 'thumb';
+        // Unlock scroll so user can scroll past proto-trigger to chapters
+        unlockScroll();
+      }
     });
   }
 
@@ -1413,6 +1346,20 @@
       protoIframe.src = '/prototypes/v' + btn.dataset.v + '/index.html';
     });
   });
+
+  /* ─── Dismiss thumbnail on scroll so chapters are reachable ─── */
+  window.addEventListener('scroll', function() {
+    if (state !== 'thumb') return;
+    // Once user scrolls past the proto-trigger section, hide thumbnail
+    var triggerBottom = trigger.getBoundingClientRect().bottom;
+    if (triggerBottom < 0) {
+      gsap.to(protoThumb, {
+        opacity: 0, duration: 0.3,
+        onComplete: function() { gsap.set(protoThumb, { display: 'none' }); }
+      });
+      state = 'chapters';
+    }
+  }, { passive: true });
 
   /* ─── Version buttons (thumbnail) ─── */
   document.querySelectorAll('.proto-thumb-ver').forEach(function(btn) {
