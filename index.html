@@ -110,70 +110,124 @@
       flex-shrink: 0;
     }
 
-    /* ══════════════════════════════
-       HERO MARQUEE
-       Full-bleed horizontally.
-       Meta row and scroll hint align
-       to --col-pad — same as .container.
-    ══════════════════════════════ */
-    .hero-marquee {
-      overflow: hidden;
+    /* ══════════════════════════════════════════════════════
+       HERO SCROLL-REVEAL
+       Pure CSS scroll-driven animation — no JS, no library.
+       Requires Chrome 115+ / Firefox 130+ (animation-timeline).
+       Outer div is tall (scroll travel); inner section is sticky.
+    ══════════════════════════════════════════════════════ */
+
+    /* ── Colour tokens for the three-state reveal ── */
+    :root {
+      --hero-dim:     #c0bbb0;   /* unread — warm grey against #f5f4f0  */
+      --hero-sweep:   #c45a1a;   /* passing highlight — burnt orange     */
+      --hero-lit:     #111110;   /* fully revealed — same as --ink       */
+    }
+
+    /* Outer wrapper — tall enough to give scroll distance */
+    .hero-scroll-outer {
+      height: 250vh;   /* the extra 150vh is the scroll travel */
+      position: relative;
+    }
+
+    /* Sticky frame — stays in view while outer scrolls past */
+    .hero-scroll-sticky {
+      position: sticky;
+      top: 0;
       height: 100vh;
-      min-height: 500px;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      position: relative;
-      width: 100%;
-      /* Explicit background to ensure it paints — confirms it has area */
+      align-items: center;
+      text-align: center;
       background: var(--bg);
+      overflow: hidden;
     }
 
-    /* Meta row: sits INSIDE a full-bleed section.
-       Use max-width + auto margin to mirror what .container does,
-       then left-pad with --col-pad — identical rail to every other section. */
-    .hero-marquee-meta {
+    /* Meta row — centred, same label style as before */
+    .hero-scroll-meta {
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: var(--sp-5);
-      max-width: var(--page-w);
-      margin: 0 auto var(--sp-10);
-      padding: 0 var(--col-pad);   /* same as .container — aligns to the left grid guide */
+      margin-bottom: var(--sp-10);
+      opacity: 0;
+      animation: meta-fade-in 0.6s ease forwards 0.2s;
+    }
+    @keyframes meta-fade-in {
+      to { opacity: 1; }
     }
 
-    .hero-marquee-text {
+    /* The h1 — large, italic serif, centred, wraps naturally */
+    .hero-scroll-text {
       font-family: 'DM Serif Display', serif;
       font-style: italic;
       font-size: var(--text-serif-lg);
       font-weight: 400;
-      line-height: 1.0;
+      line-height: 1.15;
       letter-spacing: -0.025em;
-      color: var(--ink);
-      white-space: nowrap;
-      display: flex;
-      width: max-content;
-      align-items: baseline;
-      gap: 5vw;
-      /* GSAP translates this via `x` — no padding-left needed.
-         Static fallback: sit at col-pad so text is visible without JS. */
-      padding-left: var(--col-pad);
-      will-change: transform;
+      max-width: min(900px, 88vw);
+      margin: 0;
+      padding: 0 var(--col-pad);
     }
 
-    .hero-marquee-text .word-sep {
-      color: var(--ink-3);
-      font-size: 0.55em;
-      letter-spacing: 0;
+    /* ── The reveal span: three-colour sweep via background-clip ── */
+    .hero-reveal-span {
+      /* Layered backgrounds (front to back):
+         1. Accent sweep — a narrow bright band that travels left→right
+         2. Fill — the "already read" colour advancing behind the sweep
+         3. Base — the dim/unread colour that fills the whole text        */
+      --sweep-w: 6ch;   /* width of the orange highlight band */
+
+      background-image:
+        /* layer 1 — orange sweep band */
+        linear-gradient(
+          90deg,
+          transparent           calc(var(--_p,0%) - var(--sweep-w)),
+          var(--hero-sweep)     calc(var(--_p,0%) - calc(var(--sweep-w) * 0.5)),
+          transparent           var(--_p,0%)
+        ),
+        /* layer 2 — lit fill advancing left → right */
+        linear-gradient(
+          90deg,
+          var(--hero-lit) var(--_p,0%),
+          transparent     var(--_p,0%)
+        ),
+        /* layer 3 — base dim colour everywhere */
+        linear-gradient(90deg, var(--hero-dim), var(--hero-dim));
+
+      background-size: 100% 100%, 100% 100%, 100% 100%;
+      background-repeat: no-repeat;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+
+      /* Scroll-driven: --_p goes 0% → 110% as outer div scrolls */
+      animation: hero-reveal linear both;
+      animation-timeline: --hero-scroll;
+      animation-range: entry 0% cover 80%;
     }
 
-    .hero-marquee-text .char {
-      display: inline-block;
-      transform-origin: 50% 100%;
-      will-change: transform, opacity;
+    @keyframes hero-reveal {
+      from { --_p: 0%;   }
+      to   { --_p: 110%; }
     }
 
-    /* Scroll nudge — left edge mirrors the container rail */
-    .hero-marquee-hint {
+    /* Register --_p as a <percentage> so the browser interpolates it */
+    @property --_p {
+      syntax: '<percentage>';
+      inherits: false;
+      initial-value: 0%;
+    }
+
+    /* Attach the named timeline to the outer scroll container */
+    .hero-scroll-outer {
+      view-timeline-name: --hero-scroll;
+      view-timeline-axis: block;
+    }
+
+    /* Scroll hint — bottom-left of the sticky frame */
+    .hero-scroll-hint {
       position: absolute;
       bottom: var(--sp-12);
       left: max(var(--col-pad), calc((100% - var(--page-w)) / 2 + var(--col-pad)));
@@ -186,7 +240,7 @@
       align-items: center;
       gap: var(--sp-3);
     }
-    .hero-marquee-hint::after {
+    .hero-scroll-hint::after {
       content: '';
       display: block;
       width: 32px;
@@ -703,20 +757,22 @@
 
   </div>
 
-  <!-- HERO MARQUEE — true full-bleed, outside .container -->
-  <section class="hero-marquee" id="hero-marquee">
-    <div class="hero-marquee-meta" id="hero-meta-row">
-      <span class="hero-tag">ZF Friedrichshafen AG · 2019</span>
-      <span class="hero-dot"></span>
-      <span class="hero-tag">Sr. UX Designer</span>
-      <span class="hero-dot"></span>
-      <span class="hero-tag">HMI / Autonomous Vehicles</span>
-    </div>
-    <h1 class="hero-marquee-text" id="hero-marquee-text">
-      Case study<span class="word-sep">·</span>Reimagining the HMI<span class="word-sep">·</span>for SAE Level 4<span class="word-sep">·</span>autonomous cars
-    </h1>
-    <div class="hero-marquee-hint">Scroll</div>
-  </section>
+  <!-- HERO SCROLL-REVEAL — sticky section, pure CSS scroll-driven -->
+  <div class="hero-scroll-outer" id="hero-scroll-outer">
+    <section class="hero-scroll-sticky">
+      <div class="hero-scroll-meta" id="hero-meta-row">
+        <span class="hero-tag">ZF Friedrichshafen AG · 2019</span>
+        <span class="hero-dot"></span>
+        <span class="hero-tag">Sr. UX Designer</span>
+        <span class="hero-dot"></span>
+        <span class="hero-tag">HMI / Autonomous Vehicles</span>
+      </div>
+      <h1 class="hero-scroll-text">
+        <span class="hero-reveal-span">Case study · Reimagining the HMI · for SAE Level 4 · autonomous cars</span>
+      </h1>
+      <div class="hero-scroll-hint">Scroll</div>
+    </section>
+  </div>
 
   <!-- HERO IMAGE — true full bleed -->
   <div class="hero-image-section">
@@ -990,90 +1046,9 @@
     // Refresh after fonts + images settle so ScrollTrigger measures correctly
     ScrollTrigger.refresh();
 
-    /* ─────────────────────────────────────────
-       1. HERO MARQUEE — ContainerAnimation + SplitText
-       Meta row fades in immediately.
-       H1 chars tumble in as the user scrolls.
-    ───────────────────────────────────────── */
-    const marqueeWrapper = document.getElementById('hero-marquee');
-    const marqueeText    = document.getElementById('hero-marquee-text');
-    const metaRow        = document.getElementById('hero-meta-row');
-
-    // Nav entrance
+    // Nav entrance (GSAP still handles this small fade-in)
     gsap.from('.nav', { autoAlpha: 0, duration: 0.5, ease: 'power3.out', delay: 0.1 });
 
-    if (marqueeWrapper && marqueeText) {
-      // Meta row entrance
-      gsap.set(metaRow, { autoAlpha: 0, y: 8 });
-      gsap.to(metaRow, { autoAlpha: 1, y: 0, duration: 0.65, ease: 'power2.out', delay: 0.3 });
-
-      // ── Vanilla char-split (no Club GSAP needed) ──────────────────────
-      // Walk all childNodes of the h1. Text nodes get split into individual
-      // <span class="char"> elements; .word-sep spans are left intact.
-      function splitChars(el) {
-        const chars = [];
-        const nodes = Array.from(el.childNodes);
-        el.innerHTML = '';
-
-        nodes.forEach(node => {
-          if (node.nodeType === Node.TEXT_NODE) {
-            // split text into chars
-            [...node.textContent].forEach(ch => {
-              const span = document.createElement('span');
-              span.className = 'char';
-              span.textContent = ch;
-              el.appendChild(span);
-              chars.push(span);
-            });
-          } else if (node.nodeType === Node.ELEMENT_NODE) {
-            // preserve .word-sep (and any other inline el) intact
-            el.appendChild(node);
-          }
-        });
-        return chars;
-      }
-
-      const chars = splitChars(marqueeText);
-
-      // Push h1 off-screen right so GSAP scrolls it into view
-      gsap.set(marqueeText, { x: window.innerWidth });
-
-      // Horizontal scroll tween — pins the section, scrolls text left
-      const totalW  = marqueeText.scrollWidth;
-      const scrollD = totalW + window.innerWidth; // total travel distance
-
-      const scrollTween = gsap.to(marqueeText, {
-        x: -(totalW),
-        ease: 'none',
-        scrollTrigger: {
-          trigger: marqueeWrapper,
-          pin: true,
-          end: '+=' + scrollD + 'px',
-          scrub: 0.6,
-        }
-      });
-
-      // Each char tumbles in as it scrolls into the viewport
-      chars.forEach((char) => {
-        const yDir = Math.random() > 0.5 ? 1 : -1;
-        const yMag = 60 + Math.random() * 120;
-        const rot  = (Math.random() - 0.5) * 22;
-
-        gsap.from(char, {
-          yPercent: yDir * yMag,
-          rotation: rot,
-          autoAlpha: 0,
-          ease: 'back.out(1.4)',
-          scrollTrigger: {
-            trigger: char,
-            containerAnimation: scrollTween,
-            start: 'left 105%',
-            end: 'left 55%',
-            scrub: 0.8,
-          }
-        });
-      });
-    }
   }); // end window load
 
   /* ─────────────────────────────────────────
