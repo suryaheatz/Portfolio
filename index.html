@@ -112,25 +112,23 @@
 
     /* ══════════════════════════════════════════════════════
        HERO SCROLL-REVEAL
-       Pure CSS scroll-driven animation — no JS, no library.
-       Requires Chrome 115+ / Firefox 130+ (animation-timeline).
-       Outer div is tall (scroll travel); inner section is sticky.
+       Sticky section pinned to the top for 200vh of scroll.
+       Three-state sweep tied to the document scroll() timeline.
     ══════════════════════════════════════════════════════ */
 
-    /* ── Colour tokens for the three-state reveal ── */
+    /* ── Colour tokens ── */
     :root {
-      --hero-dim:     #c0bbb0;   /* unread — warm grey against #f5f4f0  */
-      --hero-sweep:   #c45a1a;   /* passing highlight — burnt orange     */
-      --hero-lit:     #111110;   /* fully revealed — same as --ink       */
+      --hero-dim:   #c0bbb0;
+      --hero-sweep: #c45a1a;
+      --hero-lit:   #111110;
     }
 
-    /* Outer wrapper — tall enough to give scroll distance */
+    /* Outer — tall so the sticky section has scroll room */
     .hero-scroll-outer {
-      height: 250vh;   /* the extra 150vh is the scroll travel */
-      position: relative;
+      height: 220vh;
     }
 
-    /* Sticky frame — stays in view while outer scrolls past */
+    /* Sticky frame — full viewport, centred content */
     .hero-scroll-sticky {
       position: sticky;
       top: 0;
@@ -141,92 +139,84 @@
       align-items: center;
       text-align: center;
       background: var(--bg);
-      overflow: hidden;
+      /* Offset for nav bar so text is visually centred in the visible area */
+      padding-top: 64px;
+      box-sizing: border-box;
     }
 
-    /* Meta row — centred, same label style as before */
+    /* Meta row */
     .hero-scroll-meta {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: var(--sp-5);
-      margin-bottom: var(--sp-10);
+      margin-bottom: var(--sp-8);
       opacity: 0;
-      animation: meta-fade-in 0.6s ease forwards 0.2s;
+      animation: meta-fade-in 0.6s ease forwards 0.25s;
     }
-    @keyframes meta-fade-in {
-      to { opacity: 1; }
-    }
+    @keyframes meta-fade-in { to { opacity: 1; } }
 
-    /* The h1 — large, italic serif, centred, 2-line target */
+    /* h1 — 2 lines at 1280px, centred */
     .hero-scroll-text {
       font-family: 'DM Serif Display', serif;
       font-style: italic;
-      font-size: clamp(36px, 5.5vw, 72px);
+      font-size: clamp(32px, 4.8vw, 68px);
       font-weight: 400;
-      line-height: 1.15;
-      letter-spacing: -0.025em;
-      max-width: min(1000px, 90vw);
+      line-height: 1.18;
+      letter-spacing: -0.02em;
+      max-width: min(960px, 88vw);
       margin: 0;
-      padding: 0 var(--col-pad);
     }
 
-    /* ── The reveal span: three-colour sweep via background-clip ── */
-    .hero-reveal-span {
-      /* Layered backgrounds (front to back):
-         1. Accent sweep — a narrow bright band that travels left→right
-         2. Fill — the "already read" colour advancing behind the sweep
-         3. Base — the dim/unread colour that fills the whole text        */
-      --sweep-w: 6ch;   /* width of the orange highlight band */
-
-      background-image:
-        /* layer 1 — orange sweep band */
-        linear-gradient(
-          90deg,
-          transparent           calc(var(--_p,0%) - var(--sweep-w)),
-          var(--hero-sweep)     calc(var(--_p,0%) - calc(var(--sweep-w) * 0.5)),
-          transparent           var(--_p,0%)
-        ),
-        /* layer 2 — lit fill advancing left → right */
-        linear-gradient(
-          90deg,
-          var(--hero-lit) var(--_p,0%),
-          transparent     var(--_p,0%)
-        ),
-        /* layer 3 — base dim colour everywhere */
-        linear-gradient(90deg, var(--hero-dim), var(--hero-dim));
-
-      background-size: 100% 100%, 100% 100%, 100% 100%;
-      background-repeat: no-repeat;
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-
-      /* Scroll-driven: --_p goes 0% → 110% as outer div scrolls */
-      animation: hero-reveal linear both;
-      animation-timeline: --hero-scroll;
-      animation-range: entry 0% cover 80%;
-    }
-
-    @keyframes hero-reveal {
-      from { --_p: 0%;   }
-      to   { --_p: 110%; }
-    }
-
-    /* Register --_p as a <percentage> so the browser interpolates it */
+    /* ── Three-colour sweep via background-clip: text ──
+       --_p is the sweep position (0% → 110%).
+       Layer 1: orange band around --_p
+       Layer 2: lit ink filling everything left of --_p
+       Layer 3: dim grey base everywhere               */
     @property --_p {
       syntax: '<percentage>';
       inherits: false;
       initial-value: 0%;
     }
 
-    /* Attach the named timeline to the outer scroll container */
-    .hero-scroll-outer {
-      view-timeline-name: --hero-scroll;
-      view-timeline-axis: block;
+    .hero-reveal-span {
+      /*
+        Three layers, back-to-front (last layer is bottom):
+        3 (bottom) — dim grey everywhere (base)
+        2 — lit ink from 0 → --_p  (left of sweep)
+        1 (top)    — orange band centred on --_p, ±4ch wide
+      */
+      background-image:
+        linear-gradient(90deg,
+          transparent            calc(var(--_p) - 4ch),
+          var(--hero-sweep)      calc(var(--_p) - 2ch),
+          var(--hero-sweep)      calc(var(--_p) + 2ch),
+          transparent            calc(var(--_p) + 4ch)
+        ),
+        linear-gradient(90deg,
+          var(--hero-lit)  calc(var(--_p) - 2ch),
+          transparent      calc(var(--_p) - 2ch)
+        ),
+        linear-gradient(90deg, var(--hero-dim), var(--hero-dim));
+
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+
+      /* scroll(root block) timeline — 0%→30% of total page scroll */
+      animation: hero-reveal linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0% 30%;
     }
 
-    /* Scroll hint — bottom-left of the sticky frame */
+    @keyframes hero-reveal {
+      from { --_p: -10%; }
+      to   { --_p: 110%; }
+    }
+
+    /* Scroll hint */
     .hero-scroll-hint {
       position: absolute;
       bottom: var(--sp-12);
