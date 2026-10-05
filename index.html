@@ -240,14 +240,14 @@
       width: 100%;
     }
 
+    /* ── Sphere (morph-el) — ball only, no morphing ── */
     #morph-el {
       position: fixed;
       z-index: 200;
-      background: #0e0e0d;
       overflow: hidden;
-      /* top/left/right/bottom/width/height/borderRadius all animated by GSAP */
+      pointer-events: none;
+      /* top/left/width/height all animated by GSAP */
     }
-    /* Sphere state: radial gradient set inline by JS */
 
     .sphere-surface {
       position: absolute;
@@ -286,63 +286,75 @@
       pointer-events: none;
     }
 
-    .proto-copy {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -54%);
+    /* ── Text block that appears at bottom where ball was ── */
+    .sphere-text {
+      position: fixed;
+      z-index: 201;
+      left: 50%;
+      transform: translateX(-50%);
       text-align: center;
       width: min(580px, 80vw);
-      z-index: 2;
       pointer-events: none;
-      visibility: hidden;
-      opacity: 0;
+      display: none;
+      /* bottom is set by JS to align with ball resting position */
     }
-    .proto-copy-label {
+    .sphere-text-label {
       display: block;
       font-size: 10px;
       font-weight: 500;
       letter-spacing: 0.14em;
       text-transform: uppercase;
-      color: rgba(245,244,240,0.35);
-      margin-bottom: 16px;
+      color: rgba(14,14,13,0.45);
+      margin-bottom: 12px;
     }
-    .proto-copy-headline {
+    .sphere-text-headline {
       display: block;
       font-family: 'DM Serif Display', serif;
       font-style: italic;
-      font-size: clamp(28px, 4vw, 52px);
+      font-size: clamp(22px, 3.2vw, 40px);
       line-height: 1.18;
-      color: #f5f4f0;
+      color: #0e0e0d;
+      margin-bottom: 20px;
     }
-
-    .proto-cta {
-      position: absolute;
-      bottom: 14%; left: 50%;
-      transform: translateX(-50%);
-      z-index: 3;
+    .sphere-cta-wrap {
+      display: inline-block;
       pointer-events: none;
-      white-space: nowrap;
-      visibility: hidden;
-      opacity: 0;
     }
-    .proto-cta.is-active { pointer-events: all; }
-    .proto-cta-link {
+    .sphere-cta-wrap.is-active { pointer-events: all; }
+    .sphere-cta-link {
       display: inline-block;
       font-size: 11px;
       font-weight: 500;
       letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: rgba(245,244,240,0.55);
+      color: rgba(14,14,13,0.5);
       cursor: pointer;
       padding-bottom: 3px;
-      border-bottom: 1px solid rgba(245,244,240,0.18);
+      border-bottom: 1px solid rgba(14,14,13,0.2);
       transition: color 0.2s, border-color 0.2s;
     }
-    .proto-cta-link:hover {
-      color: rgba(245,244,240,0.9);
-      border-color: rgba(245,244,240,0.4);
+    .sphere-cta-link:hover {
+      color: rgba(14,14,13,0.85);
+      border-color: rgba(14,14,13,0.4);
     }
 
+    /* ── SVG Curtain ── */
+    .proto-curtain {
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      pointer-events: none;
+      display: none;
+    }
+    .proto-curtain.is-active { pointer-events: all; }
+    #curtain-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ── Prototype frame (inside curtain) ── */
     .proto-frame {
       position: absolute;
       inset: 0;
@@ -351,7 +363,7 @@
       visibility: hidden;
       opacity: 0;
       pointer-events: none;
-      z-index: 4;
+      z-index: 1;
     }
     .proto-frame.is-active { pointer-events: all; }
     .proto-viewport {
@@ -400,21 +412,129 @@
       border-color: rgba(245,244,240,0.2);
       color: rgba(245,244,240,0.5);
     }
+    /* Collapse icon button */
     .proto-action-btn {
-      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px; height: 28px;
       color: rgba(245,244,240,0.35);
       background: transparent;
       border: 1px solid rgba(245,244,240,0.1);
       border-radius: 4px;
       cursor: pointer;
-      font-family: 'DM Sans', sans-serif;
-      letter-spacing: 0.04em;
-      padding: 3px 10px;
       transition: color 0.2s, border-color 0.2s;
+      padding: 0;
     }
     .proto-action-btn:hover {
       color: rgba(245,244,240,0.65);
       border-color: rgba(245,244,240,0.25);
+    }
+
+    /* ── Thumbnail / collapsed view ── */
+    .proto-thumb {
+      position: fixed;
+      inset: 0;
+      z-index: 250;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #f5f4f0;
+    }
+    .proto-thumb-inner {
+      width: 60vw;
+      max-width: 860px;
+      min-width: 280px;
+      border: 1px solid rgba(14,14,13,0.12);
+      border-radius: 10px;
+      background: #ffffff;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .proto-thumb-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(14,14,13,0.07);
+    }
+    .proto-thumb-label {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(14,14,13,0.3);
+    }
+    .proto-thumb-expand {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: transparent;
+      border: 1px solid rgba(14,14,13,0.1);
+      border-radius: 4px;
+      padding: 2px 7px 2px 5px;
+      cursor: pointer;
+      font-size: 11px;
+      color: rgba(14,14,13,0.35);
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .proto-thumb-expand:hover {
+      color: rgba(14,14,13,0.65);
+      border-color: rgba(14,14,13,0.25);
+    }
+    .proto-thumb-expand svg { flex-shrink: 0; }
+    .proto-thumb-viewport {
+      position: relative;
+      width: 100%;
+      /* 16:10 aspect ratio for the prototype preview */
+      padding-bottom: 62.5%;
+      background: #0e0e0d;
+      overflow: hidden;
+    }
+    .proto-thumb-viewport .proto-iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      transform-origin: top left;
+      /* scaled down visually via JS to fit */
+    }
+    .proto-thumb-footer {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 14px;
+      border-top: 1px solid rgba(14,14,13,0.07);
+    }
+    .proto-thumb-ver {
+      padding: 3px 12px;
+      border-radius: 4px;
+      border: 1px solid rgba(14,14,13,0.12);
+      background: transparent;
+      color: rgba(14,14,13,0.4);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .proto-thumb-ver.active {
+      border-color: rgba(14,14,13,0.3);
+      color: rgba(14,14,13,0.75);
+    }
+    .proto-thumb-ver:hover:not(.active) {
+      border-color: rgba(14,14,13,0.2);
+      color: rgba(14,14,13,0.55);
+    }
+    .proto-thumb-hint {
+      margin-top: 18px;
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(14,14,13,0.28);
     }
   </style>
 </head>
@@ -518,26 +638,30 @@
 
   </div>
 
-  <!-- ─── PROTO SEQUENCE: SPHERE → MORPH → PROTOTYPE ─── -->
+  <!-- ─── PROTO SEQUENCE: SPHERE → CURTAIN → PROTOTYPE ─── -->
   <section id="proto-trigger"></section>
 
-  <!-- Single morphing element: sphere → full-viewport → thumbnail. Always position:fixed -->
+  <!-- Sphere element — only ever a ball, never morphs to full-screen -->
   <div id="morph-el">
-    <!-- Sphere specular/rim lighting — fades as morph begins -->
     <div class="sphere-surface"></div>
+  </div>
 
-    <!-- Text from the abyss — rises while rect is full-screen, then fades -->
-    <div class="proto-copy">
-      <span class="proto-copy-label">Centronic MMA · Interactive</span>
-      <span class="proto-copy-headline">Feel the interface<br>before reading about it</span>
+  <!-- Text + CTA appear at the bottom where ball was, after 3rd bounce -->
+  <div id="sphere-text" class="sphere-text">
+    <span class="sphere-text-label">Centronic MMA · Interactive</span>
+    <span class="sphere-text-headline">Feel the interface<br>before reading about it</span>
+    <div class="sphere-cta-wrap" id="sphere-cta-wrap">
+      <span class="sphere-cta-link" id="cta-link">Explore the UI →</span>
     </div>
+  </div>
 
-    <!-- CTA persists after text fades — click to load prototype, scroll locks until then -->
-    <div class="proto-cta" id="proto-cta">
-      <span class="proto-cta-link" id="cta-link">Explore the UI →</span>
-    </div>
-
-    <!-- Prototype frame — shown after CTA click -->
+  <!-- SVG curtain — rises from bottom on CTA click -->
+  <div id="proto-curtain" class="proto-curtain">
+    <svg id="curtain-svg" viewBox="0 0 100 100" preserveAspectRatio="none"
+         xmlns="http://www.w3.org/2000/svg">
+      <path id="curtain-path" d="M 0 100 V 100 Q 50 100 100 100 V 100 z" fill="#0e0e0d"/>
+    </svg>
+    <!-- Prototype frame lives inside curtain -->
     <div class="proto-frame" id="proto-frame">
       <div class="proto-viewport">
         <iframe
@@ -555,12 +679,42 @@
           <button class="proto-ver-btn active" data-v="1">V 01</button>
           <button class="proto-ver-btn" data-v="2">V 02</button>
         </div>
-        <button class="proto-action-btn" id="proto-action-btn">↙ Shrink</button>
+        <button class="proto-action-btn" id="proto-action-btn" title="Collapse prototype">
+          <!-- Collapse icon: two arrows pointing inward -->
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 2L5.5 5.5M5.5 5.5H2.5M5.5 5.5V2.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 12L8.5 8.5M8.5 8.5H11.5M8.5 8.5V11.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- Separate shadow element under the sphere (not inside morph-el to avoid clipping) -->
+  <!-- Collapsed / thumbnail view — shown after collapse -->
+  <div id="proto-thumb" class="proto-thumb">
+    <div class="proto-thumb-inner">
+      <div class="proto-thumb-header">
+        <span class="proto-thumb-label">PROTOTYPE EMBED</span>
+        <button class="proto-thumb-expand" id="proto-thumb-expand" title="Expand prototype">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 2L6.5 5.5M10 2H7M10 2V5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 10L5.5 6.5M2 10H5M2 10V7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          ↗
+        </button>
+      </div>
+      <div class="proto-thumb-viewport">
+        <iframe id="proto-thumb-iframe" class="proto-iframe" src="" title="ACP HMI Prototype" style="pointer-events:none;"></iframe>
+      </div>
+      <div class="proto-thumb-footer">
+        <button class="proto-thumb-ver active" data-v="1">Version 1</button>
+        <button class="proto-thumb-ver" data-v="2">Version 2</button>
+      </div>
+    </div>
+    <p class="proto-thumb-hint">↓ SCROLL TO REVEAL CHAPTERS</p>
+  </div>
+
+  <!-- Separate shadow element under the sphere -->
   <div id="sphere-shadow"></div>
   <!-- ─── /PROTO SEQUENCE ─── -->
 
@@ -911,117 +1065,107 @@
 })();
 </script>
 
-<!-- ─── SPHERE → PROTOTYPE SEQUENCE JS ─── -->
+<!-- ─── SPHERE → CURTAIN → PROTOTYPE SEQUENCE JS ─── -->
 <script>
 (function () {
   if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
 
-  const trigger      = document.getElementById('proto-trigger');
-  const morphEl      = document.getElementById('morph-el');
-  const sphereShadow = document.getElementById('sphere-shadow');
-  const sphereSurf   = morphEl && morphEl.querySelector('.sphere-surface');
-  const protoCopy    = morphEl && morphEl.querySelector('.proto-copy');
-  const protoCta     = document.getElementById('proto-cta');
-  const ctaLink      = document.getElementById('cta-link');
-  const protoFrame   = document.getElementById('proto-frame');
-  const protoIframe  = document.getElementById('proto-iframe');
-  const actionBtn    = document.getElementById('proto-action-btn');
+  var trigger       = document.getElementById('proto-trigger');
+  var morphEl       = document.getElementById('morph-el');
+  var sphereShadow  = document.getElementById('sphere-shadow');
+  var sphereText    = document.getElementById('sphere-text');
+  var ctaLink       = document.getElementById('cta-link');
+  var ctaWrap       = document.getElementById('sphere-cta-wrap');
+  var protoCurtain  = document.getElementById('proto-curtain');
+  var curtainPath   = document.getElementById('curtain-path');
+  var protoFrame    = document.getElementById('proto-frame');
+  var protoIframe   = document.getElementById('proto-iframe');
+  var actionBtn     = document.getElementById('proto-action-btn');
+  var protoThumb    = document.getElementById('proto-thumb');
+  var thumbExpand   = document.getElementById('proto-thumb-expand');
+  var thumbIframe   = document.getElementById('proto-thumb-iframe');
   if (!trigger || !morphEl) return;
 
-  const S = 96;   // sphere diameter px
-  const PAD = 40; // floor gap px
+  var S   = 96;   // sphere diameter px
+  var PAD = 40;   // floor gap px
 
-  let state = 'idle';
-  let floatTween = null;
-  let scrollLocked = false;
+  var state       = 'idle';
+  var floatTween  = null;
+  var scrollLocked = false;
+  var bounceCount  = 0;
 
   function vw() { return window.innerWidth; }
   function vh() { return window.innerHeight; }
 
-  // Sphere resting position — top-left corner only (width/height explicit)
-  function spherePos() {
-    return {
-      top:  vh() - S - PAD,
-      left: (vw() - S) / 2,
-    };
-  }
+  function sphereRestTop()  { return vh() - S - PAD; }
+  function sphereRestLeft() { return (vw() - S) / 2; }
 
   // Scroll lock
   function noScroll(e) { e.preventDefault(); }
-  function lockScroll()   { if (!scrollLocked) { scrollLocked = true;  window.addEventListener('wheel', noScroll, { passive: false }); window.addEventListener('touchmove', noScroll, { passive: false }); } }
-  function unlockScroll() { if (scrollLocked)  { scrollLocked = false; window.removeEventListener('wheel', noScroll); window.removeEventListener('touchmove', noScroll); } }
+  function lockScroll() {
+    if (!scrollLocked) {
+      scrollLocked = true;
+      window.addEventListener('wheel', noScroll, { passive: false });
+      window.addEventListener('touchmove', noScroll, { passive: false });
+    }
+  }
+  function unlockScroll() {
+    if (scrollLocked) {
+      scrollLocked = false;
+      window.removeEventListener('wheel', noScroll);
+      window.removeEventListener('touchmove', noScroll);
+    }
+  }
 
-  // Hide everything initially
+  // Initial state — hide everything
   gsap.set(morphEl,      { display: 'none' });
   gsap.set(sphereShadow, { display: 'none' });
-  gsap.set([protoCopy, protoCta, protoFrame], { autoAlpha: 0 });
+  gsap.set(sphereText,   { display: 'none', opacity: 0 });
+  gsap.set(protoCurtain, { display: 'none' });
+  gsap.set(protoThumb,   { display: 'none' });
 
-  /* ─── PHASE 1: BOUNCE ─── */
-  function playBounce() {
-    if (state !== 'idle') return;
-    state = 'bouncing';
+  /* ─────────────────────────────────────────────────
+     PHASE 1: 3-BOUNCE SEQUENCE
+     Ball drops from above, bounces exactly 3 times.
+     On the 3rd landing: ball disappears, text fades in.
+  ───────────────────────────────────────────────── */
 
-    var pos = spherePos();
+  function doBounce(onLand) {
+    // A single drop-and-land cycle
+    // Uses bounce.out ease so it naturally settles after one fall
+    var restTop  = sphereRestTop();
+    var restLeft = sphereRestLeft();
 
-    // Position ball above viewport — explicit top+left+width+height ONLY (no right/bottom)
-    // This avoids the CSS conflict where position:fixed with left+right+width is ambiguous
     gsap.set(morphEl, {
-      display:      'block',
-      position:     'fixed',
       top:          -(S + 80),
-      left:         pos.left,
-      right:        'auto',
-      bottom:       'auto',
+      left:         restLeft,
       width:        S,
       height:       S,
+      right:        'auto',
+      bottom:       'auto',
       borderRadius: '50%',
       background:   'radial-gradient(circle at 38% 115%, #3a3835 0%, #1c1b19 40%, #0a0a09 100%)',
       boxShadow:    '0 20px 60px rgba(0,0,0,0.45), 0 4px 16px rgba(0,0,0,0.25)',
-      clearProps:   'transform',
+      clearProps:   'transform,scaleX,scaleY',
     });
 
-    gsap.set(sphereShadow, {
-      display:  'block',
-      position: 'fixed',
-      left:     pos.left + (S - 68) / 2,
-      top:      vh() - PAD + 2,
-      opacity:  1,
-    });
-
-    // Drop to floor
     gsap.to(morphEl, {
-      top:      pos.top,
-      duration: 1.2,
+      top:      restTop,
+      duration: 1.1,
       ease:     'bounce.out',
       onComplete: function() {
-        // Squish
+        // Squish on land
         gsap.to(morphEl, {
-          scaleY: 0.82, scaleX: 1.12, duration: 0.08,
+          scaleY: 0.80, scaleX: 1.14, duration: 0.07,
           ease: 'power2.in', transformOrigin: 'center bottom',
           onComplete: function() {
             // Spring back
             gsap.to(morphEl, {
-              scaleY: 1, scaleX: 1, duration: 0.55,
-              ease: 'elastic.out(1, 0.45)', transformOrigin: 'center bottom',
+              scaleY: 1, scaleX: 1, duration: 0.5,
+              ease: 'elastic.out(1, 0.4)', transformOrigin: 'center bottom',
               onComplete: function() {
-                // Clear squish transform and SWITCH to pure inset mode
-                // (right/bottom instead of width/height) — visually identical,
-                // but now position:fixed uses all four edges → morph can expand cleanly
-                var pos2 = spherePos();
-                gsap.set(morphEl, {
-                  clearProps: 'transform,scaleX,scaleY',
-                  top:    pos2.top,
-                  left:   pos2.left,
-                  right:  vw() - pos2.left - S,
-                  bottom: PAD,
-                  width:  'auto',
-                  height: 'auto',
-                });
-                state = 'sphere';
-                floatTween = gsap.to(morphEl, {
-                  top: pos2.top - 7, duration: 1.7,
-                  ease: 'sine.inOut', repeat: -1, yoyo: true
-                });
+                gsap.set(morphEl, { clearProps: 'transform,scaleX,scaleY' });
+                if (onLand) onLand();
               }
             });
           }
@@ -1030,177 +1174,238 @@
     });
   }
 
-  /* ─── PHASE 2: MORPH (scroll-scrubbed) ─── */
-  // Pure inset animation — no width/height, just all four edges → 0
-  // This makes position:fixed expand outward in all directions from the ball's center
-  var morphTl = gsap.timeline({ paused: true })
-    .addLabel('start')
+  function startBounceSequence() {
+    if (state !== 'idle') return;
+    state = 'bouncing';
+    bounceCount = 0;
 
-    .to(morphEl, {
-      top: 0, left: 0, right: 0, bottom: 0,
-      // NO width/height — insets alone define the rect; avoids CSS conflict
-      borderRadius: 0,
-      boxShadow:    'none',
-      background:   '#0e0e0d',
-      duration:     1,
-      ease:         'none',
-    })
-    .to(sphereSurf,   { autoAlpha: 0, duration: 0.4 }, '<')
-    .to(sphereShadow, { autoAlpha: 0, duration: 0.3 }, '<')
+    var restLeft = sphereRestLeft();
 
-    .addLabel('rect-done')
+    // Show ball and shadow
+    gsap.set(morphEl, {
+      display:      'block',
+      position:     'fixed',
+      top:          -(S + 80),
+      left:         restLeft,
+      width:        S,
+      height:       S,
+      right:        'auto',
+      bottom:       'auto',
+      borderRadius: '50%',
+      background:   'radial-gradient(circle at 38% 115%, #3a3835 0%, #1c1b19 40%, #0a0a09 100%)',
+      boxShadow:    '0 20px 60px rgba(0,0,0,0.45), 0 4px 16px rgba(0,0,0,0.25)',
+    });
+    gsap.set(sphereShadow, {
+      display: 'block',
+      left:    restLeft + (S - 68) / 2,
+      top:     vh() - PAD + 2,
+      opacity: 1,
+    });
 
-    // Text rises from inside the dark rect
-    .set(protoCopy, { visibility: 'visible' }, 'rect-done')
-    .fromTo('.proto-copy-label',
-      { y: 28, autoAlpha: 0 },
-      { y: 0, autoAlpha: 1, duration: 0.4, ease: 'power2.out' },
-      'rect-done'
-    )
-    .fromTo('.proto-copy-headline',
-      { y: 44, autoAlpha: 0 },
-      { y: 0, autoAlpha: 1, duration: 0.5, ease: 'power3.out' },
-      'rect-done+=0.1'
-    )
+    function runBounce() {
+      bounceCount++;
+      var isLast = (bounceCount === 3);
 
-    .addLabel('text-visible')
-
-    // Text fades, CTA stays
-    .to(protoCopy, { autoAlpha: 0, duration: 0.3 }, 'text-visible+=0.2')
-    .fromTo(protoCta,
-      { autoAlpha: 0 },
-      { autoAlpha: 1, duration: 0.4, ease: 'power2.out' },
-      'text-visible+=0.35'
-    )
-
-    .addLabel('cta-visible');
-
-  /* ─── SCROLL TRIGGER: pin + scrub morph ─── */
-  ScrollTrigger.create({
-    trigger:       trigger,
-    start:         'top top',
-    end:           '+=250%',
-    pin:           true,
-    anticipatePin: 1,
-    scrub:         1.2,
-    animation:     morphTl,
-    onEnter: function() {
-      // Kill float tween before scrub takes over top/left/right/bottom
-      if (floatTween) { floatTween.kill(); floatTween = null; }
-      // Snap morph-el to live inset values from its current visual position
-      // (getBoundingClientRect gives true rendered position after float animation)
-      var rect = morphEl.getBoundingClientRect();
-      gsap.set(morphEl, {
-        top:    rect.top,
-        left:   rect.left,
-        right:  vw() - rect.right,
-        bottom: vh() - rect.bottom,
-        width:  'auto',
-        height: 'auto',
-        clearProps: 'transform',
-      });
-    },
-    onLeave: function() {
-      // Fully morphed — lock scroll, enable CTA
-      if (state !== 'proto' && state !== 'cta') {
-        state = 'cta';
-        protoCta.classList.add('is-active');
-        lockScroll();
-      }
-    },
-    onLeaveBack: function() {
-      // User scrolled back to top — reset
-      unlockScroll();
-      state = 'idle';
-      protoCta.classList.remove('is-active');
-      gsap.set(morphEl, { display: 'none' });
-      gsap.set(sphereShadow, { display: 'none', autoAlpha: 1 });
-      gsap.set([protoCopy, protoCta], { autoAlpha: 0, visibility: 'hidden' });
-    }
-  });
-
-  /* ─── ENTRY TRIGGER: fire bounce when section arrives ─── */
-  ScrollTrigger.create({
-    trigger: trigger,
-    start:   'top 90%',
-    once:    true,
-    onEnter: playBounce,
-  });
-
-  /* ─── CTA CLICK: load prototype ─── */
-  if (ctaLink) {
-    ctaLink.addEventListener('click', function () {
-      if (state !== 'cta') return;
-      state = 'proto';
-      unlockScroll();
-
-      protoIframe.src = protoIframe.dataset.src || '/prototypes/v1/index.html';
-
-      gsap.to(protoCta, { autoAlpha: 0, duration: 0.25 });
-      gsap.set(protoFrame, { visibility: 'visible' });
-      gsap.to(protoFrame, {
-        autoAlpha: 1, duration: 0.45, ease: 'power2.out',
-        onComplete: function() {
-          protoFrame.classList.add('is-active');
-          setupShrink();
+      doBounce(function() {
+        if (isLast) {
+          // 3rd landing: ball disappears, text appears
+          ballToText();
+        } else {
+          // Short pause, then next bounce — rise slightly before next drop
+          var restTop  = sphereRestTop();
+          var restLeft = sphereRestLeft();
+          // Brief float up then next drop
+          gsap.to(morphEl, {
+            top:      restTop - 18,
+            duration: 0.22,
+            ease:     'power1.out',
+            onComplete: function() {
+              gsap.set(morphEl, {
+                top:     -(S + 80),
+                left:    restLeft,
+                clearProps: 'transform,scaleX,scaleY',
+              });
+              runBounce();
+            }
+          });
         }
       });
+    }
+
+    runBounce();
+  }
+
+  function ballToText() {
+    // Hide ball + shadow
+    gsap.to(morphEl,      { autoAlpha: 0, duration: 0.15, onComplete: function() { gsap.set(morphEl, { display: 'none' }); } });
+    gsap.to(sphereShadow, { autoAlpha: 0, duration: 0.15, onComplete: function() { gsap.set(sphereShadow, { display: 'none' }); } });
+
+    // Position text block at the ball's resting position
+    // Align bottom of text block to just above the floor
+    var textBottom = PAD + S + 16; // gap above ball position
+    gsap.set(sphereText, {
+      display: 'block',
+      bottom:  textBottom,
+      top:     'auto',
+      opacity: 0,
+    });
+
+    // Fade in text
+    gsap.to(sphereText, {
+      opacity: 1, duration: 0.6, ease: 'power2.out',
+      onComplete: function() {
+        // Enable CTA after text is visible
+        ctaWrap.classList.add('is-active');
+        state = 'cta';
+        lockScroll();
+      }
     });
   }
 
-  /* ─── SHRINK: two separate scroll phases ─── */
-  // Phase A: proto rect → thumbnail (locks in place)
-  // Phase B: thumbnail sits still → chapters appear below
-  function setupShrink() {
-    var chapters = document.querySelector('.chapter-list');
-    if (!chapters) return;
+  /* ─── ScrollTrigger: fire bounce when proto section enters view ─── */
+  ScrollTrigger.create({
+    trigger: trigger,
+    start:   'top 80%',
+    once:    true,
+    onEnter: startBounceSequence,
+  });
 
-    var thumbW = Math.min(460, vw() - 48);
-    var thumbH = Math.round(thumbW * 0.65);
-    var thumbL = (vw()  - thumbW) / 2;
-    var thumbT = (vh() - thumbH) / 2;
+  /* ─────────────────────────────────────────────────
+     PHASE 2: SVG CURTAIN on CTA click
+     Path morphs: flat-floor → wave → full-fill
+  ───────────────────────────────────────────────── */
 
-    // Phase A: scroll 150vh → rect shrinks to thumbnail, stays fixed
-    var shrinkTl = gsap.timeline({ paused: true })
-      .to(protoFrame, { autoAlpha: 0, duration: 0.2 }, 0)
-      .to(morphEl, {
-        // Inset-only: no width/height — avoids position:fixed CSS conflict
-        top:    thumbT,
-        left:   thumbL,
-        right:  vw() - thumbL - thumbW,
-        bottom: vh() - thumbT - thumbH,
-        borderRadius: 10,
-        boxShadow: '0 8px 40px rgba(0,0,0,0.35)',
-        duration: 1, ease: 'none'
-      }, 0);
+  // Path definitions (viewBox 0 0 100 100, percentages)
+  var PATH_HIDDEN = 'M 0 100 V 100 Q 50 100 100 100 V 100 z';
+  var PATH_WAVE   = 'M 0 100 V 55 Q 50 5 100 55 V 100 z';
+  var PATH_FULL   = 'M 0 100 V 0 Q 50 0 100 0 V 100 z';
 
-    // A spacer div below the chapter list that gives scroll room for Phase A
-    var spacer = document.createElement('div');
-    spacer.style.cssText = 'height:150vh;pointer-events:none;';
-    chapters.parentElement.insertBefore(spacer, chapters);
+  function openCurtain(onComplete) {
+    gsap.set(curtainPath, { attr: { d: PATH_HIDDEN } });
+    gsap.set(protoCurtain, { display: 'block' });
 
-    ScrollTrigger.create({
-      trigger:   spacer,
-      start:     'top bottom',
-      end:       'bottom bottom',
-      scrub:     1.2,
-      animation: shrinkTl,
-      onLeave: function() {
-        // Phase A done — thumbnail is locked. Now fade it and let chapters rise.
-        gsap.to(morphEl, {
-          autoAlpha: 0, duration: 0.4, ease: 'power2.out',
+    // Step 1: flat to wave
+    gsap.to(curtainPath, {
+      attr: { d: PATH_WAVE },
+      duration: 0.55,
+      ease: 'power2.in',
+      onComplete: function() {
+        // Step 2: wave to full fill
+        gsap.to(curtainPath, {
+          attr: { d: PATH_FULL },
+          duration: 0.4,
+          ease: 'power2.out',
           onComplete: function() {
-            gsap.set(morphEl, { display: 'none' });
-            // Remove spacer so chapters flow naturally
-            if (spacer.parentElement) spacer.parentElement.removeChild(spacer);
-            ScrollTrigger.refresh();
+            protoCurtain.classList.add('is-active');
+            if (onComplete) onComplete();
           }
         });
       }
     });
   }
 
-  /* ─── Version buttons ─── */
+  /* ─── CTA click ─── */
+  if (ctaLink) {
+    ctaLink.addEventListener('click', function () {
+      if (state !== 'cta') return;
+      state = 'curtain-open';
+
+      // Hide text
+      gsap.to(sphereText, { autoAlpha: 0, duration: 0.2 });
+
+      openCurtain(function() {
+        // Load iframe
+        protoIframe.src = protoIframe.dataset.src || '/prototypes/v1/index.html';
+        // Show prototype frame inside curtain
+        gsap.set(protoFrame, { visibility: 'visible' });
+        gsap.to(protoFrame, {
+          autoAlpha: 1, duration: 0.35, ease: 'power2.out',
+          onComplete: function() {
+            protoFrame.classList.add('is-active');
+            state = 'proto';
+            unlockScroll();
+          }
+        });
+      });
+    });
+  }
+
+  /* ─────────────────────────────────────────────────
+     PHASE 3: COLLAPSE — expand/collapse icon
+     Hides curtain, shows thumbnail card (60vw centered)
+  ───────────────────────────────────────────────── */
+
+  if (actionBtn) {
+    actionBtn.addEventListener('click', function() {
+      if (state !== 'proto') return;
+      state = 'collapsing';
+
+      // Fade out proto frame first
+      protoFrame.classList.remove('is-active');
+      gsap.to(protoFrame, { autoAlpha: 0, duration: 0.25 });
+
+      // Close curtain (reverse: full → wave → flat, then hide)
+      gsap.to(curtainPath, {
+        attr: { d: PATH_WAVE },
+        duration: 0.35,
+        ease: 'power2.in',
+        onComplete: function() {
+          gsap.to(curtainPath, {
+            attr: { d: PATH_HIDDEN },
+            duration: 0.45,
+            ease: 'power2.out',
+            onComplete: function() {
+              protoCurtain.classList.remove('is-active');
+              gsap.set(protoCurtain, { display: 'none' });
+              // Reset frame state
+              gsap.set(protoFrame, { autoAlpha: 0, visibility: 'hidden' });
+
+              // Show thumbnail view
+              showThumb();
+            }
+          });
+        }
+      });
+    });
+  }
+
+  function showThumb() {
+    // Set thumb iframe src (same as main)
+    thumbIframe.src = protoIframe.src;
+
+    gsap.set(protoThumb, { display: 'flex', opacity: 0 });
+    gsap.to(protoThumb, {
+      opacity: 1, duration: 0.4, ease: 'power2.out',
+      onComplete: function() { state = 'thumb'; }
+    });
+  }
+
+  /* ─── Expand from thumbnail ─── */
+  if (thumbExpand) {
+    thumbExpand.addEventListener('click', function() {
+      if (state !== 'thumb') return;
+      state = 'curtain-open';
+
+      gsap.to(protoThumb, {
+        opacity: 0, duration: 0.25,
+        onComplete: function() {
+          gsap.set(protoThumb, { display: 'none' });
+          openCurtain(function() {
+            gsap.set(protoFrame, { visibility: 'visible' });
+            gsap.to(protoFrame, {
+              autoAlpha: 1, duration: 0.35, ease: 'power2.out',
+              onComplete: function() {
+                protoFrame.classList.add('is-active');
+                state = 'proto';
+              }
+            });
+          });
+        }
+      });
+    });
+  }
+
+  /* ─── Version buttons (full frame) ─── */
   document.querySelectorAll('.proto-ver-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
       document.querySelectorAll('.proto-ver-btn').forEach(function(b) { b.classList.remove('active'); });
@@ -1209,26 +1414,20 @@
     });
   });
 
-  /* ─── Shrink button ─── */
-  if (actionBtn) {
-    actionBtn.addEventListener('click', function() {
-      if (state !== 'proto') return;
-      protoFrame.classList.remove('is-active');
-      var thumbW = Math.min(460, vw() - 48);
-      var thumbH = Math.round(thumbW * 0.65);
-      gsap.to(protoFrame, { autoAlpha: 0, duration: 0.25 });
-      var tL = (vw()-thumbW)/2, tT = (vh()-thumbH)/2;
-      gsap.to(morphEl, {
-        top: tT, left: tL,
-        right: vw()-tL-thumbW, bottom: vh()-tT-thumbH,
-        width: 'auto', height: 'auto',
-        borderRadius: 10, duration: 0.6, ease: 'power3.inOut',
-        onComplete: function() {
-          gsap.to(morphEl, { autoAlpha: 0, delay: 0.3, duration: 0.4 });
-        }
+  /* ─── Version buttons (thumbnail) ─── */
+  document.querySelectorAll('.proto-thumb-ver').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.proto-thumb-ver').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      var v = btn.dataset.v;
+      thumbIframe.src = '/prototypes/v' + v + '/index.html';
+      protoIframe.src = '/prototypes/v' + v + '/index.html';
+      // Sync full-frame version buttons
+      document.querySelectorAll('.proto-ver-btn').forEach(function(b) {
+        b.classList.toggle('active', b.dataset.v === v);
       });
     });
-  }
+  });
 
 })();
 </script>
