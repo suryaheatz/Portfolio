@@ -1281,7 +1281,17 @@
   function sphereRestLeft() { return (vw() - S) / 2; }
 
   // Scroll lock
-  function noScroll(e) { e.preventDefault(); }
+  function noScroll(e) {
+    // Allow scrolling UP (negative deltaY) to escape the lock
+    if (e.deltaY < 0) {
+      unlockScroll();
+      gsap.to(sphereText,   { autoAlpha: 0, duration: 0.2 });
+      gsap.to(morphEl,      { autoAlpha: 0, duration: 0.2 });
+      gsap.to(sphereShadow, { autoAlpha: 0, duration: 0.2 });
+      return;
+    }
+    e.preventDefault();
+  }
   function lockScroll() {
     if (!scrollLocked) {
       scrollLocked = true;
