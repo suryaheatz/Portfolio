@@ -158,34 +158,31 @@
       margin-left: -50vw;
       margin-right: -50vw;
       overflow: hidden;
-      /* NO z-index here — image sits at natural stack order, cards go over it */
     }
 
     /* ══════════════════════════════════════════════════
-       SECTION TRANSITION CARDS — CSS sticky stack
-       Brief sticks to top while scope scrolls over it.
-       No GSAP pin needed — native sticky is reliable.
+       SECTION TRANSITION CARDS — GSAP sectionTransition01
+       Each card is full-page (100vh) so it completely
+       covers the section above when pinned over it.
     ══════════════════════════════════════════════════ */
     .st-card {
       position: relative;
-      width: 100%;
+      width: 100vw;
+      left: 50%;
+      margin-left: -50vw;
+      min-height: 100vh;
     }
 
-    /* Brief: sticky so it stays visible while scope slides over */
+    /* Brief: full-page light card, covers hero image */
     .st-brief {
       background: var(--bg);
       border-radius: 20px 20px 0 0;
-      position: sticky;
-      top: 0;
-      z-index: 2;
     }
 
-    /* Scope: slides up on top of brief */
+    /* Scope: full-page dark card, covers brief */
     .st-scope {
       background: #1a1917;
       border-radius: 20px 20px 0 0;
-      position: relative;
-      z-index: 3;
     }
 
     /* Dark scope overrides */
@@ -710,13 +707,13 @@
   <!-- TRANSITION STACK: image → brief card → scope card -->
   <div class="transition-stack">
 
-  <div class="hero-image-section">
+  <div class="hero-image-section" data-st-01="pin">
     <img id="hero-img" src="/images/e6c6f4f7d31f7ae1dce7f9c49d5f9f71.png" alt="ZF Centronic ACP demonstrator — armrest control unit with MRF knob paired with tablet display">
     <p class="hero-image-caption">Centronic ACP demonstrator — the MRF knob, gear selector, and ambient light surface paired with the UI tablet</p>
   </div>
 
-  <!-- BRIEF — sticky card, stays while scope slides over it -->
-  <section class="st-card st-brief">
+  <!-- BRIEF — full-page card, GSAP pins it while scope slides over -->
+  <section class="st-card st-brief" data-st-01="pin">
     <div class="container">
       <hr class="rule" style="margin-top:72px;">
       <div class="section">
@@ -1029,8 +1026,25 @@
     scrollTrigger: { trigger: '.anim-block:has(img[alt*="Climate"])', start: 'top 88%', toggleActions: 'play none none none' }
   });
 
-  /* Scope strip animation removed — the dark card slides in as a full section
-     via sectionTransition01 pin stacking, so no additional per-item reveal needed */
+  /* ─────────────────────────────────────────
+     sectionTransition01 — pin-over-pin stack
+     Each [data-st-01="pin"] element is pinned
+     while its next sibling scrolls over it.
+  ───────────────────────────────────────── */
+  (function sectionTransition01() {
+    const pinEls = document.querySelectorAll('[data-st-01="pin"]');
+    pinEls.forEach((section) => {
+      const nextSection = section.nextElementSibling;
+      if (!nextSection) return;
+      ScrollTrigger.create({
+        trigger: nextSection,
+        start: 'top bottom',
+        end: 'top top',
+        pin: section,
+        pinSpacing: false,
+      });
+    });
+  })();
 
   /* ─────────────────────────────────────────
      5. CHAPTER LIST — one ScrollTrigger per row
