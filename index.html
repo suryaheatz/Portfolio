@@ -71,7 +71,7 @@
 
     a { color: var(--teal); text-decoration: none; }
     a:hover { text-decoration: underline; }
-    .page-root { min-height: 100vh; }
+    .page-root { min-height: 100vh; width: 100%; }
 
     .container {
       max-width: var(--page-w);
@@ -158,15 +158,15 @@
       to { opacity: 1; }
     }
 
-    /* The h1 — large, italic serif, centred, wraps naturally */
+    /* The h1 — large, italic serif, centred, 2-line target */
     .hero-scroll-text {
       font-family: 'DM Serif Display', serif;
       font-style: italic;
-      font-size: var(--text-serif-lg);
+      font-size: clamp(36px, 5.5vw, 72px);
       font-weight: 400;
       line-height: 1.15;
       letter-spacing: -0.025em;
-      max-width: min(900px, 88vw);
+      max-width: min(1000px, 90vw);
       margin: 0;
       padding: 0 var(--col-pad);
     }
