@@ -154,6 +154,46 @@
       margin-left: -50vw;
       margin-right: -50vw;
       overflow: hidden;
+      z-index: 1;
+    }
+
+    /* ══════════════════════════════
+       SECTION TRANSITION CARDS
+       Pin-over-pin scroll stack
+    ══════════════════════════════ */
+    .st-card {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+    }
+    .st-brief {
+      background: var(--bg);
+      border-radius: 20px 20px 0 0;
+      /* Offset the full-bleed left shift the image has, to align correctly */
+      margin-top: -20px; /* overlap image edge for seamless card reveal */
+    }
+    .st-scope {
+      background: #1a1917;
+      border-radius: 20px 20px 0 0;
+      margin-top: -20px;
+    }
+
+    /* Dark scope overrides */
+    .st-scope .scope-strip {
+      border-top-color: #3a3a36;
+      border-bottom-color: #3a3a36;
+    }
+    .st-scope .scope-item + .scope-item {
+      border-left-color: #3a3a36;
+    }
+    .st-scope .scope-key {
+      color: #9a9a94;
+    }
+    .st-scope .scope-val {
+      color: #f5f4f0;
+    }
+    .st-scope .rule {
+      border-top-color: #3a3a36;
     }
     #hero-img { width: 100%; display: block; }
     .hero-image-caption {
@@ -657,60 +697,66 @@
     <h1 class="hero-scroll-text">Reimagining the HMI for SAE&nbsp;Level&nbsp;4 autonomous cars</h1>
   </section>
 
-  <!-- HERO IMAGE — true full bleed -->
-  <div class="hero-image-section">
+  <!-- HERO IMAGE — pinned, brief slides over it -->
+  <div class="hero-image-section" data-st-01="pin">
     <img id="hero-img" src="/images/e6c6f4f7d31f7ae1dce7f9c49d5f9f71.png" alt="ZF Centronic ACP demonstrator — armrest control unit with MRF knob paired with tablet display">
     <p class="hero-image-caption">Centronic ACP demonstrator — the MRF knob, gear selector, and ambient light surface paired with the UI tablet</p>
   </div>
 
+  <!-- BRIEF — slides over image, pins while scope slides over it -->
+  <section class="st-card st-brief" data-st-01="pin">
+    <div class="container">
+      <hr class="rule" style="margin-top:72px;">
+      <div class="section">
+        <div class="two-col">
+          <span class="col-label">The brief</span>
+          <div class="col-body">
+            <p>
+              ZF's engineering team had been building a physical control knob — the <strong>Centronic</strong>,
+              later called MMA (Multimodal Armrest) — with magnetorheological fluid inside it. The knob
+              could change its rotational resistance in real time, zone by zone. That was the hardware.
+              The question handed to our team was: <em>what does the software experience look like?</em>
+            </p>
+            <p>
+              The existing automotive HMI paradigms — list menus, nested grids, iDrive-style rails —
+              were designed for a driver whose eyes had to stay on the road. At Level 4, that constraint
+              disappears. You can look at the screen. You can lean back. You can use two hands.
+              The design space opened up completely, and the instinct to copy what existed felt wrong.
+            </p>
+            <p>We started with a workshop instead of a wireframe.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCOPE — dark card, slides over brief. Transition ends here. -->
+  <section class="st-card st-scope">
+    <div class="container">
+      <div class="section" style="padding-bottom:0;">
+        <div class="scope-strip">
+          <div class="scope-item">
+            <div class="scope-key">Where</div>
+            <div class="scope-val">ZF India Technology Centre, Pune</div>
+          </div>
+          <div class="scope-item">
+            <div class="scope-key">When</div>
+            <div class="scope-val">2018–2019<br>18 months</div>
+          </div>
+          <div class="scope-item">
+            <div class="scope-key">My role</div>
+            <div class="scope-val">UX architecture, interaction model, hardware industrial design, research</div>
+          </div>
+          <div class="scope-item">
+            <div class="scope-key">Shown to</div>
+            <div class="scope-val">ZF global leadership, OEM partners, Tier-1 review boards</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <div class="container">
-    <hr class="rule" style="margin-top:72px;">
-
-    <!-- CONTEXT -->
-    <div class="section">
-      <div class="two-col">
-        <span class="col-label">The brief</span>
-        <div class="col-body">
-          <p>
-            ZF's engineering team had been building a physical control knob — the <strong>Centronic</strong>,
-            later called MMA (Multimodal Armrest) — with magnetorheological fluid inside it. The knob
-            could change its rotational resistance in real time, zone by zone. That was the hardware.
-            The question handed to our team was: <em>what does the software experience look like?</em>
-          </p>
-          <p>
-            The existing automotive HMI paradigms — list menus, nested grids, iDrive-style rails —
-            were designed for a driver whose eyes had to stay on the road. At Level 4, that constraint
-            disappears. You can look at the screen. You can lean back. You can use two hands.
-            The design space opened up completely, and the instinct to copy what existed felt wrong.
-          </p>
-          <p>We started with a workshop instead of a wireframe.</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- SCOPE STRIP -->
-    <div class="section anim-block" style="padding-bottom:0;">
-      <div class="scope-strip">
-        <div class="scope-item">
-          <div class="scope-key">Where</div>
-          <div class="scope-val">ZF India Technology Centre, Pune</div>
-        </div>
-        <div class="scope-item">
-          <div class="scope-key">When</div>
-          <div class="scope-val">2018–2019<br>18 months</div>
-        </div>
-        <div class="scope-item">
-          <div class="scope-key">My role</div>
-          <div class="scope-val">UX architecture, interaction model, hardware industrial design, research</div>
-        </div>
-        <div class="scope-item">
-          <div class="scope-key">Shown to</div>
-          <div class="scope-val">ZF global leadership, OEM partners, Tier-1 review boards</div>
-        </div>
-      </div>
-    </div>
-
-  </div>
 
   <!-- ─── PROTO SEQUENCE: SPHERE → CURTAIN → PROTOTYPE ─── -->
   <!-- This section replaces the old climate image slot in the page layout -->
@@ -920,6 +966,35 @@
 </div>
 
 <script>
+/* ─── sectionTransition01 ───────────────────────────────────────────────────
+   Pin-over-pin scroll stack. Reads data-st-01="pin" on sibling sections.
+   Each pinned section is held in place while the next section scrolls over it.
+   Call once after DOM is ready.
+────────────────────────────────────────────────────────────────────────────── */
+function sectionTransition01() {
+  const pinEls = document.querySelectorAll('[data-st-01="pin"]');
+
+  pinEls.forEach((section, i) => {
+    // The section that will scroll over this one is the very next sibling
+    const nextSection = section.nextElementSibling;
+    if (!nextSection) return;
+
+    ScrollTrigger.create({
+      trigger: nextSection,
+      start: "top bottom",
+      end: "top top",
+      pin: section,
+      pinSpacing: false,
+    });
+  });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+    sectionTransition01();
+  }
+});
+
 (function () {
   if (typeof gsap === 'undefined') return;
 
@@ -968,21 +1043,8 @@
     scrollTrigger: { trigger: '.anim-block:has(img[alt*="Climate"])', start: 'top 88%', toggleActions: 'play none none none' }
   });
 
-  /* ─────────────────────────────────────────
-     4. SCOPE STRIP — each cell wipes in left→right
-     on a scrubbed timeline (pin-free, just scrub)
-  ───────────────────────────────────────── */
-  const scopeTl = gsap.timeline({
-    scrollTrigger: {
-      trigger: '.scope-strip',
-      start: 'top 80%',
-      end: 'top 30%',
-      scrub: 1,
-    }
-  });
-  scopeTl.from('.scope-item', {
-    autoAlpha: 0, x: 30, stagger: 0.25, ease: 'power2.out'
-  });
+  /* Scope strip animation removed — the dark card slides in as a full section
+     via sectionTransition01 pin stacking, so no additional per-item reveal needed */
 
   /* ─────────────────────────────────────────
      5. CHAPTER LIST — one ScrollTrigger per row
