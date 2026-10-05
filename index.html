@@ -11,7 +11,6 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/SplitText.min.js"></script>
 
   <style>
     /* ═══════════════════════════════════════════════════════════════════
@@ -120,11 +119,14 @@
     .hero-marquee {
       overflow: hidden;
       height: 100vh;
+      min-height: 500px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       position: relative;
       width: 100%;
+      /* Explicit background to ensure it paints — confirms it has area */
+      background: var(--bg);
     }
 
     /* Meta row: sits INSIDE a full-bleed section.
@@ -152,9 +154,10 @@
       width: max-content;
       align-items: baseline;
       gap: 5vw;
-      /* GSAP sets padding-left to 100vw so text starts off-screen right.
-         CSS fallback shows text at col-pad position if JS hasn't run yet. */
+      /* GSAP translates this via `x` — no padding-left needed.
+         Static fallback: sit at col-pad so text is visible without JS. */
       padding-left: var(--col-pad);
+      will-change: transform;
     }
 
     .hero-marquee-text .word-sep {
@@ -999,37 +1002,59 @@
     // Nav entrance
     gsap.from('.nav', { autoAlpha: 0, duration: 0.5, ease: 'power3.out', delay: 0.1 });
 
-    if (marqueeWrapper && marqueeText && typeof SplitText !== 'undefined') {
-      gsap.registerPlugin(SplitText);
-
+    if (marqueeWrapper && marqueeText) {
       // Meta row entrance
       gsap.set(metaRow, { autoAlpha: 0, y: 8 });
       gsap.to(metaRow, { autoAlpha: 1, y: 0, duration: 0.65, ease: 'power2.out', delay: 0.3 });
 
-      // Push h1 off-screen right — GSAP will scroll it into view
-      gsap.set(marqueeText, { paddingLeft: '100vw' });
+      // ── Vanilla char-split (no Club GSAP needed) ──────────────────────
+      // Walk all childNodes of the h1. Text nodes get split into individual
+      // <span class="char"> elements; .word-sep spans are left intact.
+      function splitChars(el) {
+        const chars = [];
+        const nodes = Array.from(el.childNodes);
+        el.innerHTML = '';
 
-      // Split h1 into chars (ignore the · separators)
-      const split = SplitText.create(marqueeText, {
-        type: 'chars',
-        ignore: '.word-sep',
-        charsClass: 'char',
-      });
+        nodes.forEach(node => {
+          if (node.nodeType === Node.TEXT_NODE) {
+            // split text into chars
+            [...node.textContent].forEach(ch => {
+              const span = document.createElement('span');
+              span.className = 'char';
+              span.textContent = ch;
+              el.appendChild(span);
+              chars.push(span);
+            });
+          } else if (node.nodeType === Node.ELEMENT_NODE) {
+            // preserve .word-sep (and any other inline el) intact
+            el.appendChild(node);
+          }
+        });
+        return chars;
+      }
 
-      // Horizontal scroll tween — pins the section and scrolls text left
+      const chars = splitChars(marqueeText);
+
+      // Push h1 off-screen right so GSAP scrolls it into view
+      gsap.set(marqueeText, { x: window.innerWidth });
+
+      // Horizontal scroll tween — pins the section, scrolls text left
+      const totalW  = marqueeText.scrollWidth;
+      const scrollD = totalW + window.innerWidth; // total travel distance
+
       const scrollTween = gsap.to(marqueeText, {
-        xPercent: -100,
+        x: -(totalW),
         ease: 'none',
         scrollTrigger: {
           trigger: marqueeWrapper,
           pin: true,
-          end: '+=4000px',
+          end: '+=' + scrollD + 'px',
           scrub: 0.6,
         }
       });
 
       // Each char tumbles in as it scrolls into the viewport
-      split.chars.forEach((char) => {
+      chars.forEach((char) => {
         const yDir = Math.random() > 0.5 ? 1 : -1;
         const yMag = 60 + Math.random() * 120;
         const rot  = (Math.random() - 0.5) * 22;
@@ -1048,9 +1073,6 @@
           }
         });
       });
-    } else {
-      // Graceful fallback if SplitText unavailable
-      if (metaRow) gsap.to(metaRow, { autoAlpha: 1, duration: 0.5, delay: 0.3 });
     }
   }); // end window load
 
