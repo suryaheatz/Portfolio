@@ -141,6 +141,44 @@
       color: var(--ink);
     }
 
+    .hero-subtitle {
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-size: clamp(16px, 1.6vw, 22px);
+      font-weight: 400;
+      line-height: 1.55;
+      letter-spacing: -0.01em;
+      color: var(--ink-2);
+      max-width: min(720px, 90vw);
+      margin: 24px auto 0;
+      text-align: center;
+    }
+
+    /* Brief card — centred editorial layout */
+    .brief-centre {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 80px var(--col-pad);
+      text-align: center;
+    }
+    .brief-centre p {
+      font-family: 'DM Serif Display', serif;
+      font-style: italic;
+      font-size: clamp(20px, 2.2vw, 30px);
+      font-weight: 400;
+      line-height: 1.5;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      max-width: 720px;
+    }
+    .brief-centre p + p {
+      margin-top: 1.5em;
+      color: var(--ink-2);
+    }
+
     /* ══════════════════════════════
        HERO IMAGE — full bleed
     ══════════════════════════════ */
@@ -702,6 +740,7 @@
       <span class="hero-tag">HMI / Autonomous Vehicles</span>
     </div>
     <h1 class="hero-scroll-text">Reimagining the HMI for SAE&nbsp;Level&nbsp;4 autonomous cars</h1>
+    <p class="hero-subtitle">ZF's engineering team had been building a physical control knob — the Centronic, later called MMA (Multimodal Armrest). The knob could change its rotational resistance in real time according to the UI — for eg. volume up/down will have low resistance, drive mode changes will have more resistance.</p>
   </section>
 
   <!-- TRANSITION STACK: image → brief card → scope card -->
@@ -714,28 +753,9 @@
 
   <!-- BRIEF — full-page card, GSAP pins it while scope slides over -->
   <section class="st-card st-brief" data-st-01="pin">
-    <div class="container">
-      <hr class="rule" style="margin-top:72px;">
-      <div class="section">
-        <div class="two-col">
-          <span class="col-label">The brief</span>
-          <div class="col-body">
-            <p>
-              ZF's engineering team had been building a physical control knob — the <strong>Centronic</strong>,
-              later called MMA (Multimodal Armrest) — with magnetorheological fluid inside it. The knob
-              could change its rotational resistance in real time, zone by zone. That was the hardware.
-              The question handed to our team was: <em>what does the software experience look like?</em>
-            </p>
-            <p>
-              The existing automotive HMI paradigms — list menus, nested grids, iDrive-style rails —
-              were designed for a driver whose eyes had to stay on the road. At Level 4, that constraint
-              disappears. You can look at the screen. You can lean back. You can use two hands.
-              The design space opened up completely, and the instinct to copy what existed felt wrong.
-            </p>
-            <p>We started with a workshop instead of a wireframe.</p>
-          </div>
-        </div>
-      </div>
+    <div class="brief-centre">
+      <p>At Level 4, the old automotive HMI constraints disappear. You can look at the screen, lean back, use both hands. The UI has to be effective to show the hardware capabilities.</p>
+      <p>The question handed to our team was: what does the software experience look like?</p>
     </div>
   </section>
 
