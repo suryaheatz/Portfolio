@@ -1388,6 +1388,17 @@
     onEnter: startBounce,
   });
 
+  /* ─── Hide sphere elements when scrolling back up past the section ─── */
+  ScrollTrigger.create({
+    trigger: trigger,
+    start:   'top bottom',
+    onLeaveBack: function() {
+      gsap.to(sphereText,   { autoAlpha: 0, duration: 0.2 });
+      gsap.to(morphEl,      { autoAlpha: 0, duration: 0.2 });
+      gsap.to(sphereShadow, { autoAlpha: 0, duration: 0.2 });
+    },
+  });
+
   /* ─────────────────────────────────────────────────
      PHASE 2: SVG CURTAIN on CTA click
      Path morphs: flat-floor → wave → full-fill
