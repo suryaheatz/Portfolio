@@ -11,6 +11,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/4.0.2/anime.iife.min.js" defer></script>
 
   <style>
     /* ═══════════════════════════════════════════════════════════════════
@@ -20,16 +21,41 @@
     ═══════════════════════════════════════════════════════════════════ */
     :root {
       /* ── Colour ── */
-      --bg:      #f5f4f0;
-      --ink:     #111110;
-      --ink-2:   #545450;
-      --ink-3:   #9a9a94;
-      --rule:    #dddad0;
-      --teal:    #0c7a66;
+      --bg:        #f5f4f0;
+      --ink:       #111110;
+      --ink-2:     #545450;
+      --ink-3:     #9a9a94;
+      --rule:      #dddad0;
+      --teal:      #0c7a66;
+      --teal-dim:  rgba(12,122,102,0.08);
+      --surface:   #eeece7;
+      --sun:       #E8490F;
+      --sun-light: rgba(232,73,15,0.12);
+      --sun-muted: rgba(232,73,15,0.06);
 
       /* ── Layout ── */
-      --page-w:    1080px;   /* max-width of the .container */
-      --col-pad:   48px;     /* horizontal gutter — the ONE value used everywhere */
+      --page-w:      1080px;  /* max-width of the .container */
+      --col-pad:     48px;    /* desktop horizontal gutter */
+      --col-pad-m:   24px;    /* mobile horizontal gutter */
+      --section-gap:   80px;  /* standard section vertical padding */
+      --section-gap-m: 48px;  /* mobile section vertical padding */
+
+      /* ── Border radius ── */
+      --r-sm:  6px;
+      --r-md: 12px;
+      --r-lg: 20px;
+
+      /* ── Typography ── */
+      --font-serif: 'DM Serif Display', serif;
+      --font-sans:  'DM Sans', system-ui, sans-serif;
+
+      --text-label:    11px;                         /* caps labels, meta tags — weight 500, ls 0.14em */
+      --text-caption:  12px;                         /* image captions, footer small — ls 0.03em */
+      --text-body-sm:  13px;                         /* secondary text, chapter desc */
+      --text-body:     16px;                         /* main prose, 1.6 line-height */
+      --text-serif-sm: clamp(22px, 2.8vw, 32px);    /* footer CTA */
+      --text-serif-md: clamp(26px, 3.2vw, 38px);    /* pull quote */
+      --text-serif-lg: clamp(52px, 7.5vw, 96px);    /* hero marquee */
 
       /* ── Spacing scale (8px base) ── */
       --sp-1:   4px;
@@ -46,14 +72,20 @@
       --sp-24: 96px;
       --sp-26: 104px;
 
-      /* ── Typography ── */
-      --text-label:   11px;  /* caps labels, meta tags — weight 500, ls 0.14em */
-      --text-caption: 12px;  /* image captions, footer small — ls 0.03em */
-      --text-body-sm: 13px;  /* secondary text, chapter desc */
-      --text-body:    16px;  /* main prose, 1.6 line-height */
-      --text-serif-sm: clamp(22px, 2.8vw, 32px);   /* footer CTA */
-      --text-serif-md: clamp(26px, 3.2vw, 38px);   /* pull quote */
-      --text-serif-lg: clamp(52px, 7.5vw, 96px);   /* hero marquee */
+      /* ── Motion — duration scale ── */
+      --dur-instant: 120ms;
+      --dur-fast:    220ms;
+      --dur-mid:     380ms;
+      --dur-slow:    580ms;
+
+      /* ── Motion — easing tokens ── */
+      --ease-reveal:     cubic-bezier(0.39,0.575,0.565,1);    /* outSine  */
+      --ease-enter:      cubic-bezier(0.19,1,0.22,1);          /* outExpo  */
+      --ease-leave:      cubic-bezier(0.95,0.05,0.795,0.035);  /* inExpo   */
+      --ease-lift:       cubic-bezier(0.34,1.1,0.64,1);        /* outBack(0.8) — subtle overshoot only */
+      --ease-snap:       cubic-bezier(0.37,0,0.63,1);          /* inOutSine */
+      --ease-path:       cubic-bezier(0.16,1,0.3,1);           /* long smooth */
+      --ease-out-quart:  cubic-bezier(0.165,0.84,0.44,1);      /* legacy alias — GSAP tweens */
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -62,7 +94,7 @@
     body {
       background: var(--bg);
       color: var(--ink);
-      font-family: 'DM Sans', system-ui, sans-serif;
+      font-family: var(--font-sans);
       font-size: 16px;
       line-height: 1.6;
       -webkit-font-smoothing: antialiased;
@@ -130,7 +162,7 @@
 
     /* h1 — 2 lines max */
     .hero-scroll-text {
-      font-family: 'DM Serif Display', serif;
+      font-family: var(--font-serif);
       font-style: italic;
       font-size: clamp(36px, 5.5vw, 76px);
       font-weight: 400;
@@ -142,7 +174,7 @@
     }
 
     .hero-subtitle {
-      font-family: 'DM Sans', system-ui, sans-serif;
+      font-family: var(--font-sans);
       font-style: normal;
       font-size: 16px;
       font-weight: 400;
@@ -165,7 +197,7 @@
       text-align: center;
     }
     .brief-centre p {
-      font-family: 'DM Serif Display', serif;
+      font-family: var(--font-serif);
       font-style: normal;
       font-size: clamp(26px, 3vw, 42px);
       font-weight: 400;
@@ -214,13 +246,13 @@
     /* Brief: full-page light card, covers hero image */
     .st-brief {
       background: var(--bg);
-      border-radius: 20px 20px 0 0;
+      border-radius: var(--r-lg) var(--r-lg) 0 0;
     }
 
     /* Scope: full-page dark card, covers brief */
     .st-scope {
-      background: #1a1917;
-      border-radius: 20px 20px 0 0;
+      background: #1a1917;  /* intentional hardcode — dark card */
+      border-radius: var(--r-lg) var(--r-lg) 0 0;
     }
 
     /* Sketch image below scope strip */
@@ -231,7 +263,7 @@
     .scope-sketch img {
       width: 100%;
       display: block;
-      border-radius: 12px;
+      border-radius: var(--r-md);
     }
 
     /* Dark scope overrides */
@@ -264,14 +296,14 @@
     /* IMAGES */
     .image-caption { font-size: 12px; color: var(--ink-3); letter-spacing: 0.03em; margin-top: 10px; }
     .img-block {
-      border-radius: 6px; overflow: hidden; border: 1px solid var(--rule);
-      transition: transform 0.4s cubic-bezier(0.25,0.46,0.45,0.94), box-shadow 0.4s ease;
+      border-radius: var(--r-sm); overflow: hidden; border: 1px solid var(--rule);
+      transition: transform var(--dur-mid) var(--ease-path), box-shadow var(--dur-mid) var(--ease-path);
     }
     .img-block:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(17,17,16,0.10); }
     .img-block img { width: 100%; display: block; }
 
     .rule { border: none; border-top: 1px solid var(--rule); }
-    .section { padding: 80px 0; }
+    .section { padding: var(--section-gap) 0; }
 
     /* 2-COL */
     .two-col { display: grid; grid-template-columns: 200px 1fr; gap: 48px; align-items: start; }
@@ -303,7 +335,7 @@
     .chapter-list li {
       display: flex; align-items: baseline; gap: 20px;
       padding: 16px 0; border-top: 1px solid var(--rule);
-      transition: padding-left 0.3s cubic-bezier(0.25,0.46,0.45,0.94);
+      transition: padding-left var(--dur-fast) var(--ease-out-quart);
       cursor: default;
     }
     .chapter-list li:last-child { border-bottom: 1px solid var(--rule); }
@@ -325,7 +357,7 @@
     .process-strip-item img {
       width: 100%; display: block; aspect-ratio: 4/3; object-fit: cover;
       filter: grayscale(20%);
-      transition: transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94), filter 0.5s ease;
+      transition: transform var(--dur-slow) var(--ease-path), filter var(--dur-slow) var(--ease-snap);
     }
     .process-strip-item:hover img { transform: scale(1.04); filter: grayscale(0%); }
     .process-label {
@@ -343,34 +375,34 @@
       justify-content: center;
     }
     .pull-quote blockquote {
-      font-family: 'DM Serif Display', serif; font-style: italic;
+      font-family: var(--font-serif); font-style: italic;
       font-size: clamp(26px, 3.2vw, 38px); line-height: 1.25;
       color: var(--ink); max-width: 800px;
       border-left: 2px solid var(--teal); padding-left: 32px;
     }
     .pull-quote cite {
       display: block; margin-top: 20px; font-style: normal;
-      font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink-3);
+      font-family: var(--font-sans); font-size: 13px; color: var(--ink-3);
     }
 
     /* IMPACT */
     .impact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; }
-    .impact-left h3 { font-family: 'DM Serif Display', serif; font-size: 28px; line-height: 1.2; color: var(--ink); margin-bottom: 20px; }
+    .impact-left h3 { font-family: var(--font-serif); font-size: 28px; line-height: 1.2; color: var(--ink); margin-bottom: 20px; }
     .impact-left p { font-size: 15px; line-height: 1.75; color: var(--ink-2); margin-bottom: 14px; }
     .impact-left p.disclaimer { font-size: 13px; color: var(--ink-3); font-style: italic; border-top: 1px solid var(--rule); padding-top: 16px; margin-top: 8px; }
     .impact-callouts { display: flex; flex-direction: column; gap: 28px; }
     .callout { border-top: 1px solid var(--rule); padding-top: 24px; }
-    .callout-num { font-family: 'DM Serif Display', serif; font-size: 40px; line-height: 1; color: var(--ink); letter-spacing: -0.02em; margin-bottom: 6px; }
+    .callout-num { font-family: var(--font-serif); font-size: 40px; line-height: 1; color: var(--ink); letter-spacing: -0.02em; margin-bottom: 6px; }
     .callout-label { font-size: 13px; color: var(--ink-2); line-height: 1.5; }
     .callout-source { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
 
     /* FOOTER */
     .footer-cta { padding: 80px 0 100px; border-top: 1px solid var(--rule); }
-    .footer-cta p { font-family: 'DM Serif Display', serif; font-style: italic; font-size: clamp(22px, 2.8vw, 32px); line-height: 1.3; color: var(--ink); max-width: 700px; margin-bottom: 36px; }
+    .footer-cta p { font-family: var(--font-serif); font-style: italic; font-size: clamp(22px, 2.8vw, 32px); line-height: 1.3; color: var(--ink); max-width: 700px; margin-bottom: 36px; }
     .footer-links { display: flex; gap: 32px; align-items: center; }
-    .footer-links a.primary { font-size: 14px; font-weight: 500; color: var(--teal); transition: letter-spacing 0.2s ease; }
+    .footer-links a.primary { font-size: 14px; font-weight: 500; color: var(--teal); transition: letter-spacing var(--dur-fast) var(--ease-snap); }
     .footer-links a.primary:hover { letter-spacing: 0.01em; text-decoration: none; }
-    .footer-links a.secondary { font-size: 14px; color: var(--ink-3); transition: color 0.2s ease; }
+    .footer-links a.secondary { font-size: 14px; color: var(--ink-3); transition: color var(--dur-fast) var(--ease-snap); }
     .footer-links a.secondary:hover { color: var(--ink); }
     .footer-bottom { margin-top: 64px; font-size: 12px; color: var(--ink-3); }
 
@@ -385,7 +417,7 @@
       margin-left: -50vw;
       min-height: 100vh;
       background: var(--bg);
-      border-radius: 20px 20px 0 0;
+      border-radius: var(--r-lg) var(--r-lg) 0 0;
     }
 
     /* ── Prototype inline embed ── */
@@ -415,7 +447,7 @@
       margin-bottom: 6px;
     }
     .proto-section-title {
-      font-family: 'DM Serif Display', serif;
+      font-family: var(--font-serif);
       font-style: italic;
       font-size: clamp(24px, 3vw, 38px);
       font-weight: 400;
@@ -427,7 +459,7 @@
       width: 100%;
       max-width: 780px;
       border: 1px solid rgba(14,14,13,0.10);
-      border-radius: 12px;
+      border-radius: var(--r-md);
       background: #ffffff;
       overflow: hidden;
       box-shadow:
@@ -463,7 +495,7 @@
       font-weight: 500;
       color: rgba(14,14,13,0.45);
       letter-spacing: 0.02em;
-      transition: color 0.18s, border-color 0.18s, background 0.18s;
+      transition: color var(--dur-fast) var(--ease-snap), border-color var(--dur-fast) var(--ease-snap), background var(--dur-fast) var(--ease-snap);
     }
     .proto-thumb-expand:hover {
       color: rgba(14,14,13,0.75);
@@ -497,16 +529,16 @@
     }
     .proto-thumb-ver {
       padding: 4px 14px;
-      border-radius: 5px;
+      border-radius: var(--r-sm);
       border: 1px solid rgba(14,14,13,0.12);
       background: transparent;
       color: rgba(14,14,13,0.4);
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-sans);
       font-size: 11px;
       font-weight: 500;
       letter-spacing: 0.04em;
       cursor: pointer;
-      transition: border-color 0.18s, color 0.18s, background 0.18s;
+      transition: border-color var(--dur-fast) var(--ease-snap), color var(--dur-fast) var(--ease-snap), background var(--dur-fast) var(--ease-snap);
     }
     .proto-thumb-ver.active {
       border-color: rgba(14,14,13,0.28);
@@ -554,16 +586,16 @@
     .proto-overlay-versions { display: flex; gap: 6px; }
     .proto-ver-btn {
       padding: 3px 12px;
-      border-radius: 4px;
+      border-radius: var(--r-sm);
       border: 1px solid rgba(245,244,240,0.12);
       background: transparent;
       color: rgba(245,244,240,0.35);
-      font-family: 'DM Sans', sans-serif;
+      font-family: var(--font-sans);
       font-size: 11px;
       font-weight: 500;
       letter-spacing: 0.06em;
       cursor: pointer;
-      transition: border-color 0.2s, color 0.2s;
+      transition: border-color var(--dur-fast) var(--ease-snap), color var(--dur-fast) var(--ease-snap);
     }
     .proto-ver-btn.active {
       border-color: rgba(245,244,240,0.35);
@@ -581,9 +613,9 @@
       color: rgba(245,244,240,0.35);
       background: transparent;
       border: 1px solid rgba(245,244,240,0.1);
-      border-radius: 4px;
+      border-radius: var(--r-sm);
       cursor: pointer;
-      transition: color 0.2s, border-color 0.2s;
+      transition: color var(--dur-fast) var(--ease-snap), border-color var(--dur-fast) var(--ease-snap);
       padding: 0;
     }
     .proto-collapse-btn:hover {
@@ -1229,6 +1261,63 @@
     if (e.key === 'Escape' && overlay.classList.contains('is-open') && !isAnimating) {
       collapseBtn && collapseBtn.click();
     }
+  });
+
+})();
+</script>
+
+<!-- ─── ANIME.JS MICRO-INTERACTIONS ─── -->
+<script>
+(function () {
+  // Wait for Anime.js to be ready (it's deferred)
+  function whenAnimeReady(cb) {
+    if (typeof anime !== 'undefined') { cb(); return; }
+    window.addEventListener('load', cb, { once: true });
+  }
+
+  whenAnimeReady(function () {
+
+    /* ─────────────────────────────────────────
+       1. HERO DOTS — subtle scale-in on load
+       The three separator dots between the meta tags
+    ───────────────────────────────────────── */
+    anime({
+      targets: '.hero-dot',
+      scale: [0, 1],
+      opacity: [0, 1],
+      delay: anime.stagger(80, { start: 300 }),
+      duration: 580,
+      easing: 'cubicBezier(0.34,1.1,0.64,1)',  /* --ease-lift */
+    });
+
+    /* ─────────────────────────────────────────
+       2. CHAPTER LIST — teal accent on .ch-num
+       Anime.js owns the colour transition on hover;
+       GSAP owns the x/opacity entrance — no conflict.
+    ───────────────────────────────────────── */
+    document.querySelectorAll('.chapter-list li').forEach(function (li) {
+      var num = li.querySelector('.ch-num');
+      var title = li.querySelector('.ch-title');
+      if (!num || !title) return;
+
+      li.addEventListener('mouseenter', function () {
+        anime({ targets: num,   color: '#0c7a66', duration: 220, easing: 'cubicBezier(0.37,0,0.63,1)' });
+        anime({ targets: title, color: '#0c7a66', duration: 220, easing: 'cubicBezier(0.37,0,0.63,1)' });
+      });
+      li.addEventListener('mouseleave', function () {
+        anime({ targets: num,   color: '#9a9a94', duration: 220, easing: 'cubicBezier(0.37,0,0.63,1)' });
+        anime({ targets: title, color: '#111110', duration: 220, easing: 'cubicBezier(0.37,0,0.63,1)' });
+      });
+    });
+
+    /* ─────────────────────────────────────────
+       3. FOOTER LINKS — letter-spacing on primary,
+       colour on secondary. CSS handles these already
+       via transition tokens; Anime.js not needed here.
+       Keeping this comment as a placeholder if we
+       want to add more sophisticated hover behaviour later.
+    ───────────────────────────────────────── */
+
   });
 
 })();
