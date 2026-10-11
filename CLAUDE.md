@@ -196,15 +196,36 @@ Gap = ⅔ × border-radius. Never change this ratio.
 .cs-bento--9 .cs-bento-cell:nth-child(8) { grid-column:1/3; grid-row:4; }
 .cs-bento--9 .cs-bento-cell:nth-child(9) { grid-column:3; grid-row:4; }
 
-/* Mobile — all layouts collapse to single column */
+/* Mobile — grids are hidden by JS after cell cloning; no CSS hide here.
+   CSS only provides the stack wrapper + card + dots styles. */
 @media (max-width: 640px) {
-  [class*="cs-bento--"] {
-    grid-template-columns: 1fr; grid-template-rows: auto;
+  .bento-stack-wrapper {
+    position: relative; display: block;
+    width: 100%; height: 260px; margin-bottom: 48px;
   }
-  [class*="cs-bento--"] .cs-bento-cell {
-    grid-column: auto !important; grid-row: auto !important;
-    min-height: 200px;
+  .bento-stack-card {
+    position: absolute; inset: 0;
+    border-radius: var(--r-bento); overflow: hidden;
+    background: var(--surface); will-change: transform;
+    touch-action: pan-y; cursor: grab;
   }
+  .bento-stack-card:active { cursor: grabbing; }
+  .bento-stack-card img {
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: center center;
+    pointer-events: none;
+  }
+  .bento-stack-dots {
+    display: flex; justify-content: center;
+    gap: 6px; margin-top: -32px; margin-bottom: 16px;
+  }
+  .bento-stack-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--rule);
+    transition: background 0.2s, transform 0.2s;
+    cursor: pointer; border: none; padding: 0;
+  }
+  .bento-stack-dot.is-active { background: var(--ink); transform: scale(1.25); }
 }
 ```
 
@@ -216,6 +237,30 @@ When you attach a screenshot or paste a bento and say "implement 1:1", the AI sh
 3. Use `object-fit: cover` for every image — never resize the cell
 4. Add `.cs-bento-overlay`, `.cs-bento-caption`, `.cs-bento-expand` to every cell
 5. Use `var(--r-bento)`, `var(--bento-gap)`, `var(--bento-row)` — never hard-coded values
+
+### Bento interactions (§22 additions — all documented in SK Design System)
+
+**3D Tilt on hover (replaces proximity border-radius, which was abandoned)**
+- GSAP `mousemove` / `mouseleave` on every `.cs-bento-cell`
+- Max rotation ±8° on both X and Y; `transformPerspective: 800` on the cell itself
+- `rotateY` follows horizontal cursor; `rotateX` inverted (`-cy`) so tilt faces cursor
+- Spring-back: `elastic.out(1, 0.45)`, duration 0.7s, `overwrite: 'auto'` on all tweens
+- Disabled while cell has `.flip-expanded`; resets via `flip-done` custom event after Flip close
+- **Never attempt proximity border-radius again** — it was buggy and abandoned
+
+**GSAP Flip expand / close**
+- Requires `gsap.registerPlugin(Flip)`
+- `Flip.getState()` → add `.flip-expanded` + move cell to `#bento-stage` overlay → `Flip.from()`
+- Duration 0.55s, `power3.inOut`, `nested: true`
+- Close: click backdrop or Esc → reverse Flip → `dispatchEvent(new CustomEvent('flip-done'))`
+
+**Mobile card stack (≤640px)**
+- JS-only: fires on `DOMContentLoaded`, bails if `window.innerWidth > 640`
+- Each `.cs-bento--N` grid → its own independent `.bento-stack-wrapper` with swipeable cards
+- JS clones cell innerHTML into `.bento-stack-card` divs, then hides the grid via `grid.style.display = 'none'` (NOT CSS hidden — must clone before hiding)
+- Swipe threshold 80px; snap-back `elastic.out(1, 0.5)`; vertical-scroll guard: abort if `|dy| > |dx| + 10`
+- Stack constants: `OFFSET_Y=10px`, `OFFSET_X=6px`, `SCALE_STEP=0.04`, `MAX_BEHIND=2`
+- Dot nav: `.bento-stack-dots` / `.bento-stack-dot.is-active`
 
 ---
 
