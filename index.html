@@ -378,6 +378,41 @@
       text-shadow: 0 1px 4px rgba(0,0,0,0.4); pointer-events: none;
     }
 
+    /* BENTO GRID */
+    .cs-bento { display: grid; gap: var(--bento-gap); width: 100%; }
+    .cs-bento--3 { grid-template-columns: 1fr 1fr; grid-template-rows: var(--bento-row) var(--bento-row); }
+    .cs-bento--3 .cs-bento-cell:nth-child(3) { grid-column: 1 / -1; }
+    .cs-bento-cell {
+      border-radius: var(--r-bento); overflow: hidden; position: relative;
+      cursor: zoom-in; background: var(--surface); min-height: 140px;
+    }
+    .cs-bento-cell img {
+      width: 100%; height: 100%; object-fit: cover; object-position: center center;
+      display: block;
+    }
+    .cs-bento-overlay {
+      position: absolute; inset: 0;
+      background: rgba(17,17,16,0.80);
+      opacity: 0; transition: opacity var(--t-mid) var(--ease-out);
+      pointer-events: none; z-index: 1; border-radius: var(--r-bento);
+    }
+    .cs-bento-cell:hover .cs-bento-overlay { opacity: 1; }
+    .cs-bento-caption {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 16px; font-size: var(--text-caption);
+      color: var(--bg); opacity: 0;
+      transition: opacity var(--t-mid) var(--ease-out); z-index: 2;
+    }
+    .cs-bento-cell:hover .cs-bento-caption { opacity: 1; }
+    .cs-bento-expand {
+      position: absolute; bottom: 12px; right: 12px;
+      width: 34px; height: 34px; border-radius: 50%;
+      background: rgba(245,244,240,0.92); display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity var(--t-mid) var(--ease-out);
+      z-index: 3; pointer-events: none;
+    }
+    .cs-bento-cell:hover .cs-bento-expand { opacity: 1; }
+
     /* PULL QUOTE */
     .pull-quote {
       padding: 80px 0;
@@ -793,22 +828,41 @@
 
     <!-- PROCESS label -->
     <p class="chapter-heading" style="margin-bottom:16px;">Workshop · 3 days</p>
-  </div>
 
-  <!-- PROCESS STRIP full-bleed -->
-  <div class="process-strip">
-    <div class="process-strip-item">
-      <img src="/images/b8f283366d056c2bbe3b15b5a169202f.png" alt="Workshop Day 1">
-      <span class="process-label">Day 1</span>
+    <!-- WORKSHOP BENTO -->
+    <div class="cs-bento cs-bento--3 anim-block">
+      <div class="cs-bento-cell">
+        <img src="/images/b8f283366d056c2bbe3b15b5a169202f.png" alt="Workshop Day 1">
+        <div class="cs-bento-overlay"></div>
+        <div class="cs-bento-caption">Day 1 — Briefing &amp; stakeholder alignment</div>
+        <div class="cs-bento-expand">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 1h4M1 1v4M13 1h-4M13 1v4M1 13h4M1 13v-4M13 13h-4M13 13v-4" stroke="#111110" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+      <div class="cs-bento-cell">
+        <img src="/images/fcdec57ea0f75654030e858a5768e3b8.png" alt="Workshop Day 2">
+        <div class="cs-bento-overlay"></div>
+        <div class="cs-bento-caption">Day 2 — Interaction model exploration</div>
+        <div class="cs-bento-expand">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 1h4M1 1v4M13 1h-4M13 1v4M1 13h4M1 13v-4M13 13h-4M13 13v-4" stroke="#111110" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+      <div class="cs-bento-cell">
+        <img src="/images/0d34723b817147da0427df4e681388fe.png" alt="Workshop Day 3">
+        <div class="cs-bento-overlay"></div>
+        <div class="cs-bento-caption">Day 3 — Prototype review &amp; direction sign-off</div>
+        <div class="cs-bento-expand">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 1h4M1 1v4M13 1h-4M13 1v4M1 13h4M1 13v-4M13 13h-4M13 13v-4" stroke="#111110" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
     </div>
-    <div class="process-strip-item">
-      <img src="/images/fcdec57ea0f75654030e858a5768e3b8.png" alt="Workshop Day 2">
-      <span class="process-label">Day 2</span>
-    </div>
-    <div class="process-strip-item">
-      <img src="/images/0d34723b817147da0427df4e681388fe.png" alt="Workshop Day 3">
-      <span class="process-label">Day 3</span>
-    </div>
+
   </div>
 
   <div class="container">
@@ -862,14 +916,6 @@
         </div>
       </div>
     </div>
-
-    <!-- MEDIA IMAGE -->
-    <div class="anim-block" style="width:88%;margin:0 0 12px auto;">
-      <div class="img-block">
-        <img src="/images/6e27e0fc9d01e3ef2cbec18eab2b8b02.png" alt="Media module — pink semicircle disc list with circular player controls">
-      </div>
-    </div>
-    <p class="image-caption anim-block" style="text-align:right;padding-right:6%;">Media module, V1 — the semicircle disc stack was one of the earliest spatial layouts we kept through all three versions</p>
 
     <!-- FOOTER CTA -->
     <div class="footer-cta anim-block">
