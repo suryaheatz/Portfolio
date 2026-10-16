@@ -97,6 +97,9 @@
       --r-bento:   24px;    /* cell border-radius */
       --bento-gap: 16px;    /* grid gap — equals ⅔ of --r-bento */
       --bento-row: 200px;   /* base row height unit */
+
+      /* ── Component chrome ── */
+      --surface-chrome: #fafaf8;  /* proto embed header/footer — lightest surface, above --surface */
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -158,7 +161,7 @@
     ══════════════════════════════════════════════════════ */
 
     .hero-section {
-      padding: 80px 0 64px;
+      padding: var(--sp-20) 0 var(--sp-16);
       text-align: center;
     }
 
@@ -300,7 +303,7 @@
       margin: 0 auto;
       padding: var(--sp-4) var(--col-pad) var(--sp-10);
       font-size: var(--text-caption);
-      color: #888784;
+      color: var(--ink-3);
       letter-spacing: 0.03em;
     }
 
@@ -317,13 +320,13 @@
     .section { padding: var(--section-gap) 0; }
 
     /* 2-COL */
-    .two-col { display: grid; grid-template-columns: 200px 1fr; gap: 48px; align-items: start; }
+    .two-col { display: grid; grid-template-columns: 200px 1fr; gap: var(--col-pad); align-items: start; }
     .col-label {
       font-size: 11px; font-weight: 500; letter-spacing: 0.14em;
       text-transform: uppercase; color: var(--ink-3); padding-top: 4px;
     }
     .col-body p { font-size: 16px; line-height: 1.75; color: var(--ink-2); }
-    .col-body p + p { margin-top: 20px; }
+    .col-body p + p { margin-top: var(--sp-5); }
     .col-body strong { color: var(--ink); font-weight: 500; }
     .col-body em { font-style: italic; }
 
@@ -331,7 +334,7 @@
     .scope-strip {
       display: grid; grid-template-columns: repeat(4, 1fr);
       border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
-      padding: 40px 0;
+      padding: var(--sp-10) 0;
     }
     .scope-item { padding-right: 24px; }
     .scope-item + .scope-item { padding-left: 24px; border-left: 1px solid var(--rule); }
@@ -356,27 +359,6 @@
     .ch-title { font-size: 16px; color: var(--ink); font-weight: 400; flex: 1; transition: color 0.25s ease; }
     .chapter-list li:hover .ch-title { color: var(--teal); }
     .ch-desc { font-size: 13px; color: var(--ink-3); max-width: 340px; text-align: right; }
-
-    /* PROCESS STRIP */
-    .process-strip {
-      width: 100vw; position: relative;
-      left: 50%; margin-left: -50vw; margin-right: -50vw;
-      display: grid; grid-template-columns: repeat(3, 1fr);
-      gap: 2px; background: var(--rule); margin-top: 24px;
-    }
-    .process-strip-item { position: relative; overflow: hidden; background: var(--bg); }
-    .process-strip-item img {
-      width: 100%; display: block; aspect-ratio: 4/3; object-fit: cover;
-      filter: grayscale(20%);
-      transition: transform var(--dur-slow) var(--ease-path), filter var(--dur-slow) var(--ease-snap);
-    }
-    .process-strip-item:hover img { transform: scale(1.04); filter: grayscale(0%); }
-    .process-label {
-      position: absolute; bottom: 12px; left: 14px;
-      font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
-      color: rgba(255,255,255,0.72); font-weight: 500;
-      text-shadow: 0 1px 4px rgba(0,0,0,0.4); pointer-events: none;
-    }
 
     /* BENTO GRID */
     .cs-bento { display: grid; gap: var(--bento-gap); width: 100%; }
@@ -415,7 +397,7 @@
 
     /* PULL QUOTE */
     .pull-quote {
-      padding: 80px 0;
+      padding: var(--sp-20) 0;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -484,7 +466,7 @@
     }
     .proto-section-label {
       display: block;
-      font-size: 10px;
+      font-size: var(--text-label);
       font-weight: 500;
       letter-spacing: 0.14em;
       text-transform: uppercase;
@@ -504,9 +486,9 @@
     .proto-thumb-inner {
       width: 100%;
       max-width: 780px;
-      border: 1px solid rgba(14,14,13,0.10);
+      border: 1px solid var(--rule);
       border-radius: var(--r-md);
-      background: #ffffff;
+      background: var(--bg);
       overflow: hidden;
       box-shadow:
         0 2px 8px rgba(0,0,0,0.04),
@@ -519,7 +501,7 @@
       justify-content: space-between;
       padding: 11px 16px 10px;
       border-bottom: 1px solid rgba(14,14,13,0.06);
-      background: #fafaf8;
+      background: var(--surface-chrome);
     }
     .proto-thumb-label {
       font-size: 10px;
@@ -571,7 +553,7 @@
       gap: 6px;
       padding: 10px 16px;
       border-top: 1px solid rgba(14,14,13,0.06);
-      background: #fafaf8;
+      background: var(--surface-chrome);
     }
     .proto-thumb-ver {
       padding: 4px 14px;
@@ -675,7 +657,7 @@
       z-index: 500;
       pointer-events: none;
       border-radius: 12px;
-      background: #fafaf8;
+      background: var(--surface-chrome);
       overflow: hidden;
       /* top/left/width/height set by JS from bounding rect */
     }
@@ -1049,23 +1031,7 @@
   }
 
   /* ─────────────────────────────────────────
-     6. PROCESS STRIP — reveal left to right on scrub
-  ───────────────────────────────────────── */
-  const processTl = gsap.timeline({
-    scrollTrigger: {
-      trigger: '.process-strip',
-      start: 'top 85%',
-      end: 'top 20%',
-      scrub: 1.2,
-    }
-  });
-  processTl.from('.process-strip-item', {
-    autoAlpha: 0, scaleY: 0.85, stagger: 0.3, ease: 'power2.out',
-    transformOrigin: 'bottom center',
-  });
-
-  /* ─────────────────────────────────────────
-     7. PULL QUOTE — simple scroll-in, no pin
+     6. PULL QUOTE — simple scroll-in, no pin
      Pin was creating ~400px dead scroll space
   ───────────────────────────────────────── */
   const pullQuote = document.querySelector('.pull-quote');
