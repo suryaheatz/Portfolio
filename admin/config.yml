@@ -1,0 +1,80 @@
+backend:
+  name: github
+  repo: suryaheatz/Portfolio
+  branch: main
+  base_url: https://surya-zf-centronic.vercel.app
+  auth_endpoint: api/auth
+
+media_folder: public/images
+public_folder: /public/images
+
+collections:
+  # ── SITE-WIDE CONFIG ─────────────────────────────────────────────────
+  - name: site
+    label: Site Settings
+    files:
+      - name: config
+        label: Site Config (JSON block)
+        file: _cms/site-config.json
+        fields:
+          - label: Case Study Title
+            name: csTitle
+            widget: string
+            hint: "Shown in the case study header"
+          - label: Case Study Subtitle
+            name: csSubtitle
+            widget: string
+          - label: Chapters
+            name: chapters
+            widget: list
+            fields:
+              - { label: Number, name: num, widget: string }
+              - { label: Anchor ID, name: id, widget: string, hint: "e.g. cs-context — must match the HTML anchor" }
+              - { label: Title, name: title, widget: string }
+              - { label: Description, name: desc, widget: string }
+
+  # ── HERO / ABOUT ─────────────────────────────────────────────────────
+  - name: hero
+    label: Hero & About
+    files:
+      - name: hero
+        label: Hero Section
+        file: _cms/hero.json
+        fields:
+          - { label: Headline, name: headline, widget: string }
+          - { label: Subline, name: subline, widget: text }
+          - label: Hero Image
+            name: heroImage
+            widget: image
+          - label: About Blurb
+            name: about
+            widget: markdown
+
+  # ── CASE STUDY SECTIONS ───────────────────────────────────────────────
+  - name: case-study-sections
+    label: Case Study Sections
+    folder: _cms/sections
+    create: false
+    slug: "{{slug}}"
+    fields:
+      - { label: Chapter ID, name: chapterId, widget: string, hint: "Must match an anchor id in index.html" }
+      - { label: Chapter Title, name: title, widget: string }
+      - { label: Body Copy, name: body, widget: markdown }
+      - label: Images
+        name: images
+        widget: list
+        required: false
+        fields:
+          - { label: Image, name: src, widget: image }
+          - { label: Caption, name: caption, widget: string, required: false }
+
+  # ── QUOTES ────────────────────────────────────────────────────────────
+  - name: quotes
+    label: Pull Quotes
+    folder: _cms/quotes
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: Quote Text, name: quote, widget: text }
+      - { label: Attribution, name: attr, widget: string }
+      - { label: Role / Context, name: role, widget: string, required: false }

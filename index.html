@@ -350,7 +350,7 @@
       display: flex; align-items: baseline; gap: 20px;
       padding: 16px 0; border-top: 1px solid var(--rule);
       transition: padding-left var(--dur-fast) var(--ease-out-quart);
-      cursor: default;
+      cursor: pointer;
     }
     .chapter-list li:last-child { border-bottom: 1px solid var(--rule); }
     .chapter-list li:hover { padding-left: 10px; }
@@ -359,6 +359,133 @@
     .ch-title { font-size: 16px; color: var(--ink); font-weight: 400; flex: 1; transition: color 0.25s ease; }
     .chapter-list li:hover .ch-title { color: var(--teal); }
     .ch-desc { font-size: 13px; color: var(--ink-3); max-width: 340px; text-align: right; }
+
+    /* ── PROGRESS RAIL ── */
+    #cs-rail {
+      position: fixed;
+      left: 28px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+    #cs-rail.rail-visible { opacity: 1; pointer-events: all; }
+    .rail-dot {
+      position: relative;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--rule);
+      cursor: pointer;
+      transition: background 0.25s ease, transform 0.25s ease;
+      flex-shrink: 0;
+    }
+    .rail-dot:hover { background: var(--ink-3); transform: scale(1.4); }
+    .rail-dot.rail-active {
+      background: var(--sun);
+      transform: scale(1);
+    }
+    /* Expanded label on active dot */
+    .rail-dot::after {
+      content: attr(data-label);
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: var(--font-sans);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      color: var(--ink);
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    .rail-dot.rail-active::after,
+    .rail-dot:hover::after { opacity: 1; }
+
+    /* ── MOBILE CHAPTER PILL + DRAWER ── */
+    #cs-pill {
+      display: none;
+      position: fixed;
+      bottom: 24px;
+      right: 20px;
+      z-index: 300;
+      background: var(--ink);
+      color: var(--bg);
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      padding: 10px 16px;
+      border-radius: var(--r-lg);
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 4px 20px rgba(17,17,16,0.18);
+      transition: opacity 0.4s ease, transform 0.25s var(--ease-out);
+      opacity: 0;
+      pointer-events: none;
+    }
+    #cs-pill.pill-visible { opacity: 1; pointer-events: all; }
+    #cs-pill:hover { transform: scale(1.04); }
+
+    #cs-drawer {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 400;
+    }
+    #cs-drawer.drawer-open { display: block; }
+    .drawer-overlay {
+      position: absolute; inset: 0;
+      background: rgba(17,17,16,0.55);
+      backdrop-filter: blur(4px);
+    }
+    .drawer-panel {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      background: var(--bg);
+      border-radius: 20px 20px 0 0;
+      padding: 24px 24px 40px;
+      transform: translateY(100%);
+      transition: transform 0.4s var(--ease-out);
+    }
+    #cs-drawer.drawer-open .drawer-panel { transform: translateY(0); }
+    .drawer-handle {
+      width: 36px; height: 4px;
+      border-radius: 2px;
+      background: var(--rule);
+      margin: 0 auto 20px;
+    }
+    .drawer-heading {
+      font-size: 11px; font-weight: 500; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--ink-3);
+      margin-bottom: 16px;
+    }
+    .drawer-list { list-style: none; }
+    .drawer-list li {
+      display: flex; align-items: baseline; gap: 12px;
+      padding: 12px 0; border-top: 1px solid var(--rule);
+      cursor: pointer;
+      transition: padding-left 0.2s ease;
+    }
+    .drawer-list li:last-child { border-bottom: 1px solid var(--rule); }
+    .drawer-list li:hover { padding-left: 6px; }
+    .drawer-list li.drawer-active .dl-num,
+    .drawer-list li.drawer-active .dl-title { color: var(--sun); }
+    .dl-num { font-size: 11px; color: var(--ink-3); min-width: 24px; }
+    .dl-title { font-size: 15px; color: var(--ink); }
+
+    @media (max-width: 900px) {
+      #cs-rail { display: none; }
+      #cs-pill { display: block; }
+      #cs-drawer { display: block; }
+    }
 
     /* BENTO GRID */
     .cs-bento { display: grid; gap: var(--bento-gap); width: 100%; }
@@ -665,6 +792,35 @@
 </head>
 <body>
 
+<!-- ═══════════════════════════════════════════════════════════
+     SITE CONFIG — editable content lives here.
+     Decap CMS writes to this block via admin/config.yml.
+     JS reads window.SITE_CONFIG at runtime — never hardcode
+     chapter titles, descriptions or anchors elsewhere.
+═══════════════════════════════════════════════════════════ -->
+<script id="site-config" type="application/json">
+{
+  "caseStudy": {
+    "title": "ZF Centronic",
+    "subtitle": "HMI Case Study · Surya Konijeti",
+    "chapters": [
+      { "num": "01", "id": "cs-context",    "title": "The Context",                "desc": "Why Level 4 changes everything about HMI design" },
+      { "num": "02", "id": "cs-workshop",   "title": "The Workshop",               "desc": "Three days, twelve frameworks, one recurring insight" },
+      { "num": "03", "id": "cs-research",   "title": "The Research",               "desc": "262 employees, three external reports, one recurring gap" },
+      { "num": "04", "id": "cs-scenario",   "title": "The Scenario",               "desc": "What the cabin actually looks and feels like at speed" },
+      { "num": "05", "id": "cs-ia",         "title": "Information Architecture",   "desc": "Six modes, zero hierarchies — the spatial IA argument" },
+      { "num": "06", "id": "cs-hardware",   "title": "The Hardware",               "desc": "Industrial design of the Centronic ACP demonstrator" },
+      { "num": "07", "id": "cs-wireframes", "title": "Wireframes & Gestures",      "desc": "How the knob and the screen negotiate meaning" },
+      { "num": "08", "id": "cs-interaction","title": "The Interaction Model",       "desc": "Haptic zones, resistance values, and why the knob knows where you are" },
+      { "num": "09", "id": "cs-evolution",  "title": "The Design Evolution",       "desc": "V1 → V2 → V3 — three generations, each a different hypothesis" },
+      { "num": "10", "id": "cs-ambient",    "title": "The Ambient Language",       "desc": "Light, motion, and the knob as a passive information surface" },
+      { "num": "11", "id": "cs-prototype",  "title": "The Prototype",              "desc": "What the working demonstrator proves beyond the static designs" },
+      { "num": "12", "id": "cs-impact",     "title": "Impact & Foresight",         "desc": "Where the industry went next, and what this work said first" }
+    ]
+  }
+}
+</script>
+
 <div class="page-root">
   <div class="container">
 
@@ -789,26 +945,14 @@
 
   <div class="container">
 
-    <!-- CHAPTER LIST -->
+    <!-- CHAPTER LIST — rendered by JS from SITE_CONFIG -->
     <div class="section" id="chapter-section" style="padding-top:80px;">
       <p class="chapter-heading" id="chapter-heading">Case study</p>
-      <ul class="chapter-list">
-        <li><span class="ch-num">01</span><span class="ch-title">The Context</span><span class="ch-desc">Why Level 4 changes everything about HMI design</span></li>
-        <li><span class="ch-num">02</span><span class="ch-title">Workshop</span><span class="ch-desc">Three days, twelve frameworks, one recurring insight</span></li>
-        <li><span class="ch-num">03</span><span class="ch-title">Research</span><span class="ch-desc">Commuter studies and the idle hand problem</span></li>
-        <li><span class="ch-num">04</span><span class="ch-title">Scenario</span><span class="ch-desc">What the cabin actually looks and feels like at speed</span></li>
-        <li><span class="ch-num">05</span><span class="ch-title">Information Architecture</span><span class="ch-desc">Six modes, zero hierarchies — the spatial IA argument</span></li>
-        <li><span class="ch-num">06</span><span class="ch-title">Hardware</span><span class="ch-desc">Industrial design of the Centronic ACP demonstrator</span></li>
-        <li><span class="ch-num">07</span><span class="ch-title">Wireframes &amp; Gesture Mapping</span><span class="ch-desc">How the knob and the screen negotiate meaning</span></li>
-        <li><span class="ch-num">08</span><span class="ch-title">Interaction Model</span><span class="ch-desc">Haptic zones, resistance values, and why the knob knows where you are</span></li>
-        <li><span class="ch-num">09</span><span class="ch-title">Design Evolution</span><span class="ch-desc">V1 → V2 → V3 — three generations, each a different hypothesis</span></li>
-        <li><span class="ch-num">10</span><span class="ch-title">Ambient Language</span><span class="ch-desc">Light, motion, and the knob as a passive information surface</span></li>
-        <li><span class="ch-num">11</span><span class="ch-title">Prototype</span><span class="ch-desc">Working MRF demonstrator with real haptic resistance</span></li>
-        <li><span class="ch-num">12</span><span class="ch-title">Impact &amp; Foresight</span><span class="ch-desc">Where the industry went next, and what this work said first</span></li>
-      </ul>
+      <ul class="chapter-list" id="chapter-list-el"></ul>
     </div>
 
     <!-- PROCESS label -->
+    <div id="cs-workshop" style="scroll-margin-top:80px;"></div>
     <p class="chapter-heading" style="margin-bottom:16px;">Workshop · 3 days</p>
 
     <!-- WORKSHOP BENTO -->
@@ -850,6 +994,7 @@
   <div class="container">
 
     <!-- PULL QUOTE -->
+    <div id="cs-interaction" style="scroll-margin-top:80px;"></div>
     <hr class="rule anim-block" style="margin-top:72px;">
     <div class="pull-quote anim-block">
       <blockquote>
@@ -862,6 +1007,7 @@
     <hr class="rule anim-block">
 
     <!-- IMPACT -->
+    <div id="cs-impact" style="scroll-margin-top:80px;"></div>
     <div class="section">
       <div class="impact-grid">
         <div class="impact-left anim-block">
@@ -915,6 +1061,21 @@
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- ── PROGRESS RAIL (desktop) ── -->
+<nav id="cs-rail" aria-label="Case study chapters"></nav>
+
+<!-- ── CHAPTER PILL + DRAWER (mobile) ── -->
+<button id="cs-pill" aria-label="Jump to chapter">01 / 12</button>
+
+<div id="cs-drawer" role="dialog" aria-modal="true" aria-label="Chapter navigation">
+  <div class="drawer-overlay" id="drawer-overlay"></div>
+  <div class="drawer-panel">
+    <div class="drawer-handle"></div>
+    <p class="drawer-heading">Case study chapters</p>
+    <ul class="drawer-list" id="drawer-list-el"></ul>
   </div>
 </div>
 
@@ -1147,6 +1308,149 @@
       }
     });
   });
+
+})();
+</script>
+
+<!-- ─── SITE CONFIG + CHAPTER RAIL JS ─── -->
+<script>
+(function () {
+  /* 1 — Parse config */
+  var cfg;
+  try {
+    cfg = JSON.parse(document.getElementById('site-config').textContent);
+  } catch (e) { return; }
+  var chapters = cfg.caseStudy.chapters;
+
+  /* 2 — Render chapter list from config */
+  var listEl = document.getElementById('chapter-list-el');
+  if (listEl) {
+    chapters.forEach(function (ch) {
+      var li = document.createElement('li');
+      li.dataset.anchor = ch.id;
+      li.innerHTML =
+        '<span class="ch-num">' + ch.num + '</span>' +
+        '<span class="ch-title">' + ch.title + '</span>' +
+        '<span class="ch-desc">' + ch.desc + '</span>';
+      li.addEventListener('click', function () { scrollToChapter(ch.id); });
+      listEl.appendChild(li);
+    });
+  }
+
+  /* 3 — Smooth scroll helper */
+  function scrollToChapter(id) {
+    var target = document.getElementById(id);
+    if (!target) return;
+    var y = target.getBoundingClientRect().top + window.scrollY - 80;
+    window.scrollTo({ top: y, behavior: 'smooth' });
+  }
+
+  /* 4 — Build desktop rail */
+  var rail = document.getElementById('cs-rail');
+  var dots = [];
+  if (rail) {
+    chapters.forEach(function (ch, i) {
+      var dot = document.createElement('button');
+      dot.className = 'rail-dot';
+      dot.setAttribute('aria-label', ch.num + ' ' + ch.title);
+      dot.setAttribute('data-label', ch.num + ' ' + ch.title);
+      dot.addEventListener('click', function () { scrollToChapter(ch.id); });
+      rail.appendChild(dot);
+      dots.push(dot);
+    });
+  }
+
+  /* 5 — Build mobile drawer list */
+  var drawerEl = document.getElementById('drawer-list-el');
+  if (drawerEl) {
+    chapters.forEach(function (ch, i) {
+      var li = document.createElement('li');
+      li.dataset.index = i;
+      li.innerHTML =
+        '<span class="dl-num">' + ch.num + '</span>' +
+        '<span class="dl-title">' + ch.title + '</span>';
+      li.addEventListener('click', function () {
+        closeDrawer();
+        setTimeout(function () { scrollToChapter(ch.id); }, 320);
+      });
+      drawerEl.appendChild(li);
+    });
+  }
+
+  /* 6 — Drawer open/close */
+  var drawer = document.getElementById('cs-drawer');
+  var pill   = document.getElementById('cs-pill');
+  var overlay = document.getElementById('drawer-overlay');
+
+  function openDrawer() {
+    drawer.classList.add('drawer-open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeDrawer() {
+    drawer.classList.remove('drawer-open');
+    document.body.style.overflow = '';
+  }
+  if (pill) pill.addEventListener('click', openDrawer);
+  if (overlay) overlay.addEventListener('click', closeDrawer);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeDrawer();
+  });
+
+  /* 7 — Active chapter tracking via IntersectionObserver */
+  var activeIndex = 0;
+  var drawerItems = [];
+
+  function setActive(i) {
+    if (i === activeIndex && dots[i] && dots[i].classList.contains('rail-active')) return;
+    activeIndex = i;
+
+    // Rail dots
+    dots.forEach(function (d, j) {
+      d.classList.toggle('rail-active', j === i);
+    });
+
+    // Drawer items
+    var dItems = drawerEl ? drawerEl.querySelectorAll('li') : [];
+    dItems.forEach(function (li, j) {
+      li.classList.toggle('drawer-active', j === i);
+    });
+
+    // Pill text
+    if (pill) pill.textContent = chapters[i].num + ' / ' + String(chapters.length).padStart(2,'0');
+  }
+
+  /* Determine which sections exist — only track ones that have an anchor in DOM */
+  var sectionEls = chapters.map(function (ch) {
+    return document.getElementById(ch.id);
+  });
+
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        var idx = sectionEls.indexOf(entry.target);
+        if (idx !== -1) setActive(idx);
+      }
+    });
+  }, { rootMargin: '-20% 0px -60% 0px', threshold: 0 });
+
+  sectionEls.forEach(function (el) {
+    if (el) observer.observe(el);
+  });
+
+  /* 8 — Show/hide rail + pill once user scrolls past hero */
+  var chapterSection = document.getElementById('chapter-section');
+  if (chapterSection && (rail || pill)) {
+    var showObserver = new IntersectionObserver(function (entries) {
+      var past = !entries[0].isIntersecting &&
+                 entries[0].boundingClientRect.top < 0;
+      if (rail) rail.classList.toggle('rail-visible', past);
+      if (pill) pill.classList.toggle('pill-visible', past);
+    }, { threshold: 0 });
+    showObserver.observe(chapterSection);
+  }
+
+  /* 9 — Init: set first active */
+  setActive(0);
 
 })();
 </script>
