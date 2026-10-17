@@ -69,6 +69,8 @@ collections:
     label_singular: Case Study
     folder: _cms/case-studies
     create: true
+    extension: json
+    format: json
     slug: "{{slug}}"
     identifier_field: title
     summary: "{{title}}"
