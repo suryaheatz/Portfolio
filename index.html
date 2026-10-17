@@ -10,6 +10,8 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&display=swap" rel="stylesheet">
   <!-- SK Design System — shared tokens (single source of truth) -->
   <link rel="stylesheet" href="/public/ds-tokens.css">
+  <!-- SK-CASE-NAV-001 — Universal case study navigation -->
+  <link rel="stylesheet" href="/public/cs-nav.css">
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
@@ -1072,6 +1074,9 @@
   </div>
 </div>
 
+<!-- ── SK-CASE-NAV-001 · Case study navigation (rendered by cs-nav.js) ── -->
+<div id="cs-nav-root" data-project="zf-centronic"></div>
+
 <!-- ── PROGRESS RAIL (desktop) ── -->
 <nav id="cs-rail" aria-label="Case study chapters"></nav>
 
@@ -1673,5 +1678,8 @@
 })();
 </script>
 
+<!-- SK-CASE-NAV-001 — project registry + nav renderer -->
+<script src="/public/sk-projects.js"></script>
+<script src="/public/cs-nav.js"></script>
 </body>
 </html>

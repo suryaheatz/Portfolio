@@ -1,0 +1,234 @@
+/* ── SK-CASE-NAV-001 · Universal Case Study Navigation ──────────────────
+ * Shared styles consumed by every case-study template.
+ * Requires /public/ds-tokens.css to be linked before this file.
+ *
+ * Tokens used: --bg, --ink, --ink-2, --ink-3, --surface, --rule,
+ *              --sun, --r-lg, --r-md, --col-pad, --sp-8, --sp-6
+ * ──────────────────────────────────────────────────────────────────── */
+
+/* ── Outer region ─────────────────────────────────────────────────────── */
+.cs-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-6, 24px);
+  padding: 56px var(--col-pad, 48px);
+  border-top: 1px solid var(--rule, #dddad0);
+  background: var(--bg, #f5f4f0);
+}
+
+/* ── Previous: understated text link (left) ───────────────────────────── */
+.cs-nav__prev {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  text-decoration: none;
+  color: var(--ink-2, #545450);
+  transition: color 0.18s ease;
+  flex-shrink: 0;
+}
+
+.cs-nav__prev:hover {
+  color: var(--ink, #111110);
+}
+
+.cs-nav__prev-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-3, #9a9a94);
+  line-height: 1;
+  transition: color 0.18s ease;
+}
+
+.cs-nav__prev:hover .cs-nav__prev-label {
+  color: var(--ink-2, #545450);
+}
+
+.cs-nav__prev-label::before {
+  content: '←';
+  font-size: 13px;
+  font-style: normal;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+.cs-nav__prev-title {
+  font-family: 'DM Serif Display', Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(18px, 2.2vw, 24px);
+  line-height: 1.15;
+  color: inherit;
+}
+
+/* Spacer keeps Next right-aligned when there is no Prev (first project) */
+.cs-nav__prev-spacer {
+  display: block;
+}
+
+/* ── Next: prominent image preview card (right) ───────────────────────── */
+.cs-nav__next {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  text-decoration: none;
+  flex: 0 1 480px;
+  min-width: 0;
+}
+
+.cs-nav__next-card {
+  position: relative;
+  width: 100%;
+  border-radius: var(--r-lg, 20px);
+  overflow: hidden;
+  aspect-ratio: 16 / 7;
+  background: var(--surface, #eeece7);
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  display: block;
+}
+
+.cs-nav__next:hover .cs-nav__next-card {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 36px rgba(17, 17, 16, 0.13);
+}
+
+.cs-nav__next-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+/* Gradient overlay: readable text on any image */
+.cs-nav__next-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    140deg,
+    rgba(17, 17, 16, 0.62) 0%,
+    rgba(17, 17, 16, 0.22) 55%,
+    rgba(17, 17, 16, 0.10) 100%
+  );
+}
+
+.cs-nav__next-text {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: var(--sp-6, 24px);
+}
+
+.cs-nav__next-eyebrow {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: rgba(245, 244, 240, 0.65);
+  line-height: 1;
+}
+
+.cs-nav__next-title {
+  font-family: 'DM Serif Display', Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(20px, 3vw, 30px);
+  line-height: 1.15;
+  color: #f5f4f0;
+}
+
+/* Arrow badge top-right */
+.cs-nav__next-arrow {
+  position: absolute;
+  top: var(--sp-6, 24px);
+  right: var(--sp-6, 24px);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(245, 244, 240, 0.30);
+  background: rgba(245, 244, 240, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.18s ease, border-color 0.18s ease;
+  flex-shrink: 0;
+}
+
+.cs-nav__next:hover .cs-nav__next-arrow {
+  background: rgba(245, 244, 240, 0.24);
+  border-color: rgba(245, 244, 240, 0.55);
+}
+
+.cs-nav__next-arrow svg {
+  width: 14px;
+  height: 14px;
+  stroke: #f5f4f0;
+  fill: none;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ── Reduced-motion ───────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .cs-nav__prev,
+  .cs-nav__next-card,
+  .cs-nav__next-arrow,
+  .cs-nav__prev-label {
+    transition: none;
+  }
+}
+
+/* ── Focus states ─────────────────────────────────────────────────────── */
+.cs-nav__prev:focus-visible {
+  outline: 2px solid var(--sun, #E8490F);
+  outline-offset: 6px;
+  border-radius: var(--r-md, 12px);
+}
+
+.cs-nav__next:focus-visible .cs-nav__next-card {
+  outline: 2px solid var(--sun, #E8490F);
+  outline-offset: 4px;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────── */
+/* Stack: Next card full-width above, Prev text below */
+@media (max-width: 640px) {
+  .cs-nav {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: var(--sp-8, 32px);
+    padding: var(--sp-8, 32px) var(--col-pad, 48px);
+  }
+
+  .cs-nav__next {
+    align-items: flex-start;
+    width: 100%;
+    flex: none;
+  }
+
+  .cs-nav__next-card {
+    aspect-ratio: 16 / 9;
+  }
+}
+
+@media (max-width: 480px) {
+  .cs-nav {
+    padding: var(--sp-8, 32px) 20px;
+  }
+}
