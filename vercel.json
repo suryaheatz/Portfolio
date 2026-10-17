@@ -3,6 +3,8 @@
   "outputDirectory": ".",
   "rewrites": [
     { "source": "/admin", "destination": "/admin/index.html" },
-    { "source": "/config.yml", "destination": "/admin/config.yml" }
+    { "source": "/config.yml", "destination": "/admin/config.yml" },
+    { "source": "/case-studies/haptix", "destination": "/case-studies/haptix/index.html" },
+    { "source": "/case-studies/haptix/prototype", "destination": "/case-studies/haptix/prototype/index.html" }
   ]
 }

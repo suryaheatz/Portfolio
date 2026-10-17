@@ -1,0 +1,1130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Guided thumbwheel</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script>window.__resources={"https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js":"./vendor/react.production.min.js","https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js":"./vendor/react-dom.production.min.js","https://cdn.jsdelivr.net/npm/@babel/standalone@7.29.0/babel.min.js":"./vendor/babel.min.js"};</script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Doto:wght@400;900&amp;family=IBM+Plex+Mono:wght@400;500&amp;family=Lato:wght@300;400;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#030B1B}
+*{box-sizing:border-box}
+button{font:inherit;color:inherit;cursor:pointer}
+.zbtn{border:0;padding:0;margin:0;background:transparent;touch-action:none;-webkit-tap-highlight-color:transparent}
+.zbtn:focus-visible,.cbtn:focus-visible{outline:2px solid #6FE3EE;outline-offset:3px}
+.seg{border:0;background:transparent;border-radius:999px;min-height:0;flex:1 1 0;padding:0 18px;font-size:12px;color:#444}
+.seg[aria-pressed="true"]{background:#fff;color:#111;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.gbtn{border:1px solid rgba(0,0,0,.16);background:transparent;color:#111;border-radius:999px;padding:0 18px;min-height:44px;font-size:14px}
+.gbtn:hover{background:rgba(0,0,0,.05)}
+.gbtn[aria-pressed="true"]{background:#111;color:#fff;border-color:#111}
+.gbtn[disabled]{opacity:.3;cursor:default}
+.tch{display:none}@media (hover:none){.tch{display:inline}.msx{display:none}}
+@media (max-width:760px){.bento[data-mob="0"]{grid-template-columns:1fr!important}.bento[data-mob="0"] .stepsAside{min-height:560px}.bento[data-mob="0"] .hdrRow{flex-wrap:wrap}.bento[data-mob="0"] .hdrRow>div[role="group"]{flex:1 1 100%!important;min-height:40px}}
+@media (max-width:420px){.bento[data-mob="0"] section{padding-left:14px!important;padding-right:14px!important}}
+.bento[data-mob="1"] .zcap span{white-space:nowrap;font-size:11.5px!important}
+.dbtn{border:1px solid rgba(0,0,0,.16);background:transparent;color:#111;border-radius:999px;font-size:13px}
+.accBtn{display:none}
+.bento[data-mob="1"] .wlabel,.bento[data-mob="1"] .statRow,.bento[data-mob="1"] .capRow{display:none!important}
+.bento[data-mob="1"] .fgauge{flex:1;min-width:0;width:100%}
+.bento[data-mob="1"] .fgauge>span:nth-child(2){flex:1;width:auto!important}
+.bento[data-mob="1"] .fgauge>span:last-child{min-width:0!important;text-align:right}
+.bento[data-mob="1"] .ico{display:inline-flex}.bento[data-mob="1"] .ico svg{width:15px;height:15px}
+.bento[data-mob="1"] .gbtn{width:36px;height:36px;min-height:0!important;padding:0!important;border-radius:50%;flex:none!important;display:inline-flex;align-items:center;justify-content:center}
+.bento[data-mob="1"] .ctlBar{flex-direction:row!important;justify-content:space-between;align-items:center;gap:6px!important;background:#fff;border-radius:999px;padding:6px 16px!important;border:0!important;box-shadow:0 6px 18px rgba(0,0,0,.16),0 1px 3px rgba(0,0,0,.1)}
+.mspacer{display:none}
+.mcompact{display:none!important}
+@media (max-width:430px){.mlist{display:none!important}.mcompact{display:flex!important}}
+.mfix{margin-top:auto;flex:none;position:relative;z-index:60;background:#F3F3F1;padding:6px 12px 12px}
+.mfix .mbar{width:100%;max-width:420px;margin:0 auto;box-sizing:border-box}
+@media (max-width:430px){
+.bento[data-mob="1"]{min-height:0!important;height:auto!important}
+.mspacer{display:block;height:84px;flex:none;background:#F3F3F1}
+.mfix{position:fixed;left:0;right:0;bottom:0;margin:0;background:transparent;pointer-events:none;display:flex;justify-content:center;padding:0 12px calc(12px + env(safe-area-inset-bottom))}
+.mfix .mbar{pointer-events:auto}
+.bento[data-mob="1"] .stepsAside{position:fixed!important;width:min(100%,392px)!important;height:min(82vh,680px)!important;margin:0 auto!important}
+.bento[data-mob="1"] .scrimM{position:fixed!important}
+}
+.bento[data-mob="1"] .ctlBar>div{display:contents!important}
+.bento[data-mob="1"] .accBtn{display:flex!important;width:28px!important;height:28px!important}
+.bento[data-mob="1"] .accBtn svg{width:14px;height:14px}
+.bento[data-mob="1"] [aria-current="step"]{padding:12px 14px 14px!important}
+.bento[data-mob="1"] [aria-current="step"] .crow{flex-wrap:nowrap;align-items:center;gap:10px!important}
+.bento[data-mob="1"] [aria-current="step"] .cnum{font-size:22px!important;line-height:1!important}
+.bento[data-mob="1"] [aria-current="step"] .cright{margin-left:0}
+.bento[data-mob="1"] [aria-current="step"] .cright>span{display:none}
+.bento[data-mob="1"] [aria-current="step"] .ctitle{flex:1 1 auto!important;font-size:16px!important}
+.bento[data-mob="1"] [aria-current="step"] .acc{margin-top:8px!important}
+.bento[data-mob="1"][data-open="0"] .acc{display:none!important}
+.bento[data-mob="1"][data-open="0"] .warnOnly{display:block!important}
+.bento[data-mob="1"] [aria-label="Resistance feel"],.bento[data-mob="1"] .deskLeg{display:none!important}
+@media (max-width:760px){
+.bento[data-mob="0"] .wlabel,.bento[data-mob="0"] .statRow,.bento[data-mob="0"] .capRow{display:none!important}
+.bento[data-mob="0"] .fgauge{flex:1;min-width:0;width:100%}
+.bento[data-mob="0"] .fgauge>span:nth-child(2){flex:1;width:auto!important}
+.bento[data-mob="0"] .fgauge>span:last-child{min-width:0!important;text-align:right}
+.bento[data-mob="0"] .ico{display:inline-flex}.bento[data-mob="0"] .ico svg{width:15px;height:15px}
+.bento[data-mob="0"] .gbtn{width:36px;height:36px;min-height:0!important;padding:0!important;border-radius:50%;flex:none!important;display:inline-flex;align-items:center;justify-content:center}
+.bento[data-mob="0"] .ctlBar{flex-direction:row!important;justify-content:space-between;align-items:center;gap:6px!important;background:#fff;border-radius:999px;padding:6px 16px!important;border:0!important;box-shadow:0 6px 18px rgba(0,0,0,.16),0 1px 3px rgba(0,0,0,.1)}
+.bento[data-mob="0"] .ctlBar>div{display:contents!important}
+.bento[data-mob="0"] .accBtn{display:flex!important;width:28px!important;height:28px!important}
+.bento[data-mob="0"] .accBtn svg{width:14px;height:14px}
+.bento[data-mob="0"] [aria-current="step"]{padding:12px 14px 14px!important}
+.bento[data-mob="0"] [aria-current="step"] .crow{flex-wrap:nowrap;align-items:center;gap:10px!important}
+.bento[data-mob="0"] [aria-current="step"] .cnum{font-size:22px!important;line-height:1!important}
+.bento[data-mob="0"] [aria-current="step"] .cright{margin-left:0}
+.bento[data-mob="0"] [aria-current="step"] .cright>span{display:none}
+.bento[data-mob="0"] [aria-current="step"] .ctitle{flex:1 1 auto!important;font-size:16px!important}
+.bento[data-mob="0"] [aria-current="step"] .acc{margin-top:8px!important}
+.bento[data-mob="0"][data-open="0"] .acc{display:none!important}
+.bento[data-mob="0"][data-open="0"] .warnOnly{display:block!important}
+.bento[data-mob="0"] [aria-label="Resistance feel"],.bento[data-mob="0"] .deskLeg{display:none!important}
+.bento[data-mob="0"] .hdrRow>div:first-child{flex:1 1 100%}
+.bento[data-mob="0"] .ctlBar{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));margin:0 auto!important;max-width:420px;z-index:60}
+.bento[data-mob="0"] .stepsAside{padding-bottom:88px!important}
+}
+.warnOnly{display:none}
+
+.ico{display:none;align-items:center;justify-content:center}
+.bento[data-mob="1"] .ico{display:inline-flex}.bento[data-mob="1"] .lbl{display:none}
+@media (max-width:760px){.bento[data-mob="0"] .ico{display:inline-flex}.bento[data-mob="0"] .lbl{display:none}}
+.zbtn{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.bento[data-mob="1"] .zbtn::after{content:"";position:absolute;left:0;right:0;top:-24px;bottom:-24px}
+@media (max-width:430px){.bento[data-mob="1"]{border-width:0!important;border-radius:28px!important}}
+.strip{scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.22) transparent}.strip::-webkit-scrollbar{width:6px}.strip::-webkit-scrollbar-thumb{background:rgba(0,0,0,.2);border-radius:3px}.strip::-webkit-scrollbar-track{background:transparent}
+.seg:focus-visible,.gbtn:focus-visible{outline:2px solid #D71921;outline-offset:2px}
+.cbtn{border:1px solid rgba(150,190,215,.35);background:rgba(120,170,200,.08);border-radius:10px;padding:0 16px;min-height:44px;font-size:14px;color:#E8F2F7}
+.cbtn:hover{background:rgba(120,170,200,.2)}
+.cbtn[aria-pressed="true"]{background:#6FE3EE;color:#062A33;border-color:#6FE3EE}
+.cbtn[disabled]{opacity:.35;cursor:default}
+details>summary{cursor:pointer;min-height:44px;display:flex;align-items:center}
+@keyframes bobS{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@keyframes kA{0%{transform:translateY(0)}35%{transform:translateY(.7cqw)}100%{transform:translateY(0)}}
+@keyframes kB{0%{transform:translateY(0)}35%{transform:translateY(.7cqw)}100%{transform:translateY(0)}}
+@keyframes fA{0%{filter:brightness(2.2)}100%{filter:brightness(1)}}
+@keyframes fB{0%{filter:brightness(2.2)}100%{filter:brightness(1)}}
+@keyframes hintPulse{0%,100%{box-shadow:0 0 0 0 rgba(0,0,0,0)}50%{box-shadow:0 0 0 5px rgba(0,0,0,.12)}}
+@media (max-width:640px){.pad{padding:18px 16px 36px!important}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important}}
+</style>
+</helmet>
+<div ref="{{stageRef}}" class="pad" style="min-height:1020px;background:#030B1B;color:#E8F2F7;font-family:Lato,system-ui,sans-serif;padding:32px 24px 56px;display:flex;flex-direction:column;align-items:center;gap:28px">
+
+
+
+<!-- Haptic readout: switched off, code kept. Set showHaptic to true in renderVals to bring it back. -->
+<sc-if value="{{showHaptic}}">
+<!-- haptic -->
+<section aria-label="Haptic profile" style="background:#0A1A2C;border:1px solid rgba(120,170,200,.16);border-radius:14px;padding:20px 22px;display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px">
+<span style="font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;letter-spacing:.14em;color:#86A3B6">MRF DAMPER · LIVE</span>
+<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+<span style="font-size:13px;color:#9DB4C4">Resistance feel</span>
+<sc-for list="{{feels}}" as="f" hint-placeholder-count="3"><button class="cbtn" style="min-height:44px;padding:0 12px" aria-pressed="{{f.on}}" onClick="{{f.pick}}">{{f.label}}</button></sc-for>
+</div>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:22px;align-items:stretch">
+<div style="flex:1 1 230px;min-width:0;display:flex;flex-direction:column;gap:8px">
+<span style="align-self:flex-start;display:inline-flex;align-items:center;min-height:28px;padding:0 12px;border-radius:7px;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;letter-spacing:.08em;{{h.chip}}">{{h.status}}</span>
+<div style="font-size:22px;font-weight:400;line-height:1.25">{{h.name}}</div>
+<div style="font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;color:#9DB4C4;letter-spacing:.04em">{{h.fn}}<span style="margin:0 8px;color:#4A6578">·</span>{{h.pos}}</div>
+<div style="display:flex;gap:4px;align-items:flex-end;height:26px" aria-hidden="true">
+<sc-for list="{{h.levels}}" as="l" hint-placeholder-count="5"><span style="{{l.style}}"></span></sc-for>
+</div>
+<div style="font-size:14px;line-height:1.45;color:#C9D9E4">{{h.effort}}</div>
+</div>
+<div style="flex:1.5 1 300px;min-width:0;display:flex;flex-direction:column;gap:6px">
+<svg viewBox="0 0 300 84" preserveAspectRatio="none" style="width:100%;height:96px;display:block;background:rgba(120,170,200,.07);border-radius:8px" role="img" aria-label="Live effort trace against the detent threshold">
+<line x1="0" y1="7" x2="300" y2="7" stroke="#F06BAE" stroke-width="1" stroke-dasharray="4 4" opacity=".7"></line>
+<path d="{{h.trace}}" fill="none" stroke="#6FE3EE" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
+</svg>
+<div style="display:flex;justify-content:space-between;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:11px;letter-spacing:.08em;color:#86A3B6"><span>YOUR EFFORT</span><span style="color:#F06BAE">DETENT THRESHOLD</span></div>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:3px;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;line-height:1.5;color:#9DB4C4;min-height:76px">
+<sc-for list="{{h.log}}" as="ln" hint-placeholder-count="4"><div style="{{ln.style}}">{{ln.text}}</div></sc-for>
+</div>
+<p style="margin:0;font-size:12px;line-height:1.5;color:#86A3B6">From the spec: idle = damper unpowered · touch to haptic within 20 ms · haptic to screen within 80 ms · barrier in the gaps between segments and on push.</p>
+</section>
+</sc-if>
+
+<div role="group" aria-label="Preview as" style="display:flex;gap:6px;padding:4px;border-radius:999px;border:1px solid rgba(150,190,215,.3);background:rgba(120,170,200,.08)">
+<sc-for list="{{views}}" as="w" hint-placeholder-count="2"><button class="cbtn" style="border-radius:999px;min-height:40px;padding:0 20px;border-color:transparent" aria-pressed="{{w.on}}" onClick="{{w.pick}}">{{w.label}}</button></sc-for>
+</div>
+<main class="bento" data-mob="{{v.flag}}" data-open="{{accFlag}}" style="{{v.main}}">
+<div style="{{v.left}}">
+
+<!-- ============ DEMONSTRATOR DISPLAY ============ -->
+<section aria-label="Demonstrator display" style="{{v.dispSec}}">
+<div style="container-type:inline-size;position:relative;width:100%;aspect-ratio:2/3;border-radius:28px;overflow:hidden;border:1px solid rgba(120,170,200,.18);box-shadow:0 30px 70px rgba(0,0,0,.5);background:radial-gradient(62% 26% at 50% 38%,rgba(60,118,136,.34),transparent 72%),radial-gradient(74% 34% at 50% 55%,rgba(40,92,110,.55),transparent 74%),radial-gradient(130% 90% at 50% 52%,#08233a 0%,#031428 46%,#010a1d 82%);font-family:Lato,system-ui,sans-serif;color:#fff;user-select:none;{{v.dispRoot}}">
+
+<svg viewBox="0 0 1000 1500" style="position:absolute;left:0;top:0;width:100%;height:100%" aria-hidden="true">
+<defs>
+<linearGradient id="rail" x1="0" y1="880" x2="0" y2="1170" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#3FB7C9" stop-opacity="0"></stop>
+<stop offset=".3" stop-color="#3FB7C9" stop-opacity=".55"></stop>
+<stop offset=".466" stop-color="#9AF5FB" stop-opacity="1"></stop>
+<stop offset=".63" stop-color="#3FB7C9" stop-opacity=".55"></stop>
+<stop offset="1" stop-color="#3FB7C9" stop-opacity="0"></stop>
+</linearGradient>
+<filter id="railGlow" x="-400%" y="-10%" width="900%" height="120%"><feGaussianBlur stdDeviation="5"></feGaussianBlur></filter>
+</defs>
+<sc-for list="{{dots}}" as="d" hint-placeholder-count="30">
+<circle cx="{{d.cx}}" cy="{{d.cy}}" r="{{d.r}}" fill="{{d.fill}}" style="{{d.style}}"></circle>
+</sc-for>
+<path d="M302.2 880 L302.2 988 C302.2 1003 289 1005 289 1015 C289 1026 302.2 1028 302.2 1042 L302.2 1170" fill="none" stroke="url(#rail)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity=".5" filter="url(#railGlow)"></path>
+<path d="M697.8 880 L697.8 988 C697.8 1003 711 1005 711 1015 C711 1026 697.8 1028 697.8 1042 L697.8 1170" fill="none" stroke="url(#rail)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity=".5" filter="url(#railGlow)"></path>
+<path d="M302.2 880 L302.2 988 C302.2 1003 289 1005 289 1015 C289 1026 302.2 1028 302.2 1042 L302.2 1170" fill="none" stroke="url(#rail)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"></path>
+<path d="M697.8 880 L697.8 988 C697.8 1003 711 1005 711 1015 C711 1026 697.8 1028 697.8 1042 L697.8 1170" fill="none" stroke="url(#rail)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+
+<!-- top bar -->
+<div style="position:absolute;left:10.7cqw;top:3.1cqw;font-size:1.75cqw;line-height:1.3;font-weight:300;color:rgba(205,222,235,.55)">
+<div>Budapest</div>
+<div>23°, Sunny</div>
+</div>
+<div style="position:absolute;left:0;right:0;top:4.2cqw;text-align:center;font-size:2.1cqw;font-weight:300;letter-spacing:.03em;color:rgba(228,240,247,.62)">HAPTIX- DASHBOARD</div>
+<div style="position:absolute;right:10.7cqw;top:3.1cqw;text-align:right;font-size:1.75cqw;line-height:1.3;font-weight:300;color:rgba(205,222,235,.55)">
+<div>11 : 43</div>
+<div>Wednesday</div>
+</div>
+
+<div style="position:absolute;left:0;right:0;top:12.6cqw;text-align:center;font-size:3cqw;font-weight:300;color:rgba(240,248,252,.86)">Welcome, back!</div>
+<div style="position:absolute;left:0;right:0;top:17.6cqw;display:flex;flex-direction:column;align-items:center;gap:.8cqw;white-space:nowrap"><span style="font-size:3.6cqw;font-weight:400;color:#fff;letter-spacing:.01em">Surya Konijeti</span><span style="font-size:2.2cqw;font-weight:400;color:#8FE6F0">Good Morning</span></div>
+
+<!-- tab row -->
+<div style="position:absolute;left:13cqw;top:64.8cqw;width:18.5cqw;height:4.4cqw;background:rgba(6,22,38,.6);display:flex;align-items:center;justify-content:center;gap:1.1cqw;font-size:2cqw;font-weight:400;{{tabStyleL}}">
+<sc-if value="{{leftIsMusic}}"><svg viewBox="0 0 24 24" style="width:2.8cqw;height:2.8cqw" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5.5l10-2V16"></path><circle cx="6.2" cy="18" r="2.8"></circle><circle cx="16.2" cy="16" r="2.8"></circle></svg></sc-if>
+<sc-if value="{{leftIsFav}}"><svg viewBox="0 0 24 24" style="width:2.8cqw;height:2.8cqw" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.2l2.6 5.5 6 .8-4.4 4.1 1.1 5.9L12 16.6 6.7 19.5l1.1-5.9L3.4 9.5l6-.8z"></path><path d="M8 22.2h8"></path></svg></sc-if>
+<sc-if value="{{leftIsComfort}}"><svg viewBox="0 0 24 24" style="width:2.8cqw;height:2.8cqw" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 4.5H6a2 2 0 0 0-2 2V18a2 2 0 0 0 2 2h11.5a2 2 0 0 0 2-2v-6"></path><path d="M17.5 2.8v6M14.5 5.8h6"></path></svg></sc-if>
+<span>{{leftTabLabel}}</span>
+</div>
+<div style="position:absolute;left:31.5cqw;top:64.8cqw;width:37cqw;height:4.4cqw;background:rgba(72,128,148,.26);display:flex;align-items:center;justify-content:center;gap:1.4cqw;font-size:2.3cqw;font-weight:400;color:#fff">
+<sc-if value="{{isMusic}}"><svg viewBox="0 0 24 24" style="width:3cqw;height:3cqw;color:#35DCEB" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5.5l10-2V16"></path><circle cx="6.2" cy="18" r="2.8"></circle><circle cx="16.2" cy="16" r="2.8"></circle></svg></sc-if>
+<sc-if value="{{isFav}}"><svg viewBox="0 0 24 24" style="width:3cqw;height:3cqw;color:#35DCEB" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.2l2.6 5.5 6 .8-4.4 4.1 1.1 5.9L12 16.6 6.7 19.5l1.1-5.9L3.4 9.5l6-.8z"></path><path d="M8 22.2h8"></path></svg></sc-if>
+<sc-if value="{{isComfort}}"><svg viewBox="0 0 24 24" style="width:3cqw;height:3cqw;color:#35DCEB" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 4.5H6a2 2 0 0 0-2 2V18a2 2 0 0 0 2 2h11.5a2 2 0 0 0 2-2v-6"></path><path d="M17.5 2.8v6M14.5 5.8h6"></path></svg></sc-if>
+<span>{{modeLabel}}</span>
+</div>
+<div style="position:absolute;left:68.5cqw;top:64.8cqw;width:18.3cqw;height:4.4cqw;background:rgba(6,22,38,.6);display:flex;align-items:center;justify-content:center;gap:1.1cqw;font-size:2cqw;font-weight:400;{{tabStyleR}}">
+<sc-if value="{{rightIsMusic}}"><svg viewBox="0 0 24 24" style="width:2.8cqw;height:2.8cqw" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5.5l10-2V16"></path><circle cx="6.2" cy="18" r="2.8"></circle><circle cx="16.2" cy="16" r="2.8"></circle></svg></sc-if>
+<sc-if value="{{rightIsFav}}"><svg viewBox="0 0 24 24" style="width:2.8cqw;height:2.8cqw" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.2l2.6 5.5 6 .8-4.4 4.1 1.1 5.9L12 16.6 6.7 19.5l1.1-5.9L3.4 9.5l6-.8z"></path><path d="M8 22.2h8"></path></svg></sc-if>
+<sc-if value="{{rightIsComfort}}"><svg viewBox="0 0 24 24" style="width:2.8cqw;height:2.8cqw" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 4.5H6a2 2 0 0 0-2 2V18a2 2 0 0 0 2 2h11.5a2 2 0 0 0 2-2v-6"></path><path d="M17.5 2.8v6M14.5 5.8h6"></path></svg></sc-if>
+<span>{{rightTabLabel}}</span>
+</div>
+
+
+<!-- column headers -->
+<div style="position:absolute;left:14cqw;top:80.4cqw;width:17cqw;text-align:center;font-size:1.6cqw;font-weight:300;{{hdrStyleL}}">{{hdrL}}</div>
+<div style="position:absolute;left:69.5cqw;top:80.4cqw;width:17cqw;text-align:center;font-size:1.6cqw;font-weight:300;{{hdrStyleR}}">{{hdrR}}</div>
+
+<!-- column panes -->
+<div style="position:absolute;left:13cqw;top:85cqw;width:17cqw;height:38cqw;{{paneL}}"></div>
+<div style="position:absolute;left:13cqw;top:121.6cqw;width:17cqw;height:3.6cqw;{{glowL}}"></div>
+<div style="position:absolute;left:69.7cqw;top:85cqw;width:17.1cqw;height:38cqw;{{paneR}}"></div>
+<div style="position:absolute;left:69.7cqw;top:121.6cqw;width:17.1cqw;height:3.6cqw;{{glowR}}"></div>
+<div style="position:absolute;left:31.5cqw;top:85cqw;width:37cqw;height:38cqw;{{paneC}}"></div>
+<div style="position:absolute;left:31.5cqw;top:121.6cqw;width:37cqw;height:3.6cqw;{{glowC}}"></div>
+
+<!-- centre band -->
+<div style="position:absolute;left:31.5cqw;top:97.2cqw;width:37cqw;height:5.2cqw;background:linear-gradient(180deg,rgba(70,130,150,.10),rgba(70,130,150,.04));{{bandFlash}}"></div>
+<div style="position:absolute;left:31.5cqw;top:97cqw;width:37cqw;height:.3cqw;background:linear-gradient(90deg,transparent,rgba(69,176,200,.85) 18%,rgba(69,176,200,.85) 82%,transparent);box-shadow:0 0 1.3cqw rgba(69,176,200,.55);{{bandFlash}}"></div>
+<div style="position:absolute;left:31.5cqw;top:102.3cqw;width:37cqw;height:.3cqw;background:linear-gradient(90deg,transparent,rgba(69,176,200,.85) 18%,rgba(69,176,200,.85) 82%,transparent);box-shadow:0 0 1.3cqw rgba(69,176,200,.55);{{bandFlash}}"></div>
+
+<!-- centre rows -->
+<div style="position:absolute;left:31.5cqw;top:85cqw;width:37cqw;height:38cqw;{{kickC}}">
+<sc-for list="{{rowsC}}" as="r" hint-placeholder-count="3">
+<div style="display:contents">
+<div style="{{r.labelStyle}}">{{r.label}}</div>
+<div style="{{r.textStyle}}">{{r.text}}</div>
+</div>
+</sc-for>
+</div>
+
+<!-- left column items -->
+<div style="position:absolute;left:13cqw;top:85cqw;width:17cqw;height:38cqw;{{kickL}}">
+<sc-for list="{{itemsL}}" as="it" hint-placeholder-count="5">
+<div style="{{it.style}}">
+<sc-if value="{{it.isSeat}}"><svg viewBox="0 0 40 40" style="display:block;width:100%;height:auto" fill="none" aria-hidden="true"><path d="{{it.d}}" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="{{it.hx}}" cy="{{it.hy}}" r="3.7" fill="currentColor"></circle></svg></sc-if>
+<sc-if value="{{it.isText}}"><span>{{it.text}}</span></sc-if>
+</div>
+</sc-for>
+</div>
+
+<!-- right column items -->
+<div style="position:absolute;left:69.7cqw;top:85cqw;width:17.1cqw;height:38cqw;{{kickR}}">
+<sc-for list="{{itemsR}}" as="it" hint-placeholder-count="5">
+<div style="{{it.style}}">
+<sc-if value="{{it.isSeat}}"><svg viewBox="0 0 40 40" style="display:block;width:100%;height:auto" fill="none" aria-hidden="true"><path d="{{it.d}}" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="{{it.hx}}" cy="{{it.hy}}" r="3.7" fill="currentColor"></circle></svg></sc-if>
+<sc-if value="{{it.isText}}"><span>{{it.text}}</span></sc-if>
+</div>
+</sc-for>
+</div>
+
+
+
+</div>
+</section>
+<!-- ============ THUMBWHEEL + STEPS ============ -->
+<section aria-label="Thumbwheel and guided steps" style="{{v.wheel}}">
+<div class="hdrRow" style="display:flex;align-items:stretch;justify-content:space-between;gap:12px">
+<div style="{{v.hdrCol}}">
+<div class="wlabel" style="display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:11px;letter-spacing:.16em;color:#555"><span style="width:7px;height:7px;border-radius:50%;background:#D71921"></span>THUMBWHEEL</div>
+<div class="fgauge" style="display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:10px;letter-spacing:.12em;color:#8A8A8A" aria-label="Force feedback"><span>FORCE</span><span style="position:relative;width:96px;height:5px;border-radius:3px;background:rgba(0,0,0,.12);overflow:hidden" aria-hidden="true"><span style="{{force.bar}}"></span></span><span style="{{force.textStyle}}">{{force.text}}</span></div>
+</div>
+<div role="group" aria-label="Resistance feel" style="{{v.feelBox}}">
+<sc-for list="{{feels}}" as="f" hint-placeholder-count="3"><button class="seg" aria-pressed="{{f.on}}" onClick="{{f.pick}}">{{f.label}}</button></sc-for>
+</div>
+</div>
+<div style="position:relative;width:100%;aspect-ratio:2011/618;margin-top:2px;margin-bottom:-6%">
+<div aria-hidden="true" style="position:absolute;left:6.6%;top:27.5%;width:87.8%;height:49%;border-radius:2.2cqw;background:linear-gradient(#050505,#161616 55%,#222);box-shadow:inset 0 .9cqw 1.2cqw rgba(0,0,0,.85),inset 0 -.2cqw .5cqw rgba(255,255,255,.08),0 .12cqw 0 rgba(255,255,255,.95),0 -.1cqw 0 rgba(0,0,0,.22),0 0 0 .25cqw rgba(0,0,0,.05)"></div>
+<img src="../assets/wheel.png" alt="Render of the thumbwheel: a knurled centre segment between two finely textured end segments" draggable="false" style="position:absolute;left:0;top:0;width:100%;height:100%;display:block;filter:drop-shadow(0 .5cqw .6cqw rgba(0,0,0,.65)) drop-shadow(0 0 .3cqw rgba(0,0,0,.5));user-select:none;-webkit-user-drag:none">
+<div aria-hidden="true" style="position:absolute;left:6.6%;top:27.5%;width:87.8%;height:49%;border-radius:2.2cqw;pointer-events:none;box-shadow:inset 0 1.1cqw .9cqw -.6cqw rgba(0,0,0,.7),inset 0 0 .5cqw rgba(0,0,0,.55)"></div>
+<sc-for list="{{zones}}" as="z" hint-placeholder-count="3"><div style="{{z.shim}}"></div></sc-for>
+<sc-for list="{{zones}}" as="z" hint-placeholder-count="3"><button class="zbtn" data-zone="{{z.id}}" aria-label="{{z.aria}}" style="{{z.btn}}" onPointerEnter="{{z.enter}}" onPointerLeave="{{z.leave}}" onPointerDown="{{z.down}}" onPointerMove="{{z.move}}" onPointerUp="{{z.up}}" onPointerCancel="{{z.up}}" onClick="{{z.click}}" onContextMenu="{{noCtx}}" onKeyDown="{{z.key}}" onWheel="{{z.wheel}}" onFocus="{{z.enter}}" onBlur="{{z.leave}}"></button></sc-for>
+<sc-for list="{{seams}}" as="s" hint-placeholder-count="2"><div data-zone="seam" aria-hidden="true" style="{{s.style}}" onPointerEnter="{{s.enter}}" onPointerLeave="{{s.leave}}" onWheel="{{s.wheel}}"></div></sc-for>
+<sc-for list="{{zones}}" as="z" hint-placeholder-count="3"><div aria-hidden="true" style="{{z.tag}}"><sc-if value="{{z.hintOn}}"><span style="display:inline-flex;align-items:center;min-height:24px;padding:0 11px;border-radius:999px;background:#111;color:#fff;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:10px;letter-spacing:.1em;font-weight:500;white-space:nowrap;box-shadow:0 4px 10px rgba(0,0,0,.3);animation:hintPulse 1.6s ease-in-out infinite">{{z.hint}}</span><span style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:6px solid #111"></span></sc-if></div></sc-for>
+</div>
+<div class="capRow" style="position:relative;height:40px;margin-top:-4px">
+<sc-for list="{{zones}}" as="z" hint-placeholder-count="3">
+<div class="zcap" style="{{z.cap}}">
+<span style="font-size:12px;font-weight:600;line-height:1.2;color:#111;letter-spacing:.01em">{{z.fn}}</span>
+</div>
+</sc-for>
+</div>
+<sc-if value="{{v.desk}}"><div class="deskLeg" style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px 16px;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:10px;letter-spacing:.1em;color:#8A8A8A">
+<span><b style="color:#111;font-weight:500">HOVER</b><span class="tch"> / TOUCH</span> · WAKE</span>
+<span><b style="color:#111;font-weight:500"><span class="msx">CLICK, HOLD &amp; DRAG</span><span class="tch">TOUCH, HOLD &amp; DRAG</span></b> · ROTATE</span>
+<span><b style="color:#111;font-weight:500">CLICK</b><span class="tch"> / TAP</span> · PUSH</span>
+</div></sc-if>
+<sc-if value="{{v.touch}}"><div style="display:flex;justify-content:space-between;gap:12px;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:10px;letter-spacing:.1em;font-weight:500;color:#111"><span>{{tapL}}</span><span>{{tapR}}</span></div></sc-if>
+<div class="statRow" style="display:flex;justify-content:space-between;gap:12px;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:10.5px;letter-spacing:.1em;color:#6B6B6B;border-top:1px solid rgba(0,0,0,.1);padding-top:10px"><span style="color:#111">{{h.status}}</span><span>{{h.name}}</span></div>
+</section>
+<!-- ============ MOBILE: ACTIVE STEP CARD (same card as the list) ============ -->
+<sc-if value="{{v.mob}}">
+<section class="mcompact" aria-label="Current step" style="flex:none;background:#F3F3F1;color:#111;padding:6px 14px 12px;display:flex;flex-direction:column;font-family:-apple-system,'SF Pro Display','Helvetica Neue',Lato,system-ui,sans-serif">
+<sc-for list="{{activeCards}}" as="c" hint-placeholder-count="1">
+<div role="listitem" aria-current="{{c.cur}}" ref="{{c.ref}}" style="{{c.style}}">
+<sc-if value="{{c.active}}">
+<div class="acc" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:10px">
+<span style="display:inline-flex;align-items:center;gap:7px;min-height:24px;padding:0 10px;border-radius:999px;border:1px solid rgba(0,0,0,.2);font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:10px;letter-spacing:.1em;color:#111"><span style="display:flex;gap:2px" aria-hidden="true"><sc-for list="{{c.diag}}" as="b" hint-placeholder-count="3"><span style="{{b.style}}"></span></sc-for></span>{{c.zone}}</span>
+<span style="display:inline-flex;align-items:center;min-height:24px;padding:0 10px;border-radius:999px;background:#111;color:#fff;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:10px;letter-spacing:.1em;font-weight:500">{{c.action}}</span>
+<sc-if value="{{c.stepDone}}"><span style="display:inline-flex;align-items:center;gap:6px;min-height:24px;padding:0 10px;border-radius:999px;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:10px;letter-spacing:.1em;color:#D71921"><span style="width:6px;height:6px;border-radius:50%;background:#D71921"></span>DONE</span></sc-if>
+</div>
+</sc-if>
+<div class="crow" style="display:flex;align-items:center;gap:12px">
+<span class="cnum" style="{{c.numStyle}}">{{c.num}}</span>
+<span class="ctitle" style="flex:1;min-width:0;{{c.titleStyle}}">{{c.title}}</span>
+<span class="cright" style="display:flex;align-items:center;gap:12px"><span style="font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:10px;letter-spacing:.12em;{{c.stateStyle}}">{{c.state}}</span><sc-if value="{{c.active}}"><button class="accBtn" aria-expanded="{{ptsOpen}}" aria-label="Show or hide step details" title="Details" onClick="{{togglePts}}" style="flex:none;width:28px;height:28px;border:0;background:transparent;align-items:center;justify-content:center;color:#111;padding:0"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="{{chevStyle}}"><path d="M7 10l5 5 5-5"/></svg></button></sc-if></span>
+</div>
+<sc-if value="{{c.active}}"><div class="acc" style="display:flex;flex-direction:column;gap:10px;margin-top:12px">
+<ol style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px"><sc-for list="{{c.points}}" as="pt" hint-placeholder-count="3"><li style="display:flex;gap:8px;align-items:flex-start;font-size:14px;line-height:1.45;color:#333;text-wrap:pretty"><span style="flex:none;width:16px;color:#8A8A8A;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;line-height:1.6">{{pt.n}}</span><span>{{pt.text}}</span></li></sc-for></ol>
+<p style="margin:0;font-size:13px;line-height:1.45;color:#555;display:flex;gap:8px;align-items:baseline"><span style="flex:none;width:6px;height:6px;border-radius:50%;background:#D71921;transform:translateY(-1px)"></span><span>{{c.feel}}</span></p>
+<sc-if value="{{c.warn}}"><p style="margin:0;font-size:12.5px;line-height:1.45;color:#111;font-weight:500">{{c.warnText}}</p></sc-if>
+</div><sc-if value="{{c.warn}}"><p class="warnOnly" style="margin:8px 0 0;font-size:12.5px;line-height:1.45;color:#111;font-weight:500">{{c.warnText}}</p></sc-if></sc-if>
+</div>
+</sc-for>
+</section>
+</sc-if>
+<sc-if value="{{v.mob}}">
+<section class="mlist" aria-label="Steps" style="flex:1 1 auto;min-height:0;position:relative;background:#F3F3F1;color:#111;font-family:-apple-system,'SF Pro Display','Helvetica Neue',Lato,system-ui,sans-serif">
+<div class="strip" role="list" style="position:absolute;left:8px;right:8px;top:0;bottom:0;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:6px 8px 6px 6px">
+<sc-for list="{{cards}}" as="c" hint-placeholder-count="15">
+<div role="listitem" aria-current="{{c.cur}}" ref="{{c.ref}}" style="{{c.style}}">
+<sc-if value="{{c.active}}">
+<div class="acc" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:10px">
+<span style="display:inline-flex;align-items:center;gap:7px;min-height:24px;padding:0 10px;border-radius:999px;border:1px solid rgba(0,0,0,.2);font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:10px;letter-spacing:.1em;color:#111"><span style="display:flex;gap:2px" aria-hidden="true"><sc-for list="{{c.diag}}" as="b" hint-placeholder-count="3"><span style="{{b.style}}"></span></sc-for></span>{{c.zone}}</span>
+<span style="display:inline-flex;align-items:center;min-height:24px;padding:0 10px;border-radius:999px;background:#111;color:#fff;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:10px;letter-spacing:.1em;font-weight:500">{{c.action}}</span>
+<sc-if value="{{c.stepDone}}"><span style="display:inline-flex;align-items:center;gap:6px;min-height:24px;padding:0 10px;border-radius:999px;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:10px;letter-spacing:.1em;color:#D71921"><span style="width:6px;height:6px;border-radius:50%;background:#D71921"></span>DONE</span></sc-if>
+</div>
+</sc-if>
+<div class="crow" style="display:flex;align-items:center;gap:12px">
+<span class="cnum" style="{{c.numStyle}}">{{c.num}}</span>
+<span class="ctitle" style="flex:1;min-width:0;{{c.titleStyle}}">{{c.title}}</span>
+<span class="cright" style="display:flex;align-items:center;gap:12px"><span style="font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:10px;letter-spacing:.12em;{{c.stateStyle}}">{{c.state}}</span><sc-if value="{{c.active}}"><button class="accBtn" aria-expanded="{{ptsOpen}}" aria-label="Show or hide step details" title="Details" onClick="{{togglePts}}" style="flex:none;width:28px;height:28px;border:0;background:transparent;align-items:center;justify-content:center;color:#111;padding:0"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="{{chevStyle}}"><path d="M7 10l5 5 5-5"/></svg></button></sc-if></span>
+</div>
+<sc-if value="{{c.active}}"><div class="acc" style="display:flex;flex-direction:column;gap:10px;margin-top:12px">
+<ol style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px"><sc-for list="{{c.points}}" as="pt" hint-placeholder-count="3"><li style="display:flex;gap:8px;align-items:flex-start;font-size:14px;line-height:1.45;color:#333;text-wrap:pretty"><span style="flex:none;width:16px;color:#8A8A8A;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;line-height:1.6">{{pt.n}}</span><span>{{pt.text}}</span></li></sc-for></ol>
+<p style="margin:0;font-size:13px;line-height:1.45;color:#555;display:flex;gap:8px;align-items:baseline"><span style="flex:none;width:6px;height:6px;border-radius:50%;background:#D71921;transform:translateY(-1px)"></span><span>{{c.feel}}</span></p>
+<sc-if value="{{c.warn}}"><p style="margin:0;font-size:12.5px;line-height:1.45;color:#111;font-weight:500">{{c.warnText}}</p></sc-if>
+</div><sc-if value="{{c.warn}}"><p class="warnOnly" style="margin:8px 0 0;font-size:12.5px;line-height:1.45;color:#111;font-weight:500">{{c.warnText}}</p></sc-if></sc-if>
+</div>
+</sc-for>
+<div aria-hidden="true" style="flex:none;height:60%"></div>
+</div>
+</section>
+</sc-if>
+</div>
+<!-- ============ STEPS STRIP ============ -->
+<sc-if value="{{v.scrim}}"><div class="scrimM" onClick="{{closeSheet}}" style="position:absolute;left:0;right:0;top:0;bottom:0;z-index:50;background:rgba(3,11,27,.6)"></div></sc-if>
+<aside class="stepsAside" aria-label="Guided steps" style="{{v.aside}}">
+<sc-if value="{{v.mob}}"><div style="display:flex;flex-direction:column;gap:8px;align-items:center"><span style="width:40px;height:4px;border-radius:2px;background:rgba(0,0,0,.2)"></span><div style="display:flex;align-items:center;justify-content:space-between;width:100%;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:11px;letter-spacing:.16em;color:#555"><span>ALL STEPS &amp; CONTROLS</span><button class="dbtn" style="min-height:36px;padding:0 16px" onClick="{{closeSheet}}">Done</button></div></div></sc-if>
+<div style="display:flex;gap:4px;align-items:center;width:100%" aria-hidden="true">
+<sc-for list="{{pips}}" as="p" hint-placeholder-count="17"><span style="{{p.style}}"></span></sc-for>
+</div>
+<div style="display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:11px;letter-spacing:.16em;color:#555"><span style="width:7px;height:7px;border-radius:50%;background:#D71921"></span>GUIDED STEPS<span style="margin-left:auto;color:#999">{{ofLabel}}</span></div>
+<div style="position:relative;flex:1;min-height:0">
+<div class="strip" ref="{{listRef}}" role="list" aria-label="Steps" style="position:absolute;left:-4px;right:-4px;top:-4px;bottom:-4px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:4px 10px 4px 4px">
+<sc-for list="{{cards}}" as="c" hint-placeholder-count="15">
+<div role="listitem" aria-current="{{c.cur}}" ref="{{c.ref}}" style="{{c.style}}">
+<sc-if value="{{c.active}}">
+<div class="acc" style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:10px">
+<span style="display:inline-flex;align-items:center;gap:7px;min-height:24px;padding:0 10px;border-radius:999px;border:1px solid rgba(0,0,0,.2);font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:10px;letter-spacing:.1em;color:#111"><span style="display:flex;gap:2px" aria-hidden="true"><sc-for list="{{c.diag}}" as="b" hint-placeholder-count="3"><span style="{{b.style}}"></span></sc-for></span>{{c.zone}}</span>
+<span style="display:inline-flex;align-items:center;min-height:24px;padding:0 10px;border-radius:999px;background:#111;color:#fff;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:10px;letter-spacing:.1em;font-weight:500">{{c.action}}</span>
+<sc-if value="{{c.stepDone}}"><span style="display:inline-flex;align-items:center;gap:6px;min-height:24px;padding:0 10px;border-radius:999px;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:10px;letter-spacing:.1em;color:#D71921"><span style="width:6px;height:6px;border-radius:50%;background:#D71921"></span>DONE</span></sc-if>
+</div>
+</sc-if>
+<div class="crow" style="display:flex;align-items:center;gap:12px">
+<span class="cnum" style="{{c.numStyle}}">{{c.num}}</span>
+<span class="ctitle" style="flex:1;min-width:0;{{c.titleStyle}}">{{c.title}}</span>
+<span class="cright" style="display:flex;align-items:center;gap:12px"><span style="font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:10px;letter-spacing:.12em;{{c.stateStyle}}">{{c.state}}</span><sc-if value="{{c.active}}"><button class="accBtn" aria-expanded="{{ptsOpen}}" aria-label="Show or hide step details" title="Details" onClick="{{togglePts}}" style="flex:none;width:28px;height:28px;border:0;background:transparent;align-items:center;justify-content:center;color:#111;padding:0"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="{{chevStyle}}"><path d="M7 10l5 5 5-5"/></svg></button></sc-if></span>
+</div>
+<sc-if value="{{c.active}}"><div class="acc" style="display:flex;flex-direction:column;gap:10px;margin-top:12px">
+<ol style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px"><sc-for list="{{c.points}}" as="pt" hint-placeholder-count="3"><li style="display:flex;gap:8px;align-items:flex-start;font-size:14px;line-height:1.45;color:#333;text-wrap:pretty"><span style="flex:none;width:16px;color:#8A8A8A;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;line-height:1.6">{{pt.n}}</span><span>{{pt.text}}</span></li></sc-for></ol>
+<p style="margin:0;font-size:13px;line-height:1.45;color:#555;display:flex;gap:8px;align-items:baseline"><span style="flex:none;width:6px;height:6px;border-radius:50%;background:#D71921;transform:translateY(-1px)"></span><span>{{c.feel}}</span></p>
+<sc-if value="{{c.warn}}"><p style="margin:0;font-size:12.5px;line-height:1.45;color:#111;font-weight:500">{{c.warnText}}</p></sc-if>
+</div><sc-if value="{{c.warn}}"><p class="warnOnly" style="margin:8px 0 0;font-size:12.5px;line-height:1.45;color:#111;font-weight:500">{{c.warnText}}</p></sc-if></sc-if>
+</div>
+</sc-for>
+<div aria-hidden="true" style="flex:none;height:80%"></div>
+</div>
+</div>
+
+<sc-if value="{{v.desk}}"><div class="ctlBar" style="margin-top:auto;display:flex;flex-direction:column;gap:8px;border-top:1px solid rgba(0,0,0,.1);padding-top:16px">
+<div style="display:flex;gap:8px">
+<button class="gbtn" style="flex:1" aria-label="Back" title="Back" disabled="{{m.noBack}}" onClick="{{stepBack}}"><span class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 5l-9 7 9 7z"/><path d="M5 5v14"/></svg></span><span class="lbl">Back</span></button>
+<sc-if value="{{m.running}}"><button class="gbtn" style="flex:1" aria-label="Skip" title="Skip" onClick="{{stepSkip}}"><span class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 5l9 7-9 7z"/><path d="M19 5v14"/></svg></span><span class="lbl">Skip</span></button></sc-if>
+<sc-if value="{{m.finished}}"><button class="gbtn" style="flex:1" aria-pressed="true" aria-label="Run again" title="Run again" onClick="{{resetAll}}"><span class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></span><span class="lbl">Run again</span></button></sc-if>
+</div>
+<div style="display:flex;gap:8px">
+<button class="gbtn" style="flex:1" aria-pressed="{{soundOn}}" aria-label="Sound" title="Sound" onClick="{{toggleSound}}"><span class="ico"><sc-if value="{{soundOn}}"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/></svg></sc-if><sc-if value="{{soundMuted}}"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9l5 6M22 9l-5 6"/></svg></sc-if></span><span class="lbl">Sound {{soundLabel}}</span></button>
+<button class="gbtn" style="flex:1" aria-label="Restart" title="Restart" onClick="{{resetAll}}"><span class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></span><span class="lbl">Restart</span></button>
+</div>
+</div></sc-if>
+</aside>
+<sc-if value="{{v.mob}}"><div class="mspacer"></div><div class="mfix"><div class="ctlBar mbar" style="display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;gap:8px">
+<button class="gbtn" style="flex:1" aria-label="Back" title="Back" disabled="{{m.noBack}}" onClick="{{stepBack}}"><span class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 5l-9 7 9 7z"/><path d="M5 5v14"/></svg></span><span class="lbl">Back</span></button>
+<sc-if value="{{m.running}}"><button class="gbtn" style="flex:1" aria-label="Skip" title="Skip" onClick="{{stepSkip}}"><span class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 5l9 7-9 7z"/><path d="M19 5v14"/></svg></span><span class="lbl">Skip</span></button></sc-if>
+<sc-if value="{{m.finished}}"><button class="gbtn" style="flex:1" aria-pressed="true" aria-label="Run again" title="Run again" onClick="{{resetAll}}"><span class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></span><span class="lbl">Run again</span></button></sc-if>
+</div>
+<div style="display:flex;gap:8px">
+<button class="gbtn" style="flex:1" aria-pressed="{{soundOn}}" aria-label="Sound" title="Sound" onClick="{{toggleSound}}"><span class="ico"><sc-if value="{{soundOn}}"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/></svg></sc-if><sc-if value="{{soundMuted}}"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9l5 6M22 9l-5 6"/></svg></sc-if></span><span class="lbl">Sound {{soundLabel}}</span></button>
+<button class="gbtn" style="flex:1" aria-label="Restart" title="Restart" onClick="{{resetAll}}"><span class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></span><span class="lbl">Restart</span></button>
+<button class="gbtn" style="flex:1" aria-label="All steps" title="All steps" aria-expanded="{{sheetOpen}}" onClick="{{toggleSheet}}"><span class="ico"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg></span><span class="lbl">All steps</span></button>
+</div>
+</div></div></sc-if>
+</main><details style="width:min(100%,520px);color:#7F97A8;font-size:13.5px;line-height:1.55">
+<summary style="color:#A9BDCA;justify-content:center">How this maps to the spec, and what is assumed</summary>
+<p style="margin:8px 0">Taken from your files: three segments (left, centre, right) with touch position choosing the segment; the haptic vocabulary of ripple, constant with rising force and barrier; barrier in the transition areas and on push; damper off at idle; every screen, label and placeholder from the 20 stills.</p>
+<p style="margin:8px 0">Assumed for the demo: hovering stands in for capacitive touch; hold-and-drag, mouse wheel and arrow keys stand in for rotation; click stands in for push. The three tabs work as a carousel in the order Music, Fav, Comfort: the centre tab is the current one, a left push goes to the tab on its left and a right push to the tab on its right (the order loops). Comfort reuses the Seat Modes and Temperature screens, and the carousel itself is a proposal. Centre push confirms. Which menu gets which haptic profile is a proposal, not from the spec. Value ranges (14 to 28 °C, volume 0 to 30, 12 songs, 9 list items) and the Titles, Playlists and Recently Played lists are extended from the Albums pattern. Only Media is designed under Music, so Sound and Source are locked with a barrier.</p>
+</details>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1400}}'>
+const ZONES = ['left', 'center', 'right'];
+const FAV_CENTER = [
+  { label: 'Ergonomics', text: 'Seat Modes' },
+  { label: 'Climate', text: 'Temperature' },
+  { label: 'Music', text: 'Actual Title' }
+];
+const COMFORT_CENTER = [
+  { label: 'Ergonomics', text: 'Seat Modes' },
+  { label: 'Climate', text: 'Temperature' }
+];
+const TAB_ORDER = ['music', 'fav', 'comfort'];
+const TAB_LABEL = { music: 'Music', fav: 'Fav', comfort: 'Comfort' };
+const tabAt = (mode, off) => TAB_ORDER[(TAB_ORDER.indexOf(mode) + off + TAB_ORDER.length) % TAB_ORDER.length];
+function guideFor(g, T, touchy) {
+  const cur = screenOf(g);
+  if (!T || cur === T) return null;
+  const tap = touchy ? 'TAP' : 'CLICK';
+  const tab = (target) => {
+    const zone = tabAt(g.mode, -1) === target ? 'left' : 'right';
+    return { zone: zone, act: 'push', chip: tap, pill: tap + ' FOR ' + TAB_LABEL[target].toUpperCase(), text: 'Click the ' + zone + ' segment to open ' + TAB_LABEL[target] + '.' };
+  };
+  if (T === 'media') return tab('music');
+  if (g.mode === 'music') return tab('fav');
+  if (T === 'music' && g.mode === 'comfort') return tab('fav');
+  const idx = g.mode === 'fav' ? g.cIdx : g.kIdx, tIdx = { seat: 0, climate: 1, music: 2 }[T];
+  const act = tIdx > idx ? 'down' : 'up';
+  const chip = (touchy ? 'TOUCH & DRAG ' : 'HOLD & DRAG ') + (act === 'down' ? '↓' : '↑');
+  return { zone: 'center', act: act, chip: chip, pill: chip, text: 'Hold and drag ' + (act === 'down' ? 'down' : 'up') + ' on the centre segment to reach ' + SCRNAME[T] + '.' };
+}
+const MUSIC_CENTER = [{ label: '', text: 'Sound' }, { label: '', text: 'Media' }, { label: '', text: 'Source' }];
+const OPTIONS = ['Titles', 'Artists', 'Albums', 'Playlists', 'Recently Played'];
+const ARTISTS = ['Arissindthe', 'David Guetta', 'Nick joe', 'Kendrick La…', 'Papa Johnas', 'Maygult', 'Akon', 'Imagine Dragons', 'Ariana Grande'];
+const SEAT_ANG = [0, 12, 26, 40, 55];
+const T_MIN = 14, T_MAX = 28, V_MAX = 30, SONG_N = 12;
+const DETENT = 14, BCAP = 110, TN = 110;
+const POINTS = {
+  'Driver column wakes, damper on': ['Move the pointer onto the left end of the wheel.', 'The Driver column wakes up.', 'The damper powers on.'],
+  'Driver temp 16° → 20°C': ['Hold and drag down on the left segment.', 'Go up four degrees, to 20°C.', 'Each notch is about one degree, so keep going.'],
+  'Co-Driver temp 20° → 18°C': ['Move to the right segment.', 'Hold and drag up two degrees, to 18°C.'],
+  'Centre menu: Climate → Seat Modes': ['Hold and drag up one step on the centre segment.'],
+  'Co-Driver seat 3/5 → 5/5': ['Use the right segment.', 'Hold and drag down two steps.', 'Stop at the flattest pose.'],
+  'End stop: seat stays at 5/5': ['Keep holding and dragging down on the right segment.', 'Go past the last pose.', 'Feel the wheel refuse.'],
+  'Centre menu: Seat Modes → Music': ['Use the centre segment.', 'Hold and drag down two steps.', 'Pass Climate, then land on Music.'],
+  'Volume 16 → 20': ['Use the left segment.', 'Hold and drag down four notches.', 'Stop at volume 20.'],
+  'Song 5/12 → 9/12': ['Use the right segment.', 'Hold and drag down four songs.', 'Try one quick flick.'],
+  'Tab: Fav → Music': ['Click the left segment.', 'The left tab reads Music.'],
+  'Options: Albums → Artists': ['Hold and drag up one step on the left segment.', 'The list loops, so it never hits an end.'],
+  'Artist: Papa Johnas → Akon': ['Use the right segment.', 'Hold and drag down two artists.'],
+  'Media confirmed, row flashes': ['Click the centre segment.'],
+  'Tab: Music → Fav': ['Click the right segment.', 'The right tab reads Fav.'],
+  'Tab: Fav → Comfort': ['Click the right segment.', 'The right tab reads Comfort.', 'The menu below becomes Ergonomics and Climate.'],
+  'Comfort: Climate → Seat Modes': ['Use the centre segment.', 'Hold and drag up one step.', 'The seat screen opens.']
+};
+const FINAL_POINTS = ['All five screens and six haptic profiles are covered.', 'Every segment, list and push still works.', 'The force trace keeps running.'];
+const ACT = { touch: 'TOUCH', down: 'HOLD & DRAG ↓', up: 'HOLD & DRAG ↑', push: 'PUSH' };
+const ZLABEL = { left: 'Left segment', center: 'Centre segment', right: 'Right segment', seam: 'Seam between left and centre' };
+const ZSHORT = { left: 'Left', center: 'Centre', right: 'Right', seam: 'Seam' };
+const SCRNAME = { climate: 'Climate · Temperature', seat: 'Ergonomics · Seat Modes', music: 'Music · Actual Title', media: 'Music · Media' };
+
+function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+function lvl(step) { if (!isFinite(step)) return 5; return step <= 60 ? 1 : step <= 100 ? 2 : step <= 150 ? 3 : step <= 210 ? 4 : 5; }
+function wrapD(i, sel, n, wrap) { let d = i - sel; if (wrap) { if (d > n / 2) d -= n; if (d < -n / 2) d += n; } return d; }
+function newState() {
+  return {
+    mode: 'fav', cIdx: 1, kIdx: 1, mIdx: 1, tDrv: 16, tCo: 20, seatD: 2, seatC: 2, vol: 16, song: 4, opt: 2,
+    idx: { 'Titles': 4, 'Artists': 4, 'Albums': 4, 'Playlists': 4, 'Recently Played': 4 },
+    touch: null, seam: false, seamSeen: false, acc: 0, accZone: null, lastInput: 0, holding: false, drag: null, suppress: false,
+    lockUntil: 0, rotT: { left: 0, center: 0, right: 0 }, rotS: { left: 0, center: 0, right: 0 },
+    kick: { left: 0, center: 0, right: 0 }, flash: { left: 0, center: 0, right: 0 },
+    trace: [], log: [], feel: 1, sound: false, step: 0, stepDone: false,
+    barrierN: 0, inBarrier: false, stepBarrier0: 0, pushN: 0, stepPush0: 0, lastPush: null,
+    comfortUntil: 0, noTrans: false
+  };
+}
+function screenOf(g) { if (g.mode === 'music') return 'media'; if (g.mode === 'comfort') return g.kIdx === 1 ? 'climate' : 'seat'; return g.cIdx === 1 ? 'climate' : g.cIdx === 0 ? 'seat' : 'music'; }
+function rightList(g) {
+  const o = OPTIONS[g.opt];
+  if (o === 'Artists') return { header: 'Artist Name', items: ARTISTS };
+  const mk = (p) => { const a = []; for (let i = 1; i <= 9; i++) a.push(p + ' -' + i); return a; };
+  if (o === 'Albums') return { header: 'Album name', items: mk('Album') };
+  if (o === 'Playlists') return { header: 'Playlist name', items: mk('Playlist') };
+  return { header: 'Title name', items: mk('Title') };
+}
+function songs() { const a = []; for (let i = 0; i < SONG_N; i++) a.push('Kendrick Lamar'); return a; }
+function profileFor(g, zone) {
+  const P = (o) => Object.assign({ wrap: false, locked: false, slope: 0, fn: '', note: '', set: function () {} }, o);
+  const scr = screenOf(g);
+  if (zone === 'seam') return P({ key: 'seam', kind: 'barrier', name: 'Barrier · transition area', fn: 'Seam', base: 0, n: 1, i: 0, locked: true });
+  if (zone === 'center') {
+    if (g.mode === 'fav') return P({ key: 'cat', kind: 'ripple', name: 'Ripple · medium', fn: 'Category', base: 130, n: 3, i: g.cIdx, wrap: true, set: (s, i) => { s.cIdx = i; } });
+    if (g.mode === 'comfort') return P({ key: 'kat', kind: 'ripple', name: 'Ripple · medium', fn: 'Category', base: 130, n: 2, i: g.kIdx, set: (s, i) => { s.kIdx = i; } });
+    return P({ key: 'mcat', kind: 'barrier', name: 'Barrier · only Media is designed', fn: 'Menu', base: 0, n: 3, i: g.mIdx, locked: true });
+  }
+  const L = zone === 'left';
+  if (scr === 'climate') {
+    return L
+      ? P({ key: 'td', kind: 'rise', name: 'Constant · force rises with heat', fn: 'Driver °C', base: 80, slope: 9, n: T_MAX - T_MIN + 1, i: g.tDrv - T_MIN, set: (s, i) => { s.tDrv = T_MIN + i; } })
+      : P({ key: 'tc', kind: 'rise', name: 'Constant · force rises with heat', fn: 'Co-Driver °C', base: 80, slope: 9, n: T_MAX - T_MIN + 1, i: g.tCo - T_MIN, set: (s, i) => { s.tCo = T_MIN + i; } });
+  }
+  if (scr === 'seat') {
+    return L
+      ? P({ key: 'sd', kind: 'ripple', name: 'Ripple · high', fn: 'Driver seat', base: 175, n: 5, i: g.seatD, set: (s, i) => { s.seatD = i; } })
+      : P({ key: 'sc', kind: 'ripple', name: 'Ripple · high', fn: 'Co-Driver seat', base: 175, n: 5, i: g.seatC, set: (s, i) => { s.seatC = i; } });
+  }
+  if (scr === 'music') {
+    return L
+      ? P({ key: 'vol', kind: 'rise', name: 'Constant · force rises with volume', fn: 'Volume', base: 60, slope: 5, n: V_MAX + 1, i: g.vol, set: (s, i) => { s.vol = i; } })
+      : P({ key: 'song', kind: 'ripple', name: 'Ripple · low', fn: 'Song', base: 45, n: SONG_N, i: g.song, set: (s, i) => { s.song = i; } });
+  }
+  if (L) return P({ key: 'opt', kind: 'ripple', name: 'Ripple · medium', fn: 'Options', base: 120, n: OPTIONS.length, i: g.opt, wrap: true, set: (s, i) => { s.opt = i; } });
+  const o = OPTIONS[g.opt];
+  return P({ key: 'item', kind: 'ripple', name: 'Ripple · low', fn: rightList(g).header, base: 50, n: 9, i: g.idx[o], set: (s, i) => { s.idx[o] = i; } });
+}
+function stepFor(p, dir) {
+  if (p.locked) return Infinity;
+  const t = p.i + dir;
+  if (!p.wrap && (t < 0 || t >= p.n)) return Infinity;
+  return p.base + p.slope * Math.max(p.i, t);
+}
+function valueText(g, zone) {
+  const scr = screenOf(g);
+  if (zone === 'center') return g.mode === 'fav' ? FAV_CENTER[g.cIdx].text : g.mode === 'comfort' ? COMFORT_CENTER[g.kIdx].text : MUSIC_CENTER[g.mIdx].text;
+  const L = zone === 'left';
+  if (scr === 'climate') return L ? 'Driver ' + g.tDrv + '°C' : 'Co-Driver ' + g.tCo + '°C';
+  if (scr === 'seat') return L ? 'Driver seat ' + (g.seatD + 1) + '/5' : 'Co-Driver seat ' + (g.seatC + 1) + '/5';
+  if (scr === 'music') return L ? 'Volume ' + g.vol : 'Song ' + (g.song + 1) + '/' + SONG_N;
+  if (L) return OPTIONS[g.opt];
+  const o = OPTIONS[g.opt];
+  return rightList(g).items[g.idx[o]];
+}
+function seatGeom(ang) {
+  const a = ang * Math.PI / 180, hx = 24, hy = 25, L = 13;
+  const sx = hx - L * Math.sin(a), sy = hy - L * Math.cos(a);
+  const kx = 36, ky = 27 - ang * 0.06;
+  return {
+    d: 'M' + sx.toFixed(1) + ' ' + sy.toFixed(1) + ' L' + hx + ' ' + hy + ' L' + kx + ' ' + ky.toFixed(1) + ' L35 37',
+    hx: (hx - (L + 6) * Math.sin(a)).toFixed(1), hy: (hy - (L + 6) * Math.cos(a)).toFixed(1)
+  };
+}
+function makeDots() {
+  const out = [], N = 26;
+  for (let k = 0; k < N; k++) {
+    const t = k / (N - 1), x = 285 + t * 445;
+    let y;
+    if (x <= 575) { const u = (575 - x) / 290; y = 552 - 92 * Math.pow(u, 1.5); } else { const v = (x - 575) / 155; y = 552 - 68 * Math.pow(v, 1.3); }
+    const r = 2.2 + Math.pow(t, 1.6) * 6.2, a = 0.3 + 0.7 * Math.pow(t, 1.1);
+    out.push({
+      cx: x.toFixed(1), cy: y.toFixed(1), r: r.toFixed(2),
+      fill: 'rgba(' + Math.round(80 + 40 * t) + ',' + Math.round(140 + 70 * t) + ',' + Math.round(180 + 60 * t) + ',' + a.toFixed(2) + ')',
+      style: 'animation:bobS ' + (3.6 + (k % 5) * 0.35).toFixed(2) + 's ease-in-out ' + (-(k * 0.23)).toFixed(2) + 's infinite'
+    });
+  }
+  [[300, 478, 1.5], [330, 466, 1.8], [392, 455, 1.6], [420, 462, 2.2], [458, 470, 1.4], [492, 486, 1.6], [524, 500, 1.4], [266, 484, 1.5], [360, 440, 1.2], [525, 462, 1.4]].forEach((s, k) => {
+    out.push({ cx: s[0], cy: s[1], r: s[2], fill: 'rgba(110,160,195,.35)', style: 'animation:bobS ' + (4.2 + k * 0.2).toFixed(1) + 's ease-in-out ' + (-k * 0.5) + 's infinite' });
+  });
+  return out;
+}
+
+const STEPS = [
+  { zone: 'left', act: 'touch', screen: 'climate', title: 'Driver column wakes, damper on', body: 'Rest the pointer on the left end of the wheel. The Driver column wakes up and the damper powers on.', feel: 'At rest the damper is off. Touch switches it on.', test: (g) => g.touch === 'left' },
+  { zone: 'left', act: 'down', screen: 'climate', title: 'Driver temp 16° → 20°C', body: 'Hold and drag down on the left segment, four degrees. A mouse wheel notch is about one degree on a light menu, so push on.', feel: 'Constant resistance that gets firmer with every degree.', test: (g) => g.tDrv >= 20 },
+  { zone: 'right', act: 'up', screen: 'climate', title: 'Co-Driver temp 20° → 18°C', body: 'Move to the right segment, hold and drag up two degrees.', feel: 'Same profile, felt from the 20°C end of the scale. Compare it with the first few degrees on the left.', test: (g) => g.tCo <= 18 },
+  { zone: 'center', act: 'up', screen: 'climate', title: 'Centre menu: Climate → Seat Modes', body: 'Hold and drag up one step on the centre segment.', feel: 'Ripple, medium. A clear notch between categories.', test: (g) => g.mode === 'fav' && g.cIdx === 0 },
+  { zone: 'right', act: 'down', screen: 'seat', title: 'Co-Driver seat 3/5 → 5/5', body: 'On the right segment, hold and drag down to the flattest pose, two steps.', feel: 'Ripple, high. Every pose is a firm notch, firmer than temperature.', test: (g) => g.seatC === 4 },
+  { zone: 'right', act: 'down', screen: 'seat', title: 'End stop: seat stays at 5/5', body: 'Keep holding and dragging down on the right segment, past the last pose.', feel: 'Barrier. The wheel refuses to turn further and the effort bar pins at the top.', test: (g) => g.barrierN > g.stepBarrier0 },
+  { zone: 'center', act: 'down', screen: 'seat', title: 'Centre menu: Seat Modes → Music', body: 'Hold and drag down two steps on the centre segment: Climate, then Music.', feel: 'Ripple, medium again.', test: (g) => g.mode === 'fav' && g.cIdx === 2 },
+  { zone: 'left', act: 'down', screen: 'music', title: 'Volume 16 → 20', body: 'Left segment, hold and drag down four.', feel: 'Light at low volume, heavier as it climbs.', test: (g) => g.vol >= 20 },
+  { zone: 'right', act: 'down', screen: 'music', title: 'Song 5/12 → 9/12', body: 'Right segment, hold and drag down four songs. Try one quick flick.', feel: 'Ripple, low. A long list wants to be fast and light.', test: (g) => g.song >= 8 },
+  { zone: 'left', act: 'push', screen: 'music', title: 'Tab: Fav → Music', body: 'Click the left segment. The left tab reads Music.', feel: 'On push the damper locks for a moment, then the screen changes.', test: (g) => g.mode === 'music' },
+  { zone: 'left', act: 'up', screen: 'media', title: 'Options: Albums → Artists', body: 'Hold and drag up one step on the left segment. The list loops, so it never hits an end.', feel: 'Ripple, medium.', test: (g) => g.opt === 1 },
+  { zone: 'right', act: 'down', screen: 'media', title: 'Artist: Papa Johnas → Akon', body: 'Right segment, hold and drag down two artists.', feel: 'Ripple, low, with end stops at the first and last artist.', test: (g) => g.mode === 'music' && g.opt === 1 && g.idx['Artists'] >= 6 },
+  { zone: 'center', act: 'push', screen: 'media', title: 'Media confirmed, row flashes', body: 'Click the centre segment.', feel: 'Barrier lock on push, then the row flashes.', test: (g) => g.mode === 'music' && g.lastPush === 'center' && g.pushN > g.stepPush0 },
+  { zone: 'right', act: 'push', screen: 'media', title: 'Tab: Music → Fav', body: 'Click the right segment. The right tab reads Fav.', feel: 'Same push lock, back to the home screen.', test: (g) => g.mode === 'fav' },
+  { zone: 'right', act: 'push', screen: 'music', title: 'Tab: Fav → Comfort', body: 'Click the right segment. The right tab reads Comfort.', feel: 'Push lock again. The menu below changes to Ergonomics and Climate.', test: (g) => g.mode === 'comfort' },
+  { zone: 'center', act: 'up', screen: 'climate', title: 'Comfort: Climate → Seat Modes', body: 'Hold and drag up one step on the centre segment.', feel: 'Ripple, medium. Only two rows here, so the first and last rows are end stops.', test: (g) => g.mode === 'comfort' && g.kIdx === 0 }
+];
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.g = newState();
+    this.raf = 0; this.lastTs = 0; this.timers = []; this.audio = null; this.lastBarrierSound = 0;
+    this.scrolledStep = -1;
+    this.view = (typeof window !== 'undefined' && window.innerWidth <= 640) ? 'mobile' : 'desktop'; this.sheet = false; this.lpT = 0; this.ptsOpen = false;
+    this._narrow = typeof window !== 'undefined' && window.innerWidth <= 760;
+    if (typeof window !== 'undefined' && window.addEventListener) {
+      window.addEventListener('resize', () => { const n = window.innerWidth <= 760; if (n !== this._narrow) { this._narrow = n; this.redraw(); } });
+    }
+    this.listRef = (el) => { this.listEl = el; };
+    this.cardRef = (el, active, i) => {
+      if (!el || !active) return;
+      const c = el.offsetParent;
+      if (!c || !c.classList || !c.classList.contains('strip') || c.__sc === i) return;
+      c.__sc = i;
+      setTimeout(() => { if (el.offsetParent === c) c.scrollTo({ top: Math.max(0, el.offsetTop - 44), behavior: 'smooth' }); }, 30);
+    };
+    this.stageRef = (el) => {
+      if (el && !el.__hw) { el.__hw = true; el.addEventListener('wheel', this.onWheel, { passive: false }); }
+    };
+    this.onWheel = (e) => {
+      if (e.__hw) return; e.__hw = true;
+      const t = e.target && e.target.closest ? e.target.closest('[data-zone]') : null;
+      if (!t) return;
+      e.preventDefault();
+      const z = t.getAttribute('data-zone');
+      let dy = e.deltaY;
+      if (e.deltaMode === 1) dy *= 16; else if (e.deltaMode === 2) dy *= 100;
+      dy = clamp(dy, -160, 160);
+      if (z === 'seam') { if (!this.g.seam) this.seamOn(); this.feed('seam', dy); return; }
+      if (this.g.touch !== z) this.touchOn(z);
+      this.feed(z, dy);
+    };
+    this.wheelFallback = (e) => {
+      const ne = e.nativeEvent || e;
+      if (ne.__hw) return;
+      this.onWheel(Object.assign(ne, {}));
+    };
+    this.loop = (ts) => {
+      const g = this.g, now = performance.now();
+      const dt = this.lastTs ? Math.min(64, ts - this.lastTs) : 16;
+      this.lastTs = ts;
+      if (!g.holding && now - g.lastInput > 150) {
+        g.acc *= Math.exp(-dt / 220);
+        if (Math.abs(g.acc) < 0.5) g.acc = 0;
+        if (Math.abs(g.acc) < BCAP * 0.2 * g.feel) g.inBarrier = false;
+      }
+      let moving = false;
+      ZONES.forEach((z) => {
+        const d = g.rotT[z] - g.rotS[z];
+        if (Math.abs(d) > 0.1) { g.rotS[z] += d * Math.min(1, dt / 60); moving = true; } else g.rotS[z] = g.rotT[z];
+      });
+      const r = this.ratio();
+      g.trace.push(r);
+      if (g.trace.length > TN) g.trace.shift();
+      const hot = g.trace.slice(-24).some((v) => v > 0.01);
+      this.redraw();
+      if (g.acc !== 0 || moving || now < g.lockUntil || g.holding || hot) this.raf = requestAnimationFrame(this.loop);
+      else { this.raf = 0; this.lastTs = 0; }
+    };
+  }
+  componentWillUnmount() {
+    if (this.raf) cancelAnimationFrame(this.raf);
+    this.timers.forEach((t) => clearTimeout(t));
+  }
+  redraw() { this.tc = (this.tc || 0) + 1; this.setState({ tick: this.tc }); }
+  later(fn, ms) { this.timers.push(setTimeout(fn, ms)); }
+  run() { if (!this.raf) this.raf = requestAnimationFrame(this.loop); }
+  commit() { this.mission(); this.redraw(); this.run(); }
+  ratio() {
+    const g = this.g, now = performance.now();
+    if (now < g.lockUntil) return 1;
+    const z = g.seam ? 'seam' : g.accZone;
+    if (!z || !g.acc) return 0;
+    const p = profileFor(g, z), dir = g.acc > 0 ? 1 : -1, need = stepFor(p, dir) * g.feel;
+    if (!isFinite(need)) return Math.min(1, Math.abs(g.acc) / (BCAP * g.feel));
+    return Math.min(1, Math.abs(g.acc) / need);
+  }
+  tick(kind, level) {
+    const c = this.audio, g = this.g;
+    try {
+      const nv = performance.now();
+      if (this.view === 'mobile' && navigator.vibrate && nv - (this.lastVib || 0) > (kind === 'barrier' ? 140 : 30)) { this.lastVib = nv; navigator.vibrate(kind === 'barrier' ? 24 : 7); }
+    } catch (e) {}
+    if (!c || !g.sound) return;
+    const now = performance.now();
+    if (kind === 'barrier') { if (now - this.lastBarrierSound < 140) return; this.lastBarrierSound = now; }
+    try {
+      const t = c.currentTime, o = c.createOscillator(), a = c.createGain();
+      o.type = kind === 'barrier' ? 'square' : 'triangle';
+      o.frequency.value = kind === 'barrier' ? 110 : 1500 - level * 220;
+      a.gain.setValueAtTime(0.0001, t);
+      a.gain.exponentialRampToValueAtTime(kind === 'barrier' ? 0.06 : 0.035, t + 0.003);
+      a.gain.exponentialRampToValueAtTime(0.0001, t + (kind === 'barrier' ? 0.1 : 0.03 + level * 0.01));
+      o.connect(a); a.connect(c.destination); o.start(t); o.stop(t + 0.14);
+    } catch (e) {}
+  }
+  addLog(text) { const g = this.g; g.log.unshift({ text }); if (g.log.length > 4) g.log.pop(); }
+  screenChanged(prev) {
+    const g = this.g;
+    if (screenOf(g) !== prev) {
+      g.noTrans = true; g.acc = 0; g.inBarrier = false;
+      this.later(() => { g.noTrans = false; this.redraw(); }, 60);
+    }
+  }
+  touchOn(zone) {
+    const g = this.g;
+    if (g.touch === zone && !g.seam) return;
+    g.touch = zone; g.seam = false;
+    if (g.accZone !== zone) { g.acc = 0; g.accZone = zone; g.inBarrier = false; }
+    this.commit();
+  }
+  touchOff(zone) {
+    const g = this.g;
+    if (g.touch !== zone || g.drag) return;
+    g.touch = null; g.acc = 0; g.inBarrier = false;
+    this.commit();
+  }
+  seamOn() {
+    const g = this.g;
+    g.seam = true; g.seamSeen = true; g.touch = null; g.acc = 0; g.accZone = 'seam'; g.inBarrier = false;
+    this.commit();
+  }
+  seamOff() {
+    const g = this.g;
+    g.seam = false; g.acc = 0; g.inBarrier = false;
+    this.commit();
+  }
+  feed(zone, delta) {
+    const g = this.g, now = performance.now();
+    if (g.accZone !== zone) { g.acc = 0; g.accZone = zone; g.inBarrier = false; }
+    g.acc += delta; g.lastInput = now;
+    let guard = 0;
+    while (guard++ < 12) {
+      const dir = g.acc > 0 ? 1 : g.acc < 0 ? -1 : 0;
+      if (!dir) break;
+      const p = profileFor(g, zone);
+      const need = now < g.lockUntil ? Infinity : stepFor(p, dir) * g.feel;
+      if (!isFinite(need)) {
+        const cap = BCAP * g.feel;
+        if (Math.abs(g.acc) > cap) g.acc = dir * cap;
+        if (!g.inBarrier && Math.abs(g.acc) >= cap * 0.55) {
+          g.inBarrier = true; g.barrierN++;
+          this.tick('barrier', 5);
+          this.addLog(ZSHORT[zone] + ' · barrier · ' + (zone === 'seam' ? 'transition area' : p.locked ? 'locked row' : 'end stop'));
+        }
+        break;
+      }
+      if (Math.abs(g.acc) < need) { g.inBarrier = false; break; }
+      g.acc -= dir * need; g.inBarrier = false;
+      const prev = screenOf(g);
+      const t = p.i + dir, ni = p.wrap ? (t + p.n) % p.n : t;
+      p.set(g, ni);
+      g.rotT[zone] += dir * DETENT; g.kick[zone]++;
+      this.tick(p.kind === 'rise' ? 'rise' : 'ripple', lvl(need / g.feel));
+      this.addLog(ZSHORT[zone] + ' · ' + (dir > 0 ? '↓' : '↑') + ' · ' + valueText(g, zone));
+      this.screenChanged(prev);
+    }
+    this.commit();
+  }
+  push(zone) {
+    const g = this.g, now = performance.now(), prev = screenOf(g);
+    g.pushN++; g.lastPush = zone; g.lockUntil = now + 300; g.acc = 0; g.inBarrier = false; g.flash[zone]++;
+    this.tick('barrier', 3);
+    if (zone === 'left' || zone === 'right') {
+      g.mode = tabAt(g.mode, zone === 'left' ? -1 : 1);
+      this.addLog((zone === 'left' ? 'Left' : 'Right') + ' · push · ' + TAB_LABEL[g.mode] + ' tab');
+    } else {
+      this.addLog('Centre · push · ' + valueText(g, 'center') + ' selected');
+    }
+    this.screenChanged(prev);
+    this.commit();
+  }
+  down(zone, e) {
+    const g = this.g;
+    g.drag = { zone: zone, y: e.clientY, moved: 0 }; g.holding = true; g.suppress = false;
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch (x) {}
+    if (g.touch !== zone) this.touchOn(zone);
+    this.run();
+    if (e.pointerType && e.pointerType !== 'mouse') {
+      clearTimeout(this.lpT);
+      this.lpT = setTimeout(() => {
+        const d = g.drag;
+        if (d && d.zone === zone && d.moved < 8) { d.long = true; try { navigator.vibrate && navigator.vibrate(14); } catch (x) {} this.commit(); }
+      }, 380);
+    }
+  }
+  move(zone, e) {
+    const d = this.g.drag;
+    if (!d || d.zone !== zone) return;
+    const dy = e.clientY - d.y;
+    d.y = e.clientY; d.moved += Math.abs(dy);
+    if (d.moved > 8 && this.lpT) { clearTimeout(this.lpT); this.lpT = 0; }
+    if (dy) this.feed(zone, dy * 1.6);
+  }
+  up(zone, e) {
+    const g = this.g, d = g.drag, touchy = !!(e.pointerType && e.pointerType !== 'mouse');
+    clearTimeout(this.lpT); this.lpT = 0;
+    if (d) { g.suppress = d.moved > 6 || !!d.long; g.drag = null; }
+    g.holding = false;
+    try { e.currentTarget.releasePointerCapture(e.pointerId); } catch (x) {}
+    if (touchy && d && !d.long && d.moved <= 6 && e.type === 'pointerup') { g.pushedAt = Date.now(); this.push(zone); }
+    this.run();
+    if (e.pointerType && e.pointerType !== 'mouse') this.later(() => this.touchOff(zone), 160);
+  }
+  click(zone) {
+    if (Date.now() - (this.g.pushedAt || 0) < 600) return;
+    if (this.g.suppress) { this.g.suppress = false; return; }
+    this.push(zone);
+  }
+  key(zone, e) {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (this.g.touch !== zone) this.touchOn(zone);
+      this.feed(zone, (e.key === 'ArrowDown' ? 1 : -1) * 70);
+    }
+  }
+  mission() {
+    const g = this.g, st = STEPS[g.step];
+    if (!st || g.stepDone) return;
+    if (st.test(g)) {
+      g.stepDone = true; g.doneBarrierN = g.barrierN; g.donePushN = g.pushN;
+      const id = g.step;
+      this.later(() => {
+        if (this.g !== g || g.step !== id) return;
+        g.step++; g.stepDone = false; g.stepBarrier0 = g.doneBarrierN; g.stepPush0 = g.donePushN;
+        this.mission(); this.redraw();
+      }, 900);
+    }
+  }
+  goStep(n) {
+    const g = this.g;
+    g.step = clamp(n, 0, STEPS.length); g.stepDone = false; g.stepBarrier0 = g.barrierN; g.stepPush0 = g.pushN;
+    this.commit();
+  }
+  reset() {
+    this.timers.forEach((t) => clearTimeout(t)); this.timers = [];
+    const old = this.g, fresh = newState();
+    fresh.feel = old.feel; fresh.sound = old.sound;
+    this.g = fresh; this.redraw(); this.run();
+  }
+
+  listItems(g, side) {
+    const scr = screenOf(g), L = side === 'L', out = [];
+    const active = g.touch === (L ? 'left' : 'right');
+    const base = (top, anchor, size, op, col, wt, extra) =>
+      'position:absolute;top:' + top + 'cqw;' + anchor + ';font-size:' + size + 'cqw;opacity:' + op + ';color:' + col + ';font-weight:' + wt +
+      ';white-space:nowrap;line-height:1.1;pointer-events:none;transform:translateY(-50%)' + (extra || '') +
+      (g.noTrans ? ';transition:none' : ';transition:top .2s cubic-bezier(.2,.8,.2,1),opacity .2s,font-size .2s,transform .2s,left .2s,right .2s,color .15s');
+    if (scr === 'climate' || scr === 'music' && L) {
+      const isT = scr === 'climate';
+      const vals = [], lo = isT ? T_MIN : 0, hi = isT ? T_MAX : V_MAX;
+      for (let v = lo; v <= hi; v++) vals.push(v);
+      const cur = isT ? (L ? g.tDrv : g.tCo) : g.vol, sel = cur - lo;
+      vals.forEach((v, i) => {
+        const d = i - sel, ad = Math.abs(d);
+        const size = ad === 0 ? 3.4 : ad === 1 ? 2.4 : 2.0, op = ad === 0 ? 1 : ad === 1 ? 0.55 : ad === 2 ? 0.26 : 0;
+        const top = (160 + clamp(d, -3, 3) * 56) / 10;
+        const col = ad === 0 && active ? '#6EE7F0' : '#fff';
+        out.push({ key: i, isSeat: false, isText: true, d: '', hx: 0, hy: 0, text: ad === 0 && isT ? v + '°C' : String(v), style: base(top.toFixed(2), L ? 'left:7.5cqw' : 'right:7.1cqw;text-align:right', size, op, col, ad === 0 ? 400 : 300) });
+      });
+    } else if (scr === 'seat') {
+      const sel = L ? g.seatD : g.seatC;
+      SEAT_ANG.forEach((a, i) => {
+        const d = i - sel, ad = Math.abs(d), geo = seatGeom(a);
+        const size = ad === 0 ? 5.4 : ad === 1 ? 4.0 : 2.8, op = ad === 0 ? 1 : ad === 1 ? 0.85 : 0.55;
+        const top = (160 + clamp(d, -3, 3) * 63) / 10;
+        const col = ad === 0 && active ? '#6EE7F0' : '#E8F0F5';
+        const xs = ad === 0 ? 12.2 : 8;
+        const anchor = L ? 'left:' + xs + 'cqw;width:' + size + 'cqw' : 'right:' + (ad === 0 ? 12 : 7.8) + 'cqw;width:' + size + 'cqw';
+        const tf = L ? ';transform:translate(-50%,-50%)' : ';transform:translate(50%,-50%) scaleX(-1)';
+        out.push({ key: i, isSeat: true, isText: false, d: geo.d, hx: geo.hx, hy: geo.hy, text: '', style: base(top.toFixed(2), anchor, size, op, col, 400, '').replace('transform:translateY(-50%)', tf.slice(1).replace(';', '')) });
+      });
+    } else {
+      // text lists: options (left, right-aligned) or song / album / artist (right, left-aligned)
+      let items, sel, wrap;
+      if (scr === 'music') { items = songs(); sel = g.song; wrap = false; }
+      else if (L) { items = OPTIONS; sel = g.opt; wrap = true; }
+      else { items = rightList(g).items; sel = g.idx[OPTIONS[g.opt]]; wrap = false; }
+      const SZ = L ? [2.1, 1.8, 1.45, 1.3, 1.2] : [2.05, 1.8, 1.7, 1.5, 1.15];
+      const OP = [1, 0.84, 0.66, 0.46, 0.28], DY = [0, 32, 60, 87, 114];
+      const maxD = L ? 2 : 4;
+      items.forEach((txt, i) => {
+        const d = wrapD(i, sel, items.length, wrap), ad = Math.abs(d), s = d < 0 ? -1 : 1;
+        const vis = ad <= maxD, k = Math.min(ad, 4);
+        const top = (160 + s * DY[k] + (ad > 4 ? s * 40 : 0)) / 10;
+        const tf = ad === 0 ? (L ? 'translate(1.1cqw,-50%)' : 'translate(-1.6cqw,-50%)') : 'translate(0,-50%)';
+        const col = ad === 0 && active ? '#6EE7F0' : '#fff';
+        out.push({ key: i, isSeat: false, isText: true, d: '', hx: 0, hy: 0, text: txt, style: base(top.toFixed(2), L ? 'right:4.5cqw;text-align:right' : 'left:4.5cqw', SZ[k], vis ? OP[k] : 0, col, ad === 0 ? 400 : 300).replace('transform:translateY(-50%)', 'transform:' + tf) });
+      });
+    }
+    return out;
+  }
+
+  renderVals() {
+    const g = this.g, now = performance.now();
+    const mob = this.view === 'mobile';
+    const touchy = mob || (typeof window !== 'undefined' && window.innerWidth <= 760);
+    const off = touchy ? 1 : 0;
+    if (g.step < off) { g.step = off; g.stepDone = false; g.stepBarrier0 = g.barrierN; g.stepPush0 = g.pushN; }
+    const ACTX = touchy ? Object.assign({}, ACT, { down: 'TOUCH & DRAG ↓', up: 'TOUCH & DRAG ↑', push: 'TAP' }) : ACT;
+    const mcp = (t) => touchy ? t.replace(/Hold and drag/g, 'Touch and drag').replace(/holding and dragging/g, 'touching and dragging').replace(/Move the pointer onto/g, 'Touch').replace(/Slide the pointer onto/g, 'Slide your finger onto').replace(/Rest the pointer on/g, 'Rest your finger on').replace(/A mouse wheel notch is about one degree on a light menu, so push on\./g, 'Each notch is about one degree, so keep dragging.').replace(/\bClick\b/g, 'Tap').replace(/\bclick\b/g, 'tap') : t;
+    const scr = screenOf(g), touch = g.touch, seam = g.seam;
+    const isFav = g.mode === 'fav', isComfort = g.mode === 'comfort', isMusicM = g.mode === 'music';
+    const lm = tabAt(g.mode, -1), rm = tabAt(g.mode, 1);
+    const kickAnim = (z) => g.kick[z] ? 'animation:' + (g.kick[z] % 2 ? 'kA' : 'kB') + ' .14s ease-out' : '';
+    const flashAnim = (z) => g.flash[z] ? 'animation:' + (g.flash[z] % 2 ? 'fA' : 'fB') + ' .45s ease-out' : '';
+    const paneOn = 'background:linear-gradient(180deg,rgba(2,12,26,0) 0%,rgba(2,12,26,.82) 42%,rgba(2,12,26,.95) 100%);opacity:1;transition:opacity .16s';
+    const paneOff = 'background:linear-gradient(180deg,rgba(20,60,80,0),rgba(20,60,80,.18) 30%,rgba(20,60,80,.06));opacity:1;transition:opacity .16s';
+    const glowOn = 'background:linear-gradient(0deg,rgba(94,222,234,.95) 0,rgba(86,214,226,.38) 14%,rgba(86,214,226,0) 100%);opacity:1;transition:opacity .16s';
+    const glowOff = 'opacity:0;transition:opacity .16s';
+    const tOn = (z) => touch === z;
+
+    // headers
+    let hdrL = 'Driver', hdrR = 'Co-Driver';
+    if (scr === 'music') { hdrL = 'Volume'; hdrR = 'Song'; }
+    if (scr === 'media') { hdrL = 'Options'; hdrR = rightList(g).header; }
+
+    // centre rows
+    const list = isFav ? FAV_CENTER : isComfort ? COMFORT_CENTER : MUSIC_CENTER, sel = isFav ? g.cIdx : isComfort ? g.kIdx : g.mIdx;
+    const rowTrans = g.noTrans ? 'transition:none' : 'transition:top .2s cubic-bezier(.2,.8,.2,1),opacity .2s,font-size .2s';
+    const rowsC = list.map((r, i) => {
+      const d = wrapD(i, sel, list.length, isFav), ad = Math.abs(d), top = ((150 + d * 55) / 10).toFixed(2);
+      const hasLabel = !isMusicM;
+      return {
+        label: r.label, text: r.text,
+        labelStyle: 'position:absolute;left:8.5cqw;top:' + top + 'cqw;transform:translate(-50%,-50%);font-size:' + (ad === 0 ? 1.6 : 1.3) + 'cqw;font-weight:300;white-space:nowrap;color:#fff;opacity:' + (hasLabel ? (ad === 0 ? 1 : 0.35) : 0) + ';' + rowTrans,
+        textStyle: 'position:absolute;left:' + (hasLabel ? 24.2 : 18.5) + 'cqw;top:' + top + 'cqw;transform:translate(-50%,-50%);font-size:' + (ad === 0 ? 2.3 : 1.9) + 'cqw;font-weight:' + (ad === 0 ? 700 : 300) + ';white-space:nowrap;color:#fff;opacity:' + (ad === 0 ? 1 : 0.32) + ';' + rowTrans
+      };
+    });
+
+    // zones on the wheel
+    const GEO = { left: [8.8, 21.4], center: [32.2, 36.6], right: [71, 21.2] };
+    const st = STEPS[g.step];
+    const guide = st ? guideFor(g, st.screen, touchy) : null;
+    const effZone = guide ? guide.zone : (st && st.zone);
+    const ratio = this.ratio();
+    const sgn = g.acc >= 0 ? 1 : -1;
+    const zones = ZONES.map((z) => {
+      const p = profileFor(g, z), on = tOn(z), L = GEO[z][0], W = GEO[z][1];
+      const rot = g.rotS[z] + (g.accZone === z && on ? sgn * ratio * DETENT * 0.4 : 0);
+      const target = st && effZone === z && !g.stepDone;
+      const barrierNow = on && (now < g.lockUntil || g.inBarrier);
+      const col = barrierNow ? '215,25,33' : '17,17,17';
+      const fill = barrierNow ? '#D71921' : '#111', pct = (ratio * 100).toFixed(1);
+      return {
+        id: z,
+        aria: ZLABEL[z] + ': ' + p.fn + '. Hover or touch to wake, hold and drag to rotate, or use arrow keys. Click or tap to push.',
+        shim: 'position:absolute;left:' + L + '%;width:' + W + '%;top:31%;height:42%;pointer-events:none;border-radius:8px;mix-blend-mode:overlay;opacity:.6;background-image:repeating-linear-gradient(180deg,rgba(255,255,255,0) 0,rgba(255,255,255,0) 9px,rgba(255,255,255,.7) 9px,rgba(255,255,255,.7) 10px);background-position:0 ' + rot.toFixed(1) + 'px;-webkit-mask-image:linear-gradient(180deg,transparent,#000 24%,#000 76%,transparent);mask-image:linear-gradient(180deg,transparent,#000 24%,#000 76%,transparent)',
+        bar: 'position:absolute;left:' + L + '%;width:' + W + '%;top:76%;height:6px;border-radius:3px;pointer-events:none;opacity:' + (on ? 1 : 0) + ';transition:opacity .15s;background:linear-gradient(90deg,' + fill + ' 0,' + fill + ' ' + pct + '%,rgba(0,0,0,.12) ' + pct + '%,rgba(0,0,0,.12) 100%)',
+        btn: 'position:absolute;left:' + L + '%;width:' + W + '%;top:31%;height:42%;border-radius:10px;cursor:ns-resize;background:' + (on ? 'rgba(' + col + ',.07)' : 'transparent') + ';box-shadow:' + (on ? '0 0 0 2px rgba(' + col + ',.95)' : target ? '0 0 0 1.5px rgba(0,0,0,.55)' : 'none') + ';' + (target && !on ? 'animation:hintPulse 1.6s ease-in-out infinite;' : '') + 'transition:box-shadow .12s,background .12s',
+        cap: 'position:absolute;left:' + L + '%;width:' + W + '%;top:0;display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center',
+        tag: 'position:absolute;left:' + L + '%;width:' + W + '%;top:1%;display:flex;flex-direction:column;align-items:center;pointer-events:none;z-index:3',
+        fn: p.fn, hintOn: !!target, hint: guide ? guide.pill : (st ? ACTX[st.act] : ''),
+        enter: () => this.touchOn(z), leave: () => this.touchOff(z),
+        down: (e) => this.down(z, e), move: (e) => this.move(z, e), up: (e) => this.up(z, e),
+        click: () => this.click(z), key: (e) => this.key(z, e), wheel: (e) => this.wheelFallback(e)
+      };
+    });
+    const seamTarget = st && st.zone === 'seam' && !g.stepDone;
+    const seams = [[30.2, 2.0], [68.8, 2.2]].map((s, i) => ({
+      style: 'position:absolute;left:' + s[0] + '%;width:' + s[1] + '%;top:31%;height:42%;cursor:not-allowed;border-radius:4px;background:' + (seam ? 'rgba(215,25,33,.25)' : seamTarget && i === 0 ? 'rgba(0,0,0,.18)' : 'transparent') + ';box-shadow:' + (seam ? '0 0 0 2px #D71921' : 'none') + ';transition:background .12s',
+      enter: () => this.seamOn(), leave: () => this.seamOff(), wheel: (e) => this.wheelFallback(e)
+    }));
+
+    // mission vm
+    const total = STEPS.length - off, finished = g.step >= STEPS.length;
+    const diagOn = (z) => (st && effZone === z) ? '#111' : 'rgba(0,0,0,.18)';
+    const m = finished ? {
+      counter: 'COMPLETE', num: 'OK', title: 'Sequence complete',
+      body: 'Sequence complete.', points: FINAL_POINTS.map((t, i) => ({ n: String.fromCharCode(97 + i) + '.', text: t })),
+      feel: 'Try the fast flick on the song list, then the slow climb on volume.',
+      zone: 'Any segment', action: 'FREE PLAY', stepDone: false, warn: false, warnText: '', running: false, finished: true, noBack: false,
+      diag: [{ style: 'width:10px;height:14px;border-radius:2px;background:#111' }, { style: 'width:10px;height:14px;border-radius:2px;background:#111' }, { style: 'width:10px;height:14px;border-radius:2px;background:#111' }]
+    } : {
+      counter: 'STEP ' + (g.step + 1 - off) + ' / ' + total, num: String(g.step + 1 - off).padStart(2, '0'), title: st.title, body: st.body, points: (POINTS[st.title] || [st.body]).map((t, i) => ({ n: String.fromCharCode(97 + i) + '.', text: mcp(t) })), feel: mcp(st.feel),
+      zone: ZLABEL[effZone], action: guide ? guide.chip : ACTX[st.act], stepDone: g.stepDone,
+      warn: !!guide, warnText: guide ? mcp(guide.text) : '',
+      running: true, finished: false, noBack: g.step <= off,
+      diag: ZONES.map((z) => ({ style: 'width:' + (z === 'center' ? 18 : 10) + 'px;height:14px;border-radius:2px;background:' + diagOn(z) }))
+    };
+    const diagFor = (sx) => ZONES.map((z) => ({ style: 'width:' + (z === 'center' ? 18 : 10) + 'px;height:14px;border-radius:2px;background:' + ((sx.zone === z || (sx.zone === 'seam' && (z === 'left' || z === 'center'))) ? (sx.zone === 'seam' ? 'rgba(0,0,0,.45)' : '#111') : 'rgba(0,0,0,.18)') }));
+    const cards = STEPS.map((sx, i) => {
+      if (i < off) return null;
+      const done = i < g.step, active = i === g.step && !finished;
+      return {
+        active: active, cur: active ? 'step' : 'false',
+        style: 'border-radius:20px;padding:' + (active ? '16px 16px 18px' : '12px 16px') + ';flex:none;transition:background .2s,border-color .2s;' + (active ? 'background:#fff;border:1.5px solid #111;box-shadow:0 8px 24px rgba(0,0,0,.1)' : done ? 'background:rgba(255,255,255,.35);border:1px solid rgba(0,0,0,.08)' : 'background:rgba(255,255,255,.7);border:1px solid rgba(0,0,0,.1)'),
+        numStyle: 'flex:none;font-family:Doto,\'IBM Plex Mono\',ui-monospace,monospace;font-weight:900;letter-spacing:.02em;line-height:1;' + (active ? 'font-size:34px;color:#111' : done ? 'font-size:22px;color:#6B6B6B' : 'font-size:22px;color:#444'),
+        num: String(i + 1 - off).padStart(2, '0'),
+        title: sx.title,
+        titleStyle: active ? 'font-size:18px;font-weight:600;letter-spacing:-.01em;line-height:1.2;color:#111' : done ? 'font-size:14px;font-weight:500;color:#6B6B6B' : 'font-size:14px;font-weight:500;color:#333',
+        state: active ? 'NOW' : done ? 'DONE' : '',
+        stateStyle: active ? 'color:#D71921' : 'color:#6B6B6B',
+        points: (POINTS[sx.title] || [sx.body]).map((t, k) => ({ n: String.fromCharCode(97 + k) + '.', text: mcp(t) })),
+        feel: mcp(sx.feel), zone: ZLABEL[active && guide ? guide.zone : sx.zone], action: active && guide ? guide.chip : ACTX[sx.act], diag: diagFor(active && guide ? { zone: guide.zone } : sx),
+        stepDone: active && g.stepDone,
+        warn: active && !!guide,
+        warnText: active && guide ? mcp(guide.text) : '',
+        ref: (el) => this.cardRef(el, active, i)
+      };
+    });
+    for (let q = cards.length - 1; q >= 0; q--) if (!cards[q]) cards.splice(q, 1);
+    if (finished) cards.push({
+      active: true, cur: 'step',
+      style: 'border-radius:20px;padding:16px 16px 18px;flex:none;background:#fff;border:1.5px solid #111;box-shadow:0 8px 24px rgba(0,0,0,.1)',
+      numStyle: 'flex:none;font-family:Doto,\'IBM Plex Mono\',ui-monospace,monospace;font-weight:900;font-size:34px;line-height:1;color:#111', num: 'OK',
+      title: 'Sequence complete', titleStyle: 'font-size:18px;font-weight:600;line-height:1.2;color:#111', state: 'FREE PLAY', stateStyle: 'color:#D71921',
+      points: FINAL_POINTS.map((t, k) => ({ n: String.fromCharCode(97 + k) + '.', text: t })), feel: 'Try the fast flick on the song list, then the slow climb on volume.',
+      zone: 'Any segment', action: 'FREE PLAY', diag: diagFor({ zone: 'x' }).map(() => ({ style: 'width:10px;height:14px;border-radius:2px;background:#111' })), stepDone: false, warn: false, warnText: '',
+      ref: (el) => this.cardRef(el, true, STEPS.length)
+    });
+    const anyOn = !!(touch || seam);
+    const barrierAny = anyOn && (now < g.lockUntil || g.inBarrier);
+    const fpct = anyOn ? Math.min(100, Math.max(0, ratio * 100)) : 0;
+    const force = {
+      bar: 'position:absolute;left:0;top:0;bottom:0;width:' + fpct.toFixed(1) + '%;border-radius:3px;background:' + (barrierAny ? '#D71921' : '#111'),
+      text: !anyOn ? 'IDLE' : barrierAny ? 'BARRIER' : Math.round(fpct) + '%',
+      textStyle: 'min-width:52px;color:' + (barrierAny ? '#D71921' : '#555')
+    };
+    const pips = STEPS.slice(off).map((s, ii) => { const i = ii + off; return ({ style: 'flex:1 1 0;min-width:0;height:6px;border-radius:2px;background:' + (i < g.step ? '#111' : i === g.step && !finished ? '#D71921' : 'rgba(0,0,0,.16)') }); });
+
+    // haptic vm
+    const hz = seam ? 'seam' : touch;
+    let h;
+    if (!hz) {
+      h = { status: 'MRF OFF · IDLE', chip: 'background:rgba(120,170,200,.14);color:#B7CBD8', name: 'Damper unpowered', fn: 'No touch', pos: '—', level: 0, effort: 'Rest the pointer on a segment to power the damper.' };
+    } else {
+      const p = profileFor(g, hz), locked = now < g.lockUntil;
+      const dirNeed = [stepFor(p, 1), stepFor(p, -1)].filter((v) => isFinite(v));
+      const stepV = dirNeed.length ? Math.min.apply(null, dirNeed) : Infinity;
+      const atStop = !isFinite(stepFor(p, g.acc >= 0 ? 1 : -1)) && !p.locked;
+      const bar = locked || p.locked || (g.inBarrier && atStop);
+      h = {
+        status: locked ? 'BARRIER · PUSH LOCK' : p.locked ? 'BARRIER · LOCKED' : bar ? 'BARRIER · END STOP' : p.kind === 'rise' ? 'MRF ON · RISING FORCE' : 'MRF ON · RIPPLE',
+        chip: bar ? 'background:rgba(240,107,174,.2);color:#FFB3D6' : 'background:rgba(111,227,238,.16);color:#8CF0F8',
+        name: p.name, fn: p.fn.toUpperCase(), pos: p.n > 1 ? (p.i + 1) + ' / ' + p.n : 'n/a', level: p.locked ? 5 : lvl(stepV),
+        effort: p.locked ? 'Nothing moves here by design.' : (isFinite(stepV) ? 'About ' + (stepV * g.feel / 100).toFixed(1) + ' mouse-wheel notches per detent here. Ends of the list are barriers.' : 'Barrier in both directions.')
+      };
+    }
+    const levels = [1, 2, 3, 4, 5].map((n) => ({ style: 'width:16px;height:' + (6 + n * 4) + 'px;border-radius:2px;background:' + (n <= h.level ? (h.level >= 5 ? '#F06BAE' : '#6FE3EE') : 'rgba(150,190,215,.22)') }));
+    const tr = g.trace;
+    let path = '';
+    if (tr.length > 1) {
+      const pts = tr.map((v, i) => (i / (TN - 1) * 300).toFixed(1) + ' ' + (80 - v * 73).toFixed(1));
+      path = 'M' + pts.join(' L');
+    }
+    const logLines = [0, 1, 2, 3].map((i) => ({ text: g.log[i] ? g.log[i].text : (i === 0 && !g.log.length ? 'Waiting for input…' : ' '), style: 'opacity:' + (1 - i * 0.22) + ';color:' + (i === 0 ? '#DCE9F1' : '#9DB4C4') }));
+
+    const FNT = "font-family:-apple-system,'SF Pro Display','Helvetica Neue',Lato,system-ui,sans-serif";
+    const open = mob && this.sheet;
+    const v = mob ? {
+      mob: true, desk: false, touch: true, legend: false, flag: '1', scrim: open,
+      main: 'position:relative;width:min(100%,392px);height:clamp(700px,calc(100dvh - 130px),860px);display:flex;flex-direction:column;overflow:hidden;border:8px solid #1b1f26;border-radius:56px;background:#030B1B;box-shadow:0 40px 90px rgba(0,0,0,.6),0 0 0 1px rgba(150,190,215,.18)',
+      left: 'display:flex;flex-direction:column;flex:1 1 auto;min-height:0;min-width:0',
+      dispSec: 'position:relative;flex:none;width:100%;aspect-ratio:1000/740;overflow:hidden;background:#030B1B',
+      dispRoot: 'width:120%;margin-left:-10%;margin-top:-73.2%;border-radius:0;border:0;box-shadow:none',
+      wheel: 'flex:none;background:#F3F3F1;color:#111;padding:6px 16px 12px;display:flex;flex-direction:column;gap:8px;border-top:1px solid rgba(0,0,0,.1);' + FNT,
+      hdrCol: 'display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:10px;width:100%;min-width:0',
+      feelBox: 'display:none',
+      aside: 'position:absolute;left:0;right:0;bottom:0;height:82%;z-index:55;background:#F3F3F1;color:#111;border-radius:28px 28px 0 0;padding:10px 18px 84px;display:flex;flex-direction:column;gap:12px;box-shadow:0 -20px 50px rgba(0,0,0,.45);transform:translateY(' + (open ? '0' : '102%') + ');visibility:' + (open ? 'visible' : 'hidden') + ';transition:transform .3s cubic-bezier(.2,.8,.2,1),visibility 0s linear ' + (open ? '0s' : '.3s') + ';' + FNT
+    } : {
+      mob: false, desk: true, touch: touchy, legend: false, flag: '0', scrim: false,
+      main: 'width:min(100%,920px);display:grid;grid-template-columns:minmax(0,1.5fr) minmax(290px,1fr);gap:14px;align-items:stretch',
+      left: 'display:flex;flex-direction:column;gap:14px;min-width:0',
+      dispSec: 'width:100%', dispRoot: '',
+      wheel: 'background:#F3F3F1;color:#111;border-radius:30px;padding:20px 22px 20px;display:flex;flex-direction:column;gap:14px;box-shadow:0 1px 0 rgba(255,255,255,.7) inset,0 30px 70px rgba(0,0,0,.5);' + FNT,
+      hdrCol: 'display:flex;flex-direction:column;gap:8px;min-width:0',
+      feelBox: 'display:flex;align-self:stretch;flex:0 1 270px;padding:3px;border-radius:999px;background:rgba(0,0,0,.07)',
+      aside: 'background:#F3F3F1;color:#111;border-radius:30px;padding:22px;display:flex;flex-direction:column;gap:18px;box-shadow:0 1px 0 rgba(255,255,255,.7) inset,0 30px 70px rgba(0,0,0,.5);' + FNT
+    };
+    const views = [['desktop', 'Desktop'], ['mobile', 'Mobile']].map((w) => ({ label: w[1], on: this.view === w[0], pick: () => { this.view = w[0]; this.sheet = false; this.commit(); } }));
+    const feels = [['Gentle', 0.6], ['Standard', 1], ['Firm', 1.5]].map((f) => ({ label: f[0], on: g.feel === f[1], pick: () => { g.feel = f[1]; g.acc = 0; this.commit(); } }));
+
+    return {
+      stageRef: this.stageRef,
+      tapL: '‹ TAP FOR ' + TAB_LABEL[lm].toUpperCase(), tapR: 'TAP FOR ' + TAB_LABEL[rm].toUpperCase() + ' ›',
+      v: v, views: views, activeCards: cards.filter((c) => c.active).slice(0, 1).map((c) => Object.assign({}, c, { ref: () => {} })), ofLabel: finished ? 'COMPLETE' : (g.step + 1 - off) + ' OF ' + total, sheetOpen: open,
+      toggleSheet: () => { this.sheet = !this.sheet; if (this.sheet && this.listEl) this.listEl.__sc = -1; this.redraw(); }, ptsOpen: this.ptsOpen, accFlag: this.ptsOpen ? '1' : '0', soundMuted: !g.sound,
+      chevStyle: 'transition:transform .2s;transform:rotate(' + (this.ptsOpen ? '180' : '0') + 'deg)',
+      togglePts: () => { this.ptsOpen = !this.ptsOpen; this.redraw(); },
+      noCtx: (e) => { if (e && e.preventDefault) e.preventDefault(); },
+      openSheet: () => { this.sheet = true; if (this.listEl) this.listEl.__sc = -1; this.redraw(); },
+      closeSheet: () => { this.sheet = false; this.redraw(); },
+      showHaptic: false,
+      soundOn: g.sound, soundLabel: g.sound ? 'on' : 'off',
+      toggleSound: () => {
+        g.sound = !g.sound;
+        if (g.sound && !this.audio) { try { const AC = window.AudioContext || window.webkitAudioContext; this.audio = new AC(); } catch (e) { this.audio = null; } }
+        if (g.sound && this.audio && this.audio.state === 'suspended') { try { this.audio.resume(); } catch (e) {} }
+        this.redraw();
+      },
+      resetAll: () => this.reset(),
+      stepBack: () => this.goStep(Math.max(off, g.step - 1)),
+      stepSkip: () => this.goStep(g.step + 1),
+
+      dots: this.dotsCache || (this.dotsCache = makeDots()),
+      isFav: isFav, isMusic: isMusicM, isComfort: isComfort, modeLabel: TAB_LABEL[g.mode],
+      leftIsMusic: lm === 'music', leftIsFav: lm === 'fav', leftIsComfort: lm === 'comfort', leftTabLabel: TAB_LABEL[lm],
+      rightIsMusic: rm === 'music', rightIsFav: rm === 'fav', rightIsComfort: rm === 'comfort', rightTabLabel: TAB_LABEL[rm],
+      tabStyleL: 'color:' + (tOn('left') ? '#fff' : 'rgba(255,255,255,.55)') + ';' + flashAnim('left'),
+      tabStyleR: 'color:' + (tOn('right') ? '#fff' : 'rgba(255,255,255,.55)') + ';' + flashAnim('right'),
+      hdrL: hdrL, hdrR: hdrR,
+      hdrStyleL: 'color:' + (tOn('left') ? '#fff' : 'rgba(255,255,255,.5)'),
+      hdrStyleR: 'color:' + (tOn('right') ? '#fff' : 'rgba(255,255,255,.5)'),
+      paneL: tOn('left') ? paneOn : paneOff, glowL: tOn('left') ? glowOn : glowOff,
+      paneR: tOn('right') ? paneOn : paneOff, glowR: tOn('right') ? glowOn : glowOff,
+      paneC: tOn('center') ? paneOn : paneOff, glowC: tOn('center') ? glowOn : glowOff,
+      bandFlash: flashAnim('center'),
+      kickL: kickAnim('left'), kickR: kickAnim('right'), kickC: kickAnim('center'),
+      rowsC: rowsC, itemsL: this.listItems(g, 'L'), itemsR: this.listItems(g, 'R'),
+
+      m: m, total: total, pips: pips, force: force, cards: cards, listRef: this.listRef, zones: zones, seams: seams,
+      h: Object.assign({}, h, { levels: levels, trace: path, log: logLines }),
+      feels: feels
+    };
+  }
+}
+</script>
+</body>
+</html>
