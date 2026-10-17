@@ -265,7 +265,7 @@
           },
           {
             "label": "The guided steps",
-            "body": "A guided sequence of 16 steps walks through all screens and all three tabs. On touch screens it has 15 steps, because the first step (touching without pushing) cannot be done there with a tap. Each step has a title that states the result, for example "Driver temp 16° → 20°C". It lists what to do and what the wheel should feel like. If you are on the wrong screen for a step, the card shows the move that gets you there instead of an error.\n\nOn desktop, a Gentle, Standard and Firm setting changes how far you must drag for each notch."
+            "body": "A guided sequence of 16 steps walks through all screens and all three tabs. On touch screens it has 15 steps, because the first step (touching without pushing) cannot be done there with a tap. Each step has a title that states the result, for example \"Driver temp 16° → 20°C\". It lists what to do and what the wheel should feel like. If you are on the wrong screen for a step, the card shows the move that gets you there instead of an error.\n\nOn desktop, a Gentle, Standard and Firm setting changes how far you must drag for each notch."
           },
           {
             "label": "Phone and touch screens",
@@ -277,7 +277,7 @@
           },
           {
             "label": "Decisions in the recreation",
-            "body": "Turning with a mouse is "hold and drag". Turning on a touch screen is "touch and drag". Click or tap is "push". The words "scroll" and "roll" are not used.\n\nStep titles state the result, so a viewer can check each step without reading the instructions.\n\nA wrong turn shows the move that leads to the right menu, not an error message.\n\nOn a touch screen, a tap is a push, so a tap cannot wake a segment without pushing it. The recreation skips the wake step there, and a long press wakes a segment.\n\nOn small screens the step details start collapsed and open on tap, to save vertical space."
+            "body": "Turning with a mouse is \"hold and drag\". Turning on a touch screen is \"touch and drag\". Click or tap is \"push\". The words \"scroll\" and \"roll\" are not used.\n\nStep titles state the result, so a viewer can check each step without reading the instructions.\n\nA wrong turn shows the move that leads to the right menu, not an error message.\n\nOn a touch screen, a tap is a push, so a tap cannot wake a segment without pushing it. The recreation skips the wake step there, and a long press wakes a segment.\n\nOn small screens the step details start collapsed and open on tap, to save vertical space."
           }
         ]
       }
