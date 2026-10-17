@@ -187,6 +187,12 @@ go(0);
     });
   },{rootMargin:'-20% 0px -60% 0px',threshold:0});
   sectionEls.forEach(function(t){if(t)io2.observe(t)});
+  /* last section fix — activate final dot when near bottom of page */
+  window.addEventListener('scroll',function(){
+    var scrollBottom=window.scrollY+window.innerHeight;
+    var pageHeight=document.documentElement.scrollHeight;
+    if(pageHeight-scrollBottom<80) setActive(chapters.length-1);
+  },{passive:true});
   /* rail visibility — show after hero image scrolls away */
   var heroImg=document.querySelector('.hero-image-section');
   var railObserver=new IntersectionObserver(function(entries){
