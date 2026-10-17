@@ -417,9 +417,9 @@
               var pl = el.querySelector('.prose, .plain.prose');
               if (pl) pl.innerHTML = '<p>' + c.body + '</p>';
             }
-            if (Array.isArray(c.items)) {
+            if (Array.isArray(c.list_items)) {
               var ul = el.querySelector('ul.plain, ul.impact, ul');
-              if (ul) ul.innerHTML = c.items.map(function (it) {
+              if (ul) ul.innerHTML = c.list_items.map(function (it) {
                 return '<li>' + esc(it) + '</li>';
               }).join('');
             }
@@ -432,9 +432,9 @@
               var ip = el.querySelector('.prose');
               if (ip) ip.innerHTML = '<p>' + c.body + '</p>';
             }
-            if (Array.isArray(c.items)) {
+            if (Array.isArray(c.list_items)) {
               var impUl = el.querySelector('ul.impact');
-              if (impUl) impUl.innerHTML = c.items.map(function (it) {
+              if (impUl) impUl.innerHTML = c.list_items.map(function (it) {
                 return '<li>' + esc(it) + '</li>';
               }).join('');
             }
@@ -527,10 +527,10 @@
 
           /* ── chapter-list ───────────────────────────────────── */
           case 'chapter-list': {
-            if (Array.isArray(c.items)) {
+            if (Array.isArray(c.chapter_items)) {
               var list = el.querySelector('.list');
               if (list) {
-                list.innerHTML = c.items.map(function (it) {
+                list.innerHTML = c.chapter_items.map(function (it) {
                   return '<a class="li" href="#' + esc(it.target) + '">'
                     + '<span class="n">' + esc(it.number) + '</span>'
                     + '<span class="t">' + esc(it.label) + '</span>'

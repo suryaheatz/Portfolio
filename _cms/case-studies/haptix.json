@@ -65,7 +65,7 @@
       "heading": "What I did",
       "layout": "chapter-list",
       "content": {
-        "items": [
+        "chapter_items": [
           { "number": "01", "label": "Research", "target": "research", "description": "Showroom visits and in-car use of Mercedes-Benz interfaces. A visual research deck of other thermostat and smart-home interfaces." },
           { "number": "02", "label": "Workshops", "target": "workshops", "description": "Workshops to work out the flows and interactions." },
           { "number": "03", "label": "Hardware to UI", "target": "hardware", "description": "I linked each thing the hardware can do to a screen response. This is the interaction model." },
@@ -290,7 +290,7 @@
       "layout": "impact-list",
       "content": {
         "body": "These statements are placeholders, written from what I did. Each one needs your correction before this page goes live.",
-        "items": [
+        "list_items": [
           "The screens and the Figma prototype showed how each wheel action changes the screen before the software existed.",
           "The developers built the demonstrator software from my handoffs, and the software was integrated on 16 April 2020.",
           "The demonstrator was shown at the customer meeting on 27 April 2020."
@@ -304,7 +304,7 @@
       "heading": "Limits and next steps",
       "layout": "prose-list",
       "content": {
-        "items": [
+        "list_items": [
           "The recreation covers the screens that were designed in 2020. Sound and Source are not designed, so their rows are locked.",
           "The value ranges in the recreation (14 to 28 °C, volume 0 to 30, 12 songs, 9 list items) and the Titles, Playlists and Recently Played lists are extended from the patterns in the screens.",
           "A browser cannot reproduce the feel of the wheel. The force gauge stands in for it.",

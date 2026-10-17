@@ -289,7 +289,7 @@ collections:
 
               # prose-list / impact-list
               - label: List Items
-                name: items
+                name: list_items
                 widget: list
                 required: false
                 hint: "Bulleted / plain list items"
@@ -507,7 +507,7 @@ collections:
 
               # chapter-list
               - label: Chapter List Items
-                name: items
+                name: chapter_items
                 widget: list
                 required: false
                 hint: "Process overview list (numbered links to sections)"
