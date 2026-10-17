@@ -71,7 +71,7 @@ collections:
     create: true
     extension: json
     format: json
-    slug: "{{slug}}"
+    slug: "{{fields.slug}}"
     identifier_field: title
     summary: "{{title}}"
     fields:
