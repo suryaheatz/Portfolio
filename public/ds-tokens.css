@@ -1,0 +1,101 @@
+/*
+ * SK DESIGN SYSTEM — Shared Token File
+ * Single source of truth for all DS tokens.
+ * Both index.html and case-studies/*/index.html link to this file.
+ * Updating tokens here propagates to every page on the next Vercel deploy.
+ *
+ * Usage: <link rel="stylesheet" href="/public/ds-tokens.css">
+ *
+ * LOCAL OVERRIDES: Each page's own <style> block may only override
+ * page-specific values (e.g. section-gap, font scale).
+ * Never redeclare tokens that live here — change them here instead.
+ */
+
+:root {
+  /* ── Colour ── */
+  --bg:        #f5f4f0;
+  --ink:       #111110;
+  --ink-2:     #545450;
+  --ink-3:     #9a9a94;
+  --rule:      #dddad0;
+  --teal:      #E8490F;
+  --teal-dim:  rgba(232,73,15,0.08);
+  --surface:   #eeece7;
+  --sun:       #E8490F;
+  --sun-light: rgba(232,73,15,0.12);
+  --sun-muted: rgba(232,73,15,0.06);
+
+  /* ── Dark-context tokens ── */
+  --ink-dark:  #1a1917;   /* dark card / scope background */
+  --ink-dark-2:#1e1c1a;   /* darker variant — hero image bg */
+  --ink-void:  #0e0e0d;   /* deepest near-black — proto embed bg */
+  --rule-dark: #3a3a36;   /* rule colour on dark surfaces */
+  --proto-bg:  #030B1B;   /* Haptix / HMI prototype embed bg */
+
+  /* ── Layout ── */
+  --page-w:      1080px;
+  --col-pad:     48px;
+  --col-pad-m:   24px;
+  --section-gap:   80px;
+  --section-gap-m: 48px;
+
+  /* ── Border radius ── */
+  --r-sm:  6px;
+  --r-md:  12px;
+  --r-lg:  20px;
+
+  /* ── Bento Grid ── */
+  --r-bento:   24px;   /* cell border-radius — gap = ⅔ × radius */
+  --bento-gap: 16px;   /* grid gap (single value = row + col) */
+  --bento-row: 200px;  /* base row height unit */
+
+  /* ── Typography ── */
+  --font-serif: 'DM Serif Display', serif;
+  --font-sans:  'DM Sans', system-ui, sans-serif;
+
+  --text-label:    11px;
+  --text-caption:  12px;
+  --text-body-sm:  13px;
+  --text-body:     16px;
+  --text-serif-sm: clamp(22px, 2.8vw, 32px);
+  --text-serif-md: clamp(26px, 3.2vw, 38px);
+  --text-serif-lg: clamp(52px, 7.5vw, 96px);
+
+  /* ── Spacing scale (4px base) ── */
+  --sp-1:   4px;
+  --sp-2:   8px;
+  --sp-3:  12px;
+  --sp-4:  16px;
+  --sp-5:  20px;
+  --sp-6:  24px;
+  --sp-8:  32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+  --sp-16: 64px;
+  --sp-20: 80px;
+  --sp-24: 96px;
+  --sp-26: 104px;
+
+  /* ── Motion — duration scale ── */
+  --dur-instant: 120ms;
+  --dur-fast:    220ms;
+  --dur-mid:     380ms;
+  --dur-slow:    580ms;
+
+  /* ── Motion — easing tokens ── */
+  --ease-reveal:    cubic-bezier(0.39,0.575,0.565,1);
+  --ease-enter:     cubic-bezier(0.19,1,0.22,1);
+  --ease-leave:     cubic-bezier(0.95,0.05,0.795,0.035);
+  --ease-lift:      cubic-bezier(0.34,1.1,0.64,1);
+  --ease-snap:      cubic-bezier(0.37,0,0.63,1);
+  --ease-path:      cubic-bezier(0.16,1,0.3,1);
+  --ease-out-quart: cubic-bezier(0.165,0.84,0.44,1);
+  --ease-out:       cubic-bezier(0.16,1,0.3,1);
+
+  /* ── Transition durations (component-level) ── */
+  --t-fast: 150ms;
+  --t-mid:  250ms;
+
+  /* ── Component chrome ── */
+  --surface-chrome: #fafaf8;
+}

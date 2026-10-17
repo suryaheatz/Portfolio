@@ -8,6 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&display=swap" rel="stylesheet">
+  <!-- SK Design System — shared tokens (single source of truth) -->
+  <link rel="stylesheet" href="/public/ds-tokens.css">
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
@@ -100,6 +102,12 @@
 
       /* ── Component chrome ── */
       --surface-chrome: #fafaf8;  /* proto embed header/footer — lightest surface, above --surface */
+
+      /* ── Dark-context tokens ── */
+      --ink-dark:  #1a1917;   /* dark card / scope background */
+      --ink-dark-2:#1e1c1a;   /* darker variant — hero image bg */
+      --ink-void:  #0e0e0d;   /* deepest near-black — proto embed bg */
+      --rule-dark: #3a3a36;   /* rule colour on dark surfaces */
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -235,7 +243,7 @@
     }
 
     .hero-image-section {
-      background: #1e1c1a;
+      background: var(--ink-dark-2);
       width: 100vw;
       position: relative;
       left: 50%;
@@ -265,7 +273,7 @@
 
     /* Scope: full-page dark card, covers brief */
     .st-scope {
-      background: #1a1917;  /* intentional hardcode — dark card */
+      background: var(--ink-dark);
       border-radius: var(--r-lg) var(--r-lg) 0 0;
     }
 
@@ -282,20 +290,20 @@
 
     /* Dark scope overrides */
     .st-scope .scope-strip {
-      border-top-color: #3a3a36;
-      border-bottom-color: #3a3a36;
+      border-top-color: var(--rule-dark);
+      border-bottom-color: var(--rule-dark);
     }
     .st-scope .scope-item + .scope-item {
-      border-left-color: #3a3a36;
+      border-left-color: var(--rule-dark);
     }
     .st-scope .scope-key {
-      color: #9a9a94;
+      color: var(--ink-3);
     }
     .st-scope .scope-val {
-      color: #f5f4f0;
+      color: var(--bg);
     }
     .st-scope .rule {
-      border-top-color: #3a3a36;
+      border-top-color: var(--rule-dark);
     }
     #hero-img { width: 100%; display: block; }
     .hero-image-caption {
@@ -450,7 +458,7 @@
       position: absolute;
       bottom: 0; left: 0; right: 0;
       background: var(--bg);
-      border-radius: 20px 20px 0 0;
+      border-radius: var(--r-lg) var(--r-lg) 0 0;
       padding: 24px 24px 40px;
       transform: translateY(100%);
       transition: transform 0.4s var(--ease-out);
@@ -663,7 +671,7 @@
       width: 100%;
       /* 16:10 — matches HMI prototype native ratio */
       padding-bottom: 62.5%;
-      background: #0e0e0d;
+      background: var(--ink-void);
       overflow: hidden;
     }
     .proto-thumb-viewport .proto-iframe {
@@ -712,7 +720,7 @@
       z-index: 400;
       display: none;
       flex-direction: column;
-      background: #0e0e0d;
+      background: var(--ink-void);
     }
     .proto-overlay.is-open { display: flex; }
     .proto-overlay-viewport {
