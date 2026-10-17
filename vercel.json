@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "buildCommand": null,
   "outputDirectory": ".",
   "rewrites": [
     { "source": "/admin", "destination": "/admin/index.html" }
