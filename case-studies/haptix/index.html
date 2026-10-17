@@ -246,6 +246,433 @@
 <script src="js/vendor/gsap.min.js"></script>
 <script src="js/vendor/ScrollTrigger.min.js"></script>
 <script src="js/vendor/anime.iife.min.js"></script>
+<!-- CMS bridge: fetch /_cms/case-studies/haptix.json and hydrate the page -->
+<script>
+(function () {
+  'use strict';
+
+  /* ── helpers ──────────────────────────────────────────────────── */
+  function setText(sel, val) {
+    var el = document.querySelector(sel);
+    if (el && val !== undefined && val !== null) el.textContent = val;
+  }
+  function setAttr(sel, attr, val) {
+    var el = document.querySelector(sel);
+    if (el && val) el.setAttribute(attr, val);
+  }
+  function setHTML(sel, val) {
+    var el = document.querySelector(sel);
+    if (el && val !== undefined && val !== null) el.innerHTML = val;
+  }
+
+  /* Render a flat string list as chip spans */
+  function renderChips(container, chips, cls) {
+    if (!container || !Array.isArray(chips)) return;
+    container.innerHTML = chips.map(function (c) {
+      var label = typeof c === 'string' ? c : c.label;
+      var accent = c && c.accent ? ' accent' : '';
+      return '<span class="chip ' + (cls || 'm') + accent + '">' + esc(label) + '</span>';
+    }).join('');
+  }
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  /* ── main hydration ───────────────────────────────────────────── */
+  function hydrate(d) {
+
+    /* ── <title> and meta ───────────────────────────────────────── */
+    if (d.title) document.title = d.title + ' · Surya Konijeti';
+
+    /* ── hero ───────────────────────────────────────────────────── */
+    var hero = d.hero || {};
+
+    /* Meta tags row */
+    if (Array.isArray(hero.meta_tags)) {
+      var metaRow = document.querySelector('.hero-scroll-meta');
+      if (metaRow) {
+        metaRow.innerHTML = hero.meta_tags.map(function (t, i) {
+          return (i ? '<span class="hero-dot"></span>' : '') +
+            '<span class="hero-tag">' + esc(t) + '</span>';
+        }).join('');
+      }
+    }
+
+    setText('.hero-scroll-text', hero.title);
+    setText('.hero-subtitle', hero.subtitle);
+
+    /* Hero image */
+    if (hero.image) {
+      setAttr('#hero-img', 'src', '/' + hero.image);
+      if (hero.image_alt) setAttr('#hero-img', 'alt', hero.image_alt);
+    }
+
+    /* Logo slots */
+    if (Array.isArray(hero.logos)) {
+      var logoRow = document.querySelector('.hero-section .logos');
+      if (logoRow) {
+        logoRow.innerHTML = hero.logos.map(function (l) {
+          return '<span class="logo-slot" data-ph>' + esc(l) + '</span>';
+        }).join('');
+      }
+    }
+
+    /* Hero chips */
+    if (Array.isArray(hero.chips)) {
+      renderChips(document.querySelector('.hero-section .chips'), hero.chips, '');
+    }
+
+    /* ── brief ──────────────────────────────────────────────────── */
+    var brief = d.brief || {};
+    if (Array.isArray(brief.paragraphs)) {
+      var briefCentre = document.querySelector('.brief-centre');
+      if (briefCentre) {
+        briefCentre.innerHTML = brief.paragraphs.map(function (p) {
+          return '<p>' + esc(p) + '</p>';
+        }).join('');
+      }
+    }
+
+    /* ── scope ──────────────────────────────────────────────────── */
+    var scope = d.scope || {};
+    var scopeMap = { where: 0, when: 1, role: 2, deliverables: 3 };
+    var scopeVals = document.querySelectorAll('.scope-box .v');
+    ['where', 'when', 'role', 'deliverables'].forEach(function (k, i) {
+      if (scope[k] && scopeVals[i]) scopeVals[i].textContent = scope[k];
+    });
+    if (Array.isArray(scope.chips)) {
+      renderChips(document.querySelector('.st-scope .chips'), scope.chips, 'm');
+    }
+
+    /* ── prototype section ──────────────────────────────────────── */
+    var proto = d.prototype || {};
+    var protoSection = document.getElementById('prototype');
+    if (protoSection) {
+      if (proto.enabled === false) {
+        protoSection.hidden = true;
+      } else {
+        if (proto.eyebrow) setText('#prototype .eyebrow', proto.eyebrow);
+        if (proto.heading) setText('#prototype .h-sec', proto.heading);
+        if (proto.body)    setText('#prototype .prose p:first-child', proto.body);
+        if (proto.src)     setAttr('#pframe', 'data-src', proto.src);
+        if (Array.isArray(proto.versions)) {
+          var pills = document.querySelectorAll('.pcard-f .pill');
+          proto.versions.forEach(function (v, i) {
+            if (pills[i]) pills[i].textContent = v;
+          });
+        }
+      }
+    }
+
+    /* ── body sections ──────────────────────────────────────────── */
+    if (Array.isArray(d.sections)) {
+      d.sections.forEach(function (sec) {
+        var el = document.getElementById(sec.id);
+        if (!el) return;
+
+        /* If disabled, hide the section and its preceding burst divider */
+        if (sec.enabled === false) {
+          el.hidden = true;
+          /* Hide the .burst immediately before this section too */
+          var prev = el.previousElementSibling;
+          if (prev && prev.classList.contains('burst')) prev.hidden = true;
+          return;
+        }
+
+        /* eyebrow + heading */
+        if (sec.eyebrow) {
+          var eb = el.querySelector('.eyebrow, .label.eyebrow');
+          if (eb) eb.textContent = sec.eyebrow;
+        }
+        if (sec.heading) {
+          var hd = el.querySelector('.h-sec');
+          if (hd) hd.textContent = sec.heading;
+        }
+
+        /* layout-specific content */
+        var c = sec.content || {};
+
+        switch (sec.layout) {
+          /* ── prose ──────────────────────────────────────────── */
+          case 'prose': {
+            if (c.body) {
+              var prose = el.querySelector('.prose');
+              if (prose) prose.innerHTML = '<p>' + c.body.replace(/\n\n/g, '</p><p>') + '</p>';
+            }
+            break;
+          }
+
+          /* ── prose-list ─────────────────────────────────────── */
+          case 'prose-list': {
+            if (c.body) {
+              var pl = el.querySelector('.prose, .plain.prose');
+              if (pl) pl.innerHTML = '<p>' + c.body + '</p>';
+            }
+            if (Array.isArray(c.items)) {
+              var ul = el.querySelector('ul.plain, ul.impact, ul');
+              if (ul) ul.innerHTML = c.items.map(function (it) {
+                return '<li>' + esc(it) + '</li>';
+              }).join('');
+            }
+            break;
+          }
+
+          /* ── impact-list ────────────────────────────────────── */
+          case 'impact-list': {
+            if (c.body) {
+              var ip = el.querySelector('.prose');
+              if (ip) ip.innerHTML = '<p>' + c.body + '</p>';
+            }
+            if (Array.isArray(c.items)) {
+              var impUl = el.querySelector('ul.impact');
+              if (impUl) impUl.innerHTML = c.items.map(function (it) {
+                return '<li>' + esc(it) + '</li>';
+              }).join('');
+            }
+            break;
+          }
+
+          /* ── prose-gallery ──────────────────────────────────── */
+          case 'prose-gallery': {
+            if (c.body) {
+              var pg = el.querySelector('.prose');
+              if (pg) pg.innerHTML = '<p>' + c.body.replace(/\n\n/g, '</p><p>') + '</p>';
+            }
+            if (Array.isArray(c.images)) {
+              var galCols = c.gallery_columns || 4;
+              var gal = el.querySelector('.gal');
+              if (gal) {
+                /* Rewrite only real images, preserve data-ph placeholders */
+                var realItems = c.images.map(function (img, idx) {
+                  var tag = img.tag ? '<span class="tag">' + esc(img.tag) + '</span>' : '';
+                  return '<button class="gi" data-lightbox data-flip-id="' + esc(img.src.split('/').pop().replace(/\.[^.]+$/, '')) + '" data-src="' + esc(img.src) + '" data-cap="' + esc(img.caption || '') + '" aria-label="Open image ' + (idx + 1) + '">'
+                    + '<img loading="lazy" src="' + esc(img.src) + '" alt="' + esc(img.alt || '') + '">' + tag + '</button>';
+                }).join('');
+                /* keep placeholder divs that already exist for 'add' prompts */
+                var phs = Array.from(gal.querySelectorAll('.gi[data-ph]')).map(function (p) { return p.outerHTML; }).join('');
+                gal.innerHTML = realItems + phs;
+              }
+            }
+            if (c.gallery_caption) setText('#' + sec.id + ' .gal-cap, #' + sec.id + ' .caption.gal-cap', c.gallery_caption);
+            break;
+          }
+
+          /* ── prose-chips ────────────────────────────────────── */
+          case 'prose-chips': {
+            if (c.body) {
+              var pc = el.querySelector('.prose');
+              if (pc) pc.innerHTML = '<p>' + c.body.replace(/\n\n/g, '</p><p>') + '</p>';
+            }
+            if (Array.isArray(c.chips)) {
+              renderChips(el.querySelector('.chips'), c.chips, 'm');
+            }
+            break;
+          }
+
+          /* ── prose-with-aside ───────────────────────────────── */
+          case 'prose-with-aside': {
+            if (c.body) {
+              var pa = el.querySelector('.prose');
+              if (pa) pa.innerHTML = '<p>' + c.body.replace(/\n\n/g, '</p><p>') + '</p>';
+            }
+            if (c.aside_image) {
+              var wimg = el.querySelector('.wdiag img');
+              if (wimg) {
+                wimg.src = '/' + c.aside_image;
+                if (c.aside_image_alt) wimg.alt = c.aside_image_alt;
+              }
+            }
+            if (Array.isArray(c.segments)) {
+              var wseg = el.querySelector('.wseg');
+              if (wseg) {
+                wseg.innerHTML = c.segments.map(function (s) {
+                  return '<div><h3>' + esc(s.label) + '</h3><p>' + esc(s.body) + '</p></div>';
+                }).join('');
+              }
+            }
+            break;
+          }
+
+          /* ── prose-accordion ────────────────────────────────── */
+          case 'prose-accordion': {
+            if (c.body) {
+              var pacProse = el.querySelector('.prose');
+              if (pacProse) pacProse.innerHTML = '<p>' + c.body.replace(/\n\n/g, '</p><p>') + '</p>';
+            }
+            if (Array.isArray(c.accordion)) {
+              var acc = el.querySelector('.acc');
+              if (acc) {
+                acc.innerHTML = c.accordion.map(function (item, i) {
+                  var accId = 'acc' + i;
+                  return '<div class="acc-i"><button class="acc-b" aria-expanded="false" aria-controls="' + accId + '">'
+                    + esc(item.label)
+                    + '<svg viewBox="0 0 14 14"><path d="M2 5l5 5 5-5"/></svg></button>'
+                    + '<div class="acc-p" id="' + accId + '" role="region"><div>'
+                    + '<p>' + esc(item.body || '') + '</p>'
+                    + '</div></div></div>';
+                }).join('');
+              }
+            }
+            break;
+          }
+
+          /* ── chapter-list ───────────────────────────────────── */
+          case 'chapter-list': {
+            if (Array.isArray(c.items)) {
+              var list = el.querySelector('.list');
+              if (list) {
+                list.innerHTML = c.items.map(function (it) {
+                  return '<a class="li" href="#' + esc(it.target) + '">'
+                    + '<span class="n">' + esc(it.number) + '</span>'
+                    + '<span class="t">' + esc(it.label) + '</span>'
+                    + (it.description ? '<span class="d">' + esc(it.description) + '</span>' : '')
+                    + '</a>';
+                }).join('');
+              }
+            }
+            break;
+          }
+
+          /* ── table ──────────────────────────────────────────── */
+          case 'table': {
+            if (c.body) {
+              var tprose = el.querySelector('.prose');
+              if (tprose) tprose.innerHTML = '<p>' + c.body + '</p>';
+            }
+            if (Array.isArray(c.headers) && Array.isArray(c.rows)) {
+              var tbody = el.querySelector('tbody');
+              var thead = el.querySelector('thead tr');
+              if (thead) thead.innerHTML = c.headers.map(function (h) {
+                return '<th>' + esc(h) + '</th>';
+              }).join('');
+              if (tbody) tbody.innerHTML = c.rows.map(function (row) {
+                var cells = Array.isArray(row) ? row : (row.cells || []);
+                return '<tr>' + cells.map(function (cell) {
+                  return '<td>' + esc(cell) + '</td>';
+                }).join('') + '</tr>';
+              }).join('');
+            }
+            if (c.caption) {
+              var tcap = el.querySelector('.caption');
+              if (tcap) tcap.textContent = c.caption;
+            }
+            break;
+          }
+
+          /* ── table-gallery ──────────────────────────────────── */
+          case 'table-gallery': {
+            /* Table part */
+            if (Array.isArray(c.table_headers) && Array.isArray(c.table_rows)) {
+              var tgHead = el.querySelector('thead tr');
+              var tgBody = el.querySelector('tbody');
+              if (tgHead) tgHead.innerHTML = c.table_headers.map(function (h) {
+                return '<th>' + esc(h) + '</th>';
+              }).join('');
+              if (tgBody) tgBody.innerHTML = c.table_rows.map(function (row) {
+                var cells = Array.isArray(row) ? row : (row.cells || []);
+                return '<tr>' + cells.map(function (cell) {
+                  return '<td>' + esc(cell) + '</td>';
+                }).join('') + '</tr>';
+              }).join('');
+            }
+            /* Gallery part */
+            if (Array.isArray(c.images)) {
+              var tgGal = el.querySelector('.gal');
+              if (tgGal) {
+                tgGal.innerHTML = c.images.map(function (img, idx) {
+                  var tag = img.tag ? '<span class="tag">' + esc(img.tag) + '</span>' : '';
+                  return '<button class="gi" data-lightbox data-flip-id="screen-' + String(idx + 1).padStart(2, '0') + '" data-src="' + esc(img.src) + '" data-cap="' + esc(img.caption || '') + '" aria-label="Open screen ' + (idx + 1) + '">'
+                    + '<img loading="lazy" src="' + esc(img.src) + '" alt="' + esc(img.alt || '') + '">' + tag + '</button>';
+                }).join('');
+              }
+            }
+            if (c.body) {
+              var tgProse = el.querySelector('.prose');
+              if (tgProse) tgProse.innerHTML = '<p>' + c.body + '</p>';
+            }
+            if (c.gallery_caption) {
+              var tgCap = el.querySelector('.caption.gal-cap, .gal-cap');
+              if (tgCap) tgCap.textContent = c.gallery_caption;
+            }
+            break;
+          }
+
+          /* ── key-dates-tabs ─────────────────────────────────── */
+          case 'key-dates-tabs': {
+            if (c.body) {
+              var kdProse = el.querySelector('.prose');
+              if (kdProse) kdProse.innerHTML = '<p>' + c.body + '</p>';
+            }
+            if (c.key_dates_label) {
+              var kdLabel = el.querySelector('.key-dates').previousElementSibling;
+              if (kdLabel) kdLabel.textContent = c.key_dates_label;
+            }
+            if (Array.isArray(c.key_dates)) {
+              var kdList = el.querySelector('.key-dates');
+              if (kdList) {
+                kdList.innerHTML = c.key_dates.map(function (kd, i) {
+                  return '<div class="key-date-row">'
+                    + '<span class="key-date-num">' + String(i + 1).padStart(2, '0') + '</span>'
+                    + '<span class="key-date-text"><strong>' + esc(kd.label) + '</strong> — ' + esc(kd.event) + '</span>'
+                    + '</div>';
+                }).join('');
+              }
+            }
+            /* Tabs within the section */
+            if (Array.isArray(c.tabs)) {
+              var tabBtns = el.querySelectorAll('.tabs.inline .tab');
+              var tabPanels = el.querySelectorAll('.tabpanel');
+              c.tabs.forEach(function (tab, i) {
+                if (tabBtns[i]) tabBtns[i].textContent = tab.label;
+                if (tabPanels[i]) {
+                  var panelProse = tabPanels[i].querySelector('.prose');
+                  if (panelProse && tab.body) {
+                    panelProse.innerHTML = '<p>' + tab.body.replace(/\n\n/g, '</p><p>') + '</p>';
+                  }
+                  if (tab.image) {
+                    var tabImg = tabPanels[i].querySelector('img');
+                    if (tabImg) {
+                      tabImg.src = '/' + tab.image;
+                      if (tab.image_alt) tabImg.alt = tab.image_alt;
+                    }
+                  }
+                  if (tab.image_caption) {
+                    var tabFig = tabPanels[i].querySelector('figcaption');
+                    if (tabFig) tabFig.textContent = tab.image_caption;
+                  }
+                }
+              });
+            }
+            break;
+          }
+        }
+      });
+    }
+
+    /* ── rebuild chapter rail from enabled sections ─────────────── */
+    /* The rail is populated by main.js, but we expose a custom event
+       so main.js can re-run rail init after hydration completes. */
+    document.dispatchEvent(new CustomEvent('cms:hydrated', { detail: d }));
+  }
+
+  /* ── fetch ────────────────────────────────────────────────────── */
+  fetch('/_cms/case-studies/haptix.json')
+    .then(function (r) {
+      if (!r.ok) throw new Error('CMS fetch: ' + r.status);
+      return r.json();
+    })
+    .then(hydrate)
+    .catch(function (err) {
+      /* Silent fail — the hardcoded HTML content stays visible */
+      if (window.console) console.warn('[CMS bridge]', err.message);
+    });
+})();
+</script>
 <script src="js/main.js"></script>
 </body>
 </html>

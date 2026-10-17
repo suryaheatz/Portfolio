@@ -11,7 +11,7 @@ public_folder: /public/images
 collections:
 
   # ══════════════════════════════════════════════════════════════════
-  # HOMEPAGE (not yet built — schema ready for when it is)
+  # HOMEPAGE
   # Writes to _cms/homepage.json
   # ══════════════════════════════════════════════════════════════════
   - name: homepage
@@ -21,32 +21,18 @@ collections:
         label: Homepage Content
         file: _cms/homepage.json
         fields:
-          # ── Hero ──────────────────────────────────────────────────
           - label: Hero Headline
             name: headline
             widget: string
-            hint: "Main h1 — shown in .hero-scroll-text (DM Serif Display, italic)"
           - label: Hero Subline
             name: subline
             widget: text
-            hint: "Paragraph under the headline — shown in .hero-subtitle"
-          - label: Hero Image (alt)
-            name: heroImageAlt
-            widget: string
-            required: false
-            hint: "Alt text for the hero background image"
-
-          # ── About blurb ───────────────────────────────────────────
           - label: About Blurb
             name: about
             widget: markdown
-            hint: "Short bio text in the brief-centre section"
-
-          # ── Works Grid ────────────────────────────────────────────
           - label: Works Grid
             name: works
             widget: list
-            hint: "Each card in the homepage works / case-study grid"
             fields:
               - label: Title
                 name: title
@@ -54,7 +40,7 @@ collections:
               - label: Slug / URL
                 name: slug
                 widget: string
-                hint: "e.g. zf-centronic or haptix — links to /case-studies/<slug>/"
+                hint: "e.g. haptix — links to /case-studies/<slug>/"
               - label: Year
                 name: year
                 widget: string
@@ -68,338 +54,474 @@ collections:
               - label: Cover Image
                 name: coverImage
                 widget: image
-                hint: "Displayed with object-fit:cover inside the works card"
               - label: Cover Image Alt
                 name: coverImageAlt
                 widget: string
                 required: false
 
   # ══════════════════════════════════════════════════════════════════
-  # ZF CENTRONIC — site-wide config + per-chapter content
-  # Template: Template 01 (pin-over-pin), bento §22, quote 2-up §23,
-  #           slide layout §24
+  # CASE STUDIES — one document per case study, any number of sections
+  # Folder: _cms/case-studies/ — add a new file = new case study
+  # Template variants: narrative | image-only
   # ══════════════════════════════════════════════════════════════════
-  - name: zf-site
-    label: "ZF Centronic — Site Config"
-    files:
-      - name: zf-config
-        label: Site Config
-        file: _cms/site-config.json
-        fields:
-          - label: Case Study Title
-            name: csTitle
-            widget: string
-            hint: "h1 in .hero-scroll-text"
-          - label: Case Study Subtitle
-            name: csSubtitle
-            widget: text
-            hint: "Secondary text in .hero-subtitle"
-
-          # ── Progress rail chapters ─────────────────────────────────
-          - label: Chapters
-            name: chapters
-            widget: list
-            hint: "Drives the progress rail (.cs-rail-dot) and chapter nav"
-            fields:
-              - label: Number
-                name: num
-                widget: string
-                hint: "e.g. 01, 02 — shown in the rail dot tooltip"
-              - label: Anchor ID
-                name: id
-                widget: string
-                hint: "Matches id= on the section element, e.g. cs-context"
-              - label: Title
-                name: title
-                widget: string
-              - label: Description
-                name: desc
-                widget: string
-                hint: "Short phrase shown in bottom-sheet drawer on mobile"
-
-  - name: zf-chapters
-    label: "ZF Centronic — Chapter Content"
-    folder: _cms/zf
-    create: false
+  - name: case-studies
+    label: Case Studies
+    label_singular: Case Study
+    folder: _cms/case-studies
+    create: true
     slug: "{{slug}}"
-    label_singular: Chapter
+    identifier_field: title
+    summary: "{{title}}"
     fields:
-      - label: Chapter ID
-        name: chapterId
-        widget: string
-        hint: "Must match the anchor id in index.html, e.g. cs-context"
-      - label: Chapter Title
+
+      # ── Meta ──────────────────────────────────────────────────────
+      - label: Title
         name: title
         widget: string
+        hint: "Used as the page <title> and in the CMS list"
 
-      # ── Prose body ────────────────────────────────────────────────
-      - label: Body Copy
-        name: body
-        widget: markdown
-        hint: "Main prose in .prose — paragraphs, strong, links"
-        required: false
+      - label: Slug
+        name: slug
+        widget: string
+        hint: "URL-safe identifier, e.g. haptix. Must match the folder name under /case-studies/"
 
-      # ── Bento Grid cells (DS §22 — cs-bento-cell) ─────────────────
-      - label: Bento Images
-        name: bentoCells
-        widget: list
-        required: false
-        hint: "Each item = one .cs-bento-cell. Images are fixed windows (object-fit:cover)."
+      - label: Template
+        name: template
+        widget: select
+        options:
+          - { label: "Narrative (text + mixed content)", value: narrative }
+          - { label: "Image-only (gallery/bento, no prose)", value: image-only }
+        default: narrative
+        hint: "Controls which fields are active. Image-only hides prose fields in the fetch layer."
+
+      # ── Hero ──────────────────────────────────────────────────────
+      - label: Hero
+        name: hero
+        widget: object
         fields:
-          - label: Image
-            name: src
-            widget: image
-          - label: Caption
-            name: caption
+          - label: Title
+            name: title
             widget: string
-            required: false
-            hint: "Shown in .cs-bento-caption on hover"
-          - label: Alt Text
-            name: alt
-            widget: string
-            required: false
-
-      # ── Quote 2-up pairs (DS §23 — pq-pair, pq-quote-text, pq-attr) ──
-      - label: Pull Quote Pairs
-        name: pqPairs
-        widget: list
-        required: false
-        hint: "Each item = one .pq-pair (2 quote cards side by side)"
-        fields:
-          - label: Left Quote
-            name: left
-            widget: object
-            fields:
-              - label: Quote Text
-                name: pqQuoteText
-                widget: text
-                hint: "Italic serif text in .pq-quote-text (clamped to 3 lines)"
-              - label: Attribution
-                name: pqAttr
-                widget: string
-                hint: "Shown in .pq-attr — name, role or source"
-          - label: Right Quote
-            name: right
-            widget: object
-            fields:
-              - label: Quote Text
-                name: pqQuoteText
-                widget: text
-              - label: Attribution
-                name: pqAttr
-                widget: string
-
-      # ── Slide layout blocks (DS §24 — sk-slide, sk-slide-text, sk-slide-image) ──
-      - label: Slide Blocks
-        name: skSlides
-        widget: list
-        required: false
-        hint: "Each item = one .sk-slide (2fr text / 3fr image grid)"
-        fields:
-          - label: Slide Text (sk-slide-text)
-            name: skSlideText
-            widget: object
-            fields:
-              - label: Label (eyebrow)
-                name: label
-                widget: string
-                required: false
-              - label: Heading
-                name: heading
-                widget: string
-              - label: Body
-                name: body
-                widget: text
-          - label: Slide Image (sk-slide-image)
-            name: skSlideImage
-            widget: image
-            hint: "Displayed with object-fit:cover in .sk-slide-image"
-          - label: Image Alt
-            name: skSlideImageAlt
-            widget: string
-            required: false
-          - label: Image Position
-            name: imagePosition
-            widget: select
-            options: [right, left]
-            default: right
-            hint: "right = image on the right (default); left = image leads"
-
-  # ══════════════════════════════════════════════════════════════════
-  # HAPTIX — hero fields + per-section content
-  # Partial DS adoption: gallery + prose now; bento/pq/sk-slide ready
-  # ══════════════════════════════════════════════════════════════════
-  - name: haptix
-    label: "Haptix Case Study"
-    files:
-      - name: haptix-hero
-        label: Haptix — Hero
-        file: _cms/haptix/hero.json
-        fields:
-          - label: Headline
-            name: headline
-            widget: string
-            hint: "h1 in .h-hero (DM Serif Display)"
-          - label: Lead paragraph
-            name: lead
+          - label: Subtitle
+            name: subtitle
             widget: text
-            hint: "Long descriptive paragraph below the headline (.lead)"
-          - label: Metatag
-            name: metatag
+            required: false
+          - label: Hero Image
+            name: image
+            widget: image
+          - label: Image Alt
+            name: image_alt
             widget: string
-            hint: "e.g. 'UX Design · Jan–Jul 2020 · ZF India Technology Centre · HMI' — shown in .metatag"
-          - label: Skill chips
+            required: false
+          - label: Meta Tags
+            name: meta_tags
+            widget: list
+            hint: "Short tags shown above the title (discipline, date, company)"
+            field:
+              label: Tag
+              name: tag
+              widget: string
+          - label: Logo Slots
+            name: logos
+            widget: list
+            hint: "Client / collaborator names shown as logo placeholders"
+            field:
+              label: Name
+              name: name
+              widget: string
+          - label: Skill Chips
             name: chips
             widget: list
-            hint: "Each item = one .chip — e.g. 'interaction design', 'UI design'"
+            hint: "Skill tags shown under the title"
             field:
               label: Chip
               name: chip
               widget: string
-          - label: Hero figure image
-            name: heroFigSrc
-            widget: image
-            hint: "Displayed in .hero-fig — shown at full width with border-radius"
-          - label: Hero figure alt text
-            name: heroFigAlt
-            widget: string
-            required: false
 
-      - name: haptix-scope
-        label: Haptix — Scope Card
-        file: _cms/haptix/scope.json
+      # ── Brief ─────────────────────────────────────────────────────
+      - label: Brief
+        name: brief
+        widget: object
+        hint: "Sticky card that scrolls over the hero image"
         fields:
-          - label: Brief heading
-            name: briefHeading
-            widget: string
-          - label: Brief body
-            name: briefBody
-            widget: text
-          - label: Scope items
-            name: scopeItems
+          - label: Paragraphs
+            name: paragraphs
             widget: list
-            hint: "Each .scope-box — key/value pair on the dark scope card"
-            fields:
-              - label: Key
-                name: k
-                widget: string
-                hint: "Label text (.scope-box .k) — e.g. 'Timeline'"
-              - label: Value
-                name: v
-                widget: string
-                hint: "Value text (.scope-box .v) — e.g. 'Jan–Jul 2020'"
+            hint: "Each item = one paragraph of brief text"
+            field:
+              label: Paragraph
+              name: paragraph
+              widget: text
 
-  - name: haptix-sections
-    label: "Haptix — Case Study Sections"
-    folder: _cms/haptix/sections
-    create: false
-    slug: "{{slug}}"
-    label_singular: Section
-    fields:
-      - label: Section ID
-        name: sectionId
-        widget: string
-        hint: "Matches id= on the section element"
-      - label: Section Title
-        name: title
-        widget: string
-
-      # ── Prose ─────────────────────────────────────────────────────
-      - label: Body Copy
-        name: body
-        widget: markdown
-        required: false
-
-      # ── Gallery images ─────────────────────────────────────────────
-      - label: Gallery Images
-        name: gallery
-        widget: list
-        required: false
-        hint: "Images shown in .gal grid (.gi items)"
+      # ── Scope ─────────────────────────────────────────────────────
+      - label: Scope
+        name: scope
+        widget: object
+        hint: "Dark card showing project metadata"
         fields:
-          - label: Image
+          - label: Where
+            name: where
+            widget: string
+          - label: When
+            name: when
+            widget: string
+          - label: My Role
+            name: role
+            widget: string
+          - label: Deliverables
+            name: deliverables
+            widget: string
+          - label: Scope Chips
+            name: chips
+            widget: list
+            field:
+              label: Chip
+              name: chip
+              widget: string
+
+      # ── Prototype (optional) ──────────────────────────────────────
+      - label: Prototype
+        name: prototype
+        widget: object
+        required: false
+        hint: "Interactive embed section — toggle off to hide"
+        fields:
+          - label: Show Prototype Section
+            name: enabled
+            widget: boolean
+            default: false
+          - label: Eyebrow
+            name: eyebrow
+            widget: string
+            required: false
+          - label: Heading
+            name: heading
+            widget: string
+            required: false
+          - label: Body
+            name: body
+            widget: text
+            required: false
+          - label: Prototype iframe src
             name: src
-            widget: image
-          - label: Alt Text
-            name: alt
             widget: string
             required: false
-          - label: Tag / Label
-            name: tag
-            widget: string
+            hint: "Relative path to prototype/index.html"
+          - label: Version Labels
+            name: versions
+            widget: list
             required: false
-            hint: "Short label shown on the image in .gi .tag"
+            hint: "e.g. Desktop view, Phone view"
+            field:
+              label: Label
+              name: label
+              widget: string
 
-      # ── Bento cells (DS §22) — for future DS adoption ──────────────
-      - label: Bento Images (DS §22)
-        name: bentoCells
+      # ── Body Sections ─────────────────────────────────────────────
+      # Each section has an `enabled` toggle — off = hidden on the page
+      # and skipped in the chapter rail.
+      # ─────────────────────────────────────────────────────────────
+      - label: Sections
+        name: sections
         widget: list
-        required: false
-        hint: "Each item = one .cs-bento-cell — optional, for DS adoption"
+        hint: "Ordered body sections. Toggle 'Show section' to hide one without deleting it."
         fields:
-          - label: Image
-            name: src
-            widget: image
-          - label: Caption
-            name: caption
+
+          - label: Show Section
+            name: enabled
+            widget: boolean
+            default: true
+            hint: "Toggle off to hide this section on the live page and remove it from the chapter rail."
+
+          - label: Section ID (anchor slug)
+            name: id
+            widget: string
+            hint: "URL anchor, e.g. research. Must be lowercase, no spaces."
+
+          - label: Eyebrow
+            name: eyebrow
             widget: string
             required: false
-          - label: Alt Text
-            name: alt
+            hint: "Small label above the heading, e.g. '01 · Research'"
+
+          - label: Heading
+            name: heading
             widget: string
             required: false
 
-      # ── Pull quote pairs (DS §23) ──────────────────────────────────
-      - label: Pull Quote Pairs (DS §23)
-        name: pqPairs
-        widget: list
-        required: false
-        fields:
-          - label: Left Quote
-            name: left
-            widget: object
-            fields:
-              - label: Quote Text
-                name: pqQuoteText
-                widget: text
-              - label: Attribution
-                name: pqAttr
-                widget: string
-          - label: Right Quote
-            name: right
-            widget: object
-            fields:
-              - label: Quote Text
-                name: pqQuoteText
-                widget: text
-              - label: Attribution
-                name: pqAttr
-                widget: string
+          - label: Layout
+            name: layout
+            widget: select
+            options:
+              - { label: "Prose", value: prose }
+              - { label: "Prose + bulleted list", value: prose-list }
+              - { label: "Prose + image aside", value: prose-with-aside }
+              - { label: "Prose + gallery", value: prose-gallery }
+              - { label: "Prose + chips", value: prose-chips }
+              - { label: "Prose + accordion", value: prose-accordion }
+              - { label: "Chapter list (process overview)", value: chapter-list }
+              - { label: "Table", value: table }
+              - { label: "Table + gallery", value: table-gallery }
+              - { label: "Gallery", value: gallery }
+              - { label: "Bento grid (DS §22)", value: bento }
+              - { label: "Quote 2-up (DS §23)", value: quote2up }
+              - { label: "Slide layout (DS §24)", value: slide }
+              - { label: "Accordion", value: accordion }
+              - { label: "Chips", value: chips }
+              - { label: "Key dates + tabs", value: key-dates-tabs }
+              - { label: "Impact list", value: impact-list }
+            hint: "Choose a DS component layout for this section."
 
-      # ── Slide blocks (DS §24) ──────────────────────────────────────
-      - label: Slide Blocks (DS §24)
-        name: skSlides
-        widget: list
-        required: false
-        fields:
-          - label: Slide Text (sk-slide-text)
-            name: skSlideText
+          # ── Content object — all layouts share this one object ─────
+          # Unused fields for the chosen layout are simply ignored
+          # by the fetch layer.
+          - label: Content
+            name: content
             widget: object
+            hint: "Fill only the fields that apply to the chosen layout."
             fields:
-              - label: Label
-                name: label
+
+              # prose / prose-list / prose-gallery / prose-chips / impact-list
+              - label: Body (prose / markdown)
+                name: body
+                widget: markdown
+                required: false
+
+              # prose-list / impact-list
+              - label: List Items
+                name: items
+                widget: list
+                required: false
+                hint: "Bulleted / plain list items"
+                field:
+                  label: Item
+                  name: item
+                  widget: text
+
+              # gallery / prose-gallery / table-gallery
+              - label: Gallery Images
+                name: images
+                widget: list
+                required: false
+                fields:
+                  - label: Image
+                    name: src
+                    widget: image
+                  - label: Alt Text
+                    name: alt
+                    widget: string
+                    required: false
+                  - label: Caption
+                    name: caption
+                    widget: string
+                    required: false
+                  - label: Tag / Label
+                    name: tag
+                    widget: string
+                    required: false
+                    hint: "Short overlay label, e.g. '01 · idle' or 'GIF'"
+
+              - label: Gallery Columns
+                name: gallery_columns
+                widget: number
+                required: false
+                default: 4
+                hint: "Number of columns in the gallery grid (2, 3 or 4)"
+
+              - label: Gallery Caption
+                name: gallery_caption
                 widget: string
                 required: false
-              - label: Heading
-                name: heading
+
+              # table / table-gallery / hardware
+              - label: Table Headers
+                name: headers
+                widget: list
+                required: false
+                hint: "Column header labels"
+                field:
+                  label: Header
+                  name: header
+                  widget: string
+
+              - label: Table Rows
+                name: rows
+                widget: list
+                required: false
+                hint: "Each row is a list of cell values"
+                fields:
+                  - label: Cells (comma-separated or list)
+                    name: cells
+                    widget: list
+                    field:
+                      label: Cell
+                      name: cell
+                      widget: string
+
+              - label: Table Caption
+                name: caption
                 widget: string
-              - label: Body
-                name: body
-                widget: text
-          - label: Slide Image (sk-slide-image)
-            name: skSlideImage
-            widget: image
-          - label: Image Alt
-            name: skSlideImageAlt
-            widget: string
-            required: false
+                required: false
+
+              # prose-with-aside
+              - label: Aside Image
+                name: aside_image
+                widget: image
+                required: false
+
+              - label: Aside Image Alt
+                name: aside_image_alt
+                widget: string
+                required: false
+
+              # bento (DS §22)
+              - label: Bento Cells
+                name: cells
+                widget: list
+                required: false
+                hint: "Each item = one bento cell. The grid variant (BENTO-N) is chosen automatically by cell count."
+                fields:
+                  - label: Image
+                    name: src
+                    widget: image
+                  - label: Caption
+                    name: caption
+                    widget: string
+                    required: false
+                  - label: Alt Text
+                    name: alt
+                    widget: string
+                    required: false
+
+              # quote2up (DS §23)
+              - label: Quote Pairs
+                name: quotes
+                widget: list
+                required: false
+                hint: "Two quotes per pair, shown side by side"
+                fields:
+                  - label: Quote Text
+                    name: text
+                    widget: text
+                  - label: Attribution
+                    name: attribution
+                    widget: string
+
+              # slide (DS §24)
+              - label: Slides
+                name: slides
+                widget: list
+                required: false
+                fields:
+                  - label: Eyebrow
+                    name: eyebrow
+                    widget: string
+                    required: false
+                  - label: Heading
+                    name: heading
+                    widget: string
+                  - label: Body
+                    name: body
+                    widget: text
+                  - label: Image
+                    name: image
+                    widget: image
+                    required: false
+                  - label: Image Alt
+                    name: image_alt
+                    widget: string
+                    required: false
+
+              # accordion / prose-accordion
+              - label: Accordion Items
+                name: accordion
+                widget: list
+                required: false
+                fields:
+                  - label: Label
+                    name: label
+                    widget: string
+                  - label: Body
+                    name: body
+                    widget: markdown
+
+              # chips
+              - label: Chips
+                name: chips
+                widget: list
+                required: false
+                hint: "Plain chip list OR object with label + accent flag"
+                fields:
+                  - label: Label
+                    name: label
+                    widget: string
+                  - label: Accent (orange)
+                    name: accent
+                    widget: boolean
+                    default: false
+
+              # key-dates-tabs
+              - label: Key Dates Label
+                name: key_dates_label
+                widget: string
+                required: false
+
+              - label: Key Dates
+                name: key_dates
+                widget: list
+                required: false
+                fields:
+                  - label: Date Label
+                    name: label
+                    widget: string
+                    hint: "e.g. '24 February'"
+                  - label: Event
+                    name: event
+                    widget: string
+
+              - label: Tabs
+                name: tabs
+                widget: list
+                required: false
+                hint: "Tab panels inside this section"
+                fields:
+                  - label: Tab Label
+                    name: label
+                    widget: string
+                  - label: Body
+                    name: body
+                    widget: markdown
+                    required: false
+                  - label: Image
+                    name: image
+                    widget: image
+                    required: false
+                  - label: Image Alt
+                    name: image_alt
+                    widget: string
+                    required: false
+                  - label: Image Caption
+                    name: image_caption
+                    widget: string
+                    required: false
+
+              # chapter-list
+              - label: Chapter List Items
+                name: items
+                widget: list
+                required: false
+                hint: "Process overview list (numbered links to sections)"
+                fields:
+                  - label: Number
+                    name: number
+                    widget: string
+                  - label: Label
+                    name: label
+                    widget: string
+                  - label: Target Section ID
+                    name: target
+                    widget: string
+                  - label: Description
+                    name: description
+                    widget: text
+                    required: false

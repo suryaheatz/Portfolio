@@ -1,0 +1,316 @@
+{
+  "title": "Haptix thumbwheel demonstrator",
+  "slug": "haptix",
+  "template": "narrative",
+
+  "hero": {
+    "title": "Haptix thumbwheel demonstrator",
+    "subtitle": "I was the UI and UX designer on a demonstrator that ZF built to pitch a new thumbwheel technology for operating a car interface. I worked out the flows and interactions in workshops, linked what the hardware can do to what the screen does, designed the screens, prototyped them and handed them to the developers.",
+    "image": "case-studies/haptix/assets/styling/demonstrator-render.jpg",
+    "image_alt": "Render of the demonstrator: a curved black body with a display, a ribbed pad and the thumbwheel",
+    "meta_tags": ["UX Design", "Jan–Jul 2020", "ZF India Technology Centre", "HMI"],
+    "logos": ["Mercedes-Benz (Daimler)", "ZF"],
+    "chips": ["interaction design", "UI design", "UX design", "HMI", "haptics", "concept styling", "CMF", "Adobe XD", "Figma", "developer handoff"]
+  },
+
+  "brief": {
+    "paragraphs": [
+      "ZF pitched this demonstrator to promote a new thumbwheel technology for operating a vehicle interface. A demonstrator is a working model built to show a technology. The customer was Mercedes-Benz (Daimler).",
+      "The engineering team gave me the specification and the capabilities of the hardware. It did not say what the screen should show or how a person should operate it. I had to design the interaction models and the UI that make use of those capabilities.",
+      "Before I designed anything, I studied Mercedes-Benz interfaces. I visited showrooms and used the interfaces in the cars."
+    ]
+  },
+
+  "scope": {
+    "where": "ZF India Technology Centre, Hyderabad",
+    "when": "January to July 2020, about 7 months",
+    "role": "Senior UX Designer, R&D — UI and UX",
+    "deliverables": "Screens in Adobe XD, prototype in Figma, developer handoffs",
+    "chips": ["workshops", "flows", "mind maps", "interaction models", "concept styling", "thumbwheel design", "CMF", "UI design", "prototyping", "handoff"]
+  },
+
+  "prototype": {
+    "enabled": true,
+    "eyebrow": "Interactive recreation · 2026",
+    "heading": "Play with the interface",
+    "body": "In 2026 I rebuilt the interaction model as a browser prototype so you can operate the wheel yourself. It is a recreation made for this portfolio, not the 2020 Figma prototype. Hover or touch a segment, hold and drag to turn it, click or tap to push. The steps beside the wheel tell you what to do next.",
+    "src": "prototype/index.html",
+    "note_link_id": "recreation",
+    "note_link_text": "How the 2026 recreation works",
+    "versions": ["Desktop view", "Phone view"]
+  },
+
+  "sections": [
+    {
+      "id": "thumbwheel",
+      "enabled": true,
+      "eyebrow": "The hardware",
+      "heading": "What the thumbwheel can do",
+      "layout": "prose-with-aside",
+      "content": {
+        "body": "The thumbwheel has three actions. You can turn it, push it, and touch it. The touch is sensed along the wheel's axis, so the system knows which part of the wheel your thumb is on. I call these parts the left, centre and right segments.\n\nThe damper behind the wheel is switched off when nothing touches the wheel, because it would overheat otherwise. Touching a segment switches it on. The damper changes how hard the wheel is to turn.\n\nThe specification lists the feels the damper can produce: ripple at low, medium and high strength, constant resistance with or without rising force, constant resistance with ripples, and a barrier in each direction.\n\nThe sensors, damper, controller and electronics were specified by the ZF engineering team.",
+        "aside_image": "case-studies/haptix/assets/wheel.png",
+        "aside_image_alt": "The thumbwheel, shown on a dark ground",
+        "segments": [
+          { "label": "Left segment", "body": "Turns the value in the left column." },
+          { "label": "Centre segment", "body": "Moves through the centre list. Push confirms." },
+          { "label": "Right segment", "body": "Turns the value in the right column." }
+        ]
+      }
+    },
+    {
+      "id": "what-i-did",
+      "enabled": true,
+      "eyebrow": "Process",
+      "heading": "What I did",
+      "layout": "chapter-list",
+      "content": {
+        "items": [
+          { "number": "01", "label": "Research", "target": "research", "description": "Showroom visits and in-car use of Mercedes-Benz interfaces. A visual research deck of other thermostat and smart-home interfaces." },
+          { "number": "02", "label": "Workshops", "target": "workshops", "description": "Workshops to work out the flows and interactions." },
+          { "number": "03", "label": "Hardware to UI", "target": "hardware", "description": "I linked each thing the hardware can do to a screen response. This is the interaction model." },
+          { "number": "04", "label": "Styling and thumbwheel", "target": "styling", "description": "Concept styling for the demonstrator, the thumbwheel design and its CMF." },
+          { "number": "05", "label": "Screens", "target": "screens", "description": "20 screens designed in Adobe XD." },
+          { "number": "06", "label": "Prototype", "target": "figma", "description": "The screens moved to Figma and prototyped there." },
+          { "number": "07", "label": "Handoff", "target": "handoff", "description": "Developer handoffs so the team could build the software." }
+        ]
+      }
+    },
+    {
+      "id": "research",
+      "enabled": true,
+      "eyebrow": "01 · Research",
+      "heading": "Research",
+      "layout": "prose-gallery",
+      "content": {
+        "body": "I used the interfaces in Mercedes-Benz showrooms and in the cars, to see how the current interface behaves when you operate it.\n\nI also collected a visual research deck: a mood board of 11 images, 3 animated GIFs and 1 video of other thermostat and smart-home interfaces. The file is dated 19 February 2020. The references share dark backgrounds, one accent colour per state, radial or vertical scales, and large numbers. The video shows a vertical scale that magnifies near the handle as you drag, which is the closest match to a wheel that you turn through a list.",
+        "gallery_caption": "11 reference images and 3 animated GIFs from the visual research deck. The video is not shown here.",
+        "gallery_columns": 4,
+        "images": [
+          { "src": "case-studies/haptix/assets/research/ref-a.jpg", "alt": "Visual research reference 1 of 11", "caption": "Visual research reference 1 of 11." },
+          { "src": "case-studies/haptix/assets/research/ref-b.jpg", "alt": "Visual research reference 2 of 11", "caption": "Visual research reference 2 of 11." },
+          { "src": "case-studies/haptix/assets/research/ref-c.jpg", "alt": "Visual research reference 3 of 11", "caption": "Visual research reference 3 of 11." },
+          { "src": "case-studies/haptix/assets/research/ref-d.jpg", "alt": "Visual research reference 4 of 11", "caption": "Visual research reference 4 of 11." },
+          { "src": "case-studies/haptix/assets/research/ref-e.jpg", "alt": "Visual research reference 5 of 11", "caption": "Visual research reference 5 of 11." },
+          { "src": "case-studies/haptix/assets/research/ref-f.jpg", "alt": "Visual research reference 6 of 11", "caption": "Visual research reference 6 of 11." },
+          { "src": "case-studies/haptix/assets/research/ref-g.jpg", "alt": "Visual research reference 7 of 11", "caption": "Visual research reference 7 of 11." },
+          { "src": "case-studies/haptix/assets/research/ref-h.jpg", "alt": "Visual research reference 8 of 11", "caption": "Visual research reference 8 of 11." },
+          { "src": "case-studies/haptix/assets/research/ref-i.jpg", "alt": "Visual research reference 9 of 11", "caption": "Visual research reference 9 of 11." },
+          { "src": "case-studies/haptix/assets/research/ref-j.jpg", "alt": "Visual research reference 10 of 11", "caption": "Visual research reference 10 of 11." },
+          { "src": "case-studies/haptix/assets/research/ref-k.jpg", "alt": "Visual research reference 11 of 11", "caption": "Visual research reference 11 of 11." },
+          { "src": "case-studies/haptix/assets/research/motion-1.gif", "alt": "Motion reference 1 of 3", "caption": "Motion reference 1 of 3 (animated GIF).", "tag": "GIF" },
+          { "src": "case-studies/haptix/assets/research/motion-2.gif", "alt": "Motion reference 2 of 3", "caption": "Motion reference 2 of 3 (animated GIF).", "tag": "GIF" },
+          { "src": "case-studies/haptix/assets/research/motion-3.gif", "alt": "Motion reference 3 of 3", "caption": "Motion reference 3 of 3 (animated GIF).", "tag": "GIF" }
+        ]
+      }
+    },
+    {
+      "id": "workshops",
+      "enabled": true,
+      "eyebrow": "02 · Workshops",
+      "heading": "Workshops, flows and mind maps",
+      "layout": "prose-chips",
+      "content": {
+        "body": "I worked out the flows and the interactions in workshops.\n\nAn early output is the Features List, a spreadsheet dated 18 to 20 February 2020. It lists the features and places each one against the left, centre and right parts of the wheel, with click and scroll marked.",
+        "chips": [
+          { "label": "Climate control", "accent": true },
+          { "label": "temperature" }, { "label": "blower speed" }, { "label": "direction" }, { "label": "auto" }, { "label": "sync" }, { "label": "de-fog" },
+          { "label": "Driving modes", "accent": true },
+          { "label": "individual" }, { "label": "drive" }, { "label": "steering" }, { "label": "ESP" },
+          { "label": "Presets", "accent": true },
+          { "label": "comfort" }, { "label": "sport" }, { "label": "eco" },
+          { "label": "Start-up", "accent": true },
+          { "label": "ask on start" }, { "label": "start with previous setting" }
+        ]
+      }
+    },
+    {
+      "id": "hardware",
+      "enabled": true,
+      "eyebrow": "03 · Hardware to UI",
+      "heading": "Linking the hardware to the screen",
+      "layout": "table",
+      "content": {
+        "body": "This is the interaction model. Each row is one wheel action and what the screen does in response.",
+        "caption": "In the screens, the left column is the Driver and the right column is the Co-Driver.",
+        "headers": ["Wheel action", "Screen response"],
+        "rows": [
+          ["Touch a segment", "The column above that segment lights up. The damper switches on."],
+          ["Turn the left or right segment", "The value in that column changes: temperature, seat pose, volume, song, an options list or an artist list."],
+          ["Turn the centre segment", "The highlighted row in the centre list moves, for example from Climate to Seat Modes."],
+          ["Push the left or right segment", "The tab on that side opens."],
+          ["Push the centre segment", "The highlighted row is confirmed and flashes."],
+          ["Turn past the end of a range", "The wheel refuses to turn (a \"barrier\"). The screen stays on the last value."]
+        ]
+      }
+    },
+    {
+      "id": "styling",
+      "enabled": true,
+      "eyebrow": "04 · Styling and thumbwheel",
+      "heading": "Concept styling, thumbwheel design and CMF",
+      "layout": "key-dates-tabs",
+      "content": {
+        "body": "CMF stands for colour, material and finish. I worked on the demonstrator's concept styling, the thumbwheel design and its CMF.",
+        "key_dates_label": "Key dates, 2020",
+        "key_dates": [
+          { "label": "3 January 2020", "event": "Project start" },
+          { "label": "24 February", "event": "3D styling freeze" },
+          { "label": "11 March", "event": "GUI content due" },
+          { "label": "12 March", "event": "UI and UX design freeze" },
+          { "label": "13 April", "event": "Assembly" },
+          { "label": "16 April", "event": "Software integration" },
+          { "label": "27 April", "event": "Customer meeting" }
+        ],
+        "tabs": [
+          {
+            "label": "Concept styling",
+            "body": "The 3D styling was frozen on 24 February 2020. The render shows the demonstrator as a whole: a curved, glossy black body, the display set into the upper part, a ribbed black pad below the display, and the thumbwheel set into the pad.",
+            "image": "case-studies/haptix/assets/styling/demonstrator-render.jpg",
+            "image_alt": "Render of the demonstrator",
+            "image_caption": "Fig 01 The demonstrator render."
+          },
+          {
+            "label": "Thumbwheel and CMF",
+            "body": "The thumbwheel has a centre section with a geometric line pattern, and two outer sections with a finer dotted texture. They line up with the left, centre and right segments of the interaction model.\n\nThe specification lists ABS/PC for the housing and aluminium for the demonstrator plate. The grip and the top cover are non-conductive, because a capacitive touch sensor sits inside the wheel.",
+            "image": "case-studies/haptix/assets/styling/thumbwheel-closeup.jpg",
+            "image_alt": "Close-up of the thumbwheel",
+            "image_caption": "Fig 02 The thumbwheel close-up."
+          },
+          {
+            "label": "Interaction model",
+            "body": "The interaction model links each wheel action to a screen response. It is the table in the section Linking the hardware to the screen. It was worked out in workshops, and the Features List spreadsheet is an early output of that work."
+          },
+          {
+            "label": "UI screens",
+            "body": "20 screens designed in Adobe XD: 5 screens, each in 4 touch states. See The screens."
+          }
+        ]
+      }
+    },
+    {
+      "id": "screens",
+      "enabled": true,
+      "eyebrow": "05 · Screens",
+      "heading": "The screens",
+      "layout": "table-gallery",
+      "content": {
+        "body": "I designed 20 screens in Adobe XD. They are 5 screens, each shown in 4 touch states: idle, left touched, right touched and centre touched. The touched column gets a darker background and a glow at the bottom. The tab on that side also brightens.",
+        "gallery_caption": "20 screens, 4 touch states for each of 5 screens. Click an image to enlarge it. The tab row at the top reads Music, Fav and Comfort, with Fav in the centre. The walkthrough file is dated 10 March 2020, one day before the GUI content was due (11 March).",
+        "gallery_columns": 4,
+        "table_headers": ["Screen", "Left column", "Centre list", "Right column"],
+        "table_rows": [
+          ["Fav · Climate", "Driver temperature", "Ergonomics, Climate, Music", "Co-Driver temperature"],
+          ["Fav · Ergonomics", "Driver seat poses", "Seat Modes", "Co-Driver seat poses"],
+          ["Fav · Music", "Volume", "Music · Actual Title", "Song list"],
+          ["Music · Media · Albums", "Options list", "Sound, Media, Source", "Albums"],
+          ["Music · Media · Artists", "Options list", "Sound, Media, Source", "Artists"]
+        ],
+        "images": [
+          { "src": "case-studies/haptix/assets/screens/screen-01.jpg", "alt": "Fav · Climate, idle", "tag": "01 · idle" },
+          { "src": "case-studies/haptix/assets/screens/screen-02.jpg", "alt": "Fav · Climate, left touched", "tag": "02 · left touched" },
+          { "src": "case-studies/haptix/assets/screens/screen-03.jpg", "alt": "Fav · Climate, right touched", "tag": "03 · right touched" },
+          { "src": "case-studies/haptix/assets/screens/screen-04.jpg", "alt": "Fav · Climate, centre touched", "tag": "04 · centre touched" },
+          { "src": "case-studies/haptix/assets/screens/screen-05.jpg", "alt": "Fav · Ergonomics, idle", "tag": "05 · idle" },
+          { "src": "case-studies/haptix/assets/screens/screen-06.jpg", "alt": "Fav · Ergonomics, left touched", "tag": "06 · left touched" },
+          { "src": "case-studies/haptix/assets/screens/screen-07.jpg", "alt": "Fav · Ergonomics, right touched", "tag": "07 · right touched" },
+          { "src": "case-studies/haptix/assets/screens/screen-08.jpg", "alt": "Fav · Ergonomics, centre touched", "tag": "08 · centre touched" },
+          { "src": "case-studies/haptix/assets/screens/screen-09.jpg", "alt": "Fav · Music, idle", "tag": "09 · idle" },
+          { "src": "case-studies/haptix/assets/screens/screen-10.jpg", "alt": "Fav · Music, left touched", "tag": "10 · left touched" },
+          { "src": "case-studies/haptix/assets/screens/screen-11.jpg", "alt": "Fav · Music, right touched", "tag": "11 · right touched" },
+          { "src": "case-studies/haptix/assets/screens/screen-12.jpg", "alt": "Fav · Music, centre touched", "tag": "12 · centre touched" },
+          { "src": "case-studies/haptix/assets/screens/screen-13.jpg", "alt": "Music · Media · Albums, idle", "tag": "13 · idle" },
+          { "src": "case-studies/haptix/assets/screens/screen-14.jpg", "alt": "Music · Media · Albums, left touched", "tag": "14 · left touched" },
+          { "src": "case-studies/haptix/assets/screens/screen-15.jpg", "alt": "Music · Media · Albums, right touched", "tag": "15 · right touched" },
+          { "src": "case-studies/haptix/assets/screens/screen-16.jpg", "alt": "Music · Media · Albums, centre touched", "tag": "16 · centre touched" },
+          { "src": "case-studies/haptix/assets/screens/screen-17.jpg", "alt": "Music · Media · Artists, idle", "tag": "17 · idle" },
+          { "src": "case-studies/haptix/assets/screens/screen-18.jpg", "alt": "Music · Media · Artists, left touched", "tag": "18 · left touched" },
+          { "src": "case-studies/haptix/assets/screens/screen-19.jpg", "alt": "Music · Media · Artists, right touched", "tag": "19 · right touched" },
+          { "src": "case-studies/haptix/assets/screens/screen-20.jpg", "alt": "Music · Media · Artists, centre touched", "tag": "20 · centre touched" }
+        ]
+      }
+    },
+    {
+      "id": "figma",
+      "enabled": true,
+      "eyebrow": "06 · Prototype",
+      "heading": "Prototype in Figma",
+      "layout": "prose",
+      "content": {
+        "body": "I moved the screens from Adobe XD to Figma so I could prototype them there."
+      }
+    },
+    {
+      "id": "handoff",
+      "enabled": true,
+      "eyebrow": "07 · Handoff",
+      "heading": "Developer handoff",
+      "layout": "prose",
+      "content": {
+        "body": "I handed the screens to the developers so they could build the demonstrator software.\n\nThe specification puts the GUI for the 10-inch Microsoft Surface Go tablet, and the software of the wheel controller, with ZF's engineering team. It lists the GUI content as due on 11 March 2020."
+      }
+    },
+    {
+      "id": "recreation",
+      "enabled": true,
+      "eyebrow": "The recreation",
+      "heading": "How the 2026 recreation works",
+      "layout": "prose-accordion",
+      "content": {
+        "body": "The 2020 prototype was in Figma. In 2026 I rebuilt the interaction model as the browser prototype at the top of this page, so that visitors can operate the wheel themselves. It is a recreation made for this portfolio. It was not part of the 2020 project.",
+        "accordion": [
+          {
+            "label": "How you operate it",
+            "body": "On the wheel — With a mouse: Move the pointer onto a segment. On a touch screen: Touch and hold a segment.\n\nTurn — With a mouse: Hold and drag up or down on a segment. On a touch screen: Touch and drag up or down.\n\nPush — With a mouse: Click. On a touch screen: Tap.\n\nThe mouse wheel and the arrow keys also turn the wheel. A browser cannot make the damper's feel, so a force gauge shows the effort you apply. The gauge pins and turns red at a barrier."
+          },
+          {
+            "label": "The guided steps",
+            "body": "A guided sequence of 16 steps walks through all screens and all three tabs. On touch screens it has 15 steps, because the first step (touching without pushing) cannot be done there with a tap. Each step has a title that states the result, for example "Driver temp 16° → 20°C". It lists what to do and what the wheel should feel like. If you are on the wrong screen for a step, the card shows the move that gets you there instead of an error.\n\nOn desktop, a Gentle, Standard and Firm setting changes how far you must drag for each notch."
+          },
+          {
+            "label": "Phone and touch screens",
+            "body": "On a phone, the recreation fits one screen without page scroll. The top shows the display, cropped to the tabs and menus. The middle shows the current step. The bottom shows the wheel and the force gauge. A bar of icon buttons stays at the bottom: back, skip, sound, restart and the full step list.\n\nA short tap pushes. Touch and drag turns. A long press (about 0.4 seconds) wakes the segment and holds it. Phones that support vibration vibrate on each notch and each barrier."
+          },
+          {
+            "label": "What it adds to the 2020 screens",
+            "body": "These three things were decided while building the recreation. They were not part of the 2020 design.\n\nLooping tabs. A push on the left segment opens the left tab, and a push on the right segment opens the right tab. The label under each segment says where its push goes.\n\nComfort tab content. Ergonomics (Seat Modes) and Climate (Temperature), in two rows with end stops.\n\nA feel for each menu, as a starting value for tuning on the hardware. The centre category list and the options list ripple at medium strength. Temperature and volume use constant resistance that rises. Seat poses ripple at high strength. The song, album and artist lists ripple at low strength. The Sound and Source rows are locked with a barrier."
+          },
+          {
+            "label": "Decisions in the recreation",
+            "body": "Turning with a mouse is "hold and drag". Turning on a touch screen is "touch and drag". Click or tap is "push". The words "scroll" and "roll" are not used.\n\nStep titles state the result, so a viewer can check each step without reading the instructions.\n\nA wrong turn shows the move that leads to the right menu, not an error message.\n\nOn a touch screen, a tap is a push, so a tap cannot wake a segment without pushing it. The recreation skips the wake step there, and a long press wakes a segment.\n\nOn small screens the step details start collapsed and open on tap, to save vertical space."
+          }
+        ]
+      }
+    },
+    {
+      "id": "impact",
+      "enabled": true,
+      "eyebrow": "Impact",
+      "heading": "Impact",
+      "layout": "impact-list",
+      "content": {
+        "body": "These statements are placeholders, written from what I did. Each one needs your correction before this page goes live.",
+        "items": [
+          "The screens and the Figma prototype showed how each wheel action changes the screen before the software existed.",
+          "The developers built the demonstrator software from my handoffs, and the software was integrated on 16 April 2020.",
+          "The demonstrator was shown at the customer meeting on 27 April 2020."
+        ]
+      }
+    },
+    {
+      "id": "limits",
+      "enabled": true,
+      "eyebrow": "Limits",
+      "heading": "Limits and next steps",
+      "layout": "prose-list",
+      "content": {
+        "items": [
+          "The recreation covers the screens that were designed in 2020. Sound and Source are not designed, so their rows are locked.",
+          "The value ranges in the recreation (14 to 28 °C, volume 0 to 30, 12 songs, 9 list items) and the Titles, Playlists and Recently Played lists are extended from the patterns in the screens.",
+          "A browser cannot reproduce the feel of the wheel. The force gauge stands in for it.",
+          "Text contrast on the display was set by eye and has not been measured."
+        ]
+      }
+    }
+  ]
+}
