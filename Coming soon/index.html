@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Surya Konijeti</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #f5f4f0;
+    --ink:      #111110;
+    --ink-2:    #545450;
+    --ink-3:    #9a9a94;
+    --rule:     #dddad0;
+    --surface:  #eeece7;
+    --sun:      #E8490F;
+    --font-serif: 'DM Serif Display', serif;
+    --font-sans:  'DM Sans', system-ui, sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    padding: 0 24px;
+  }
+
+  /* ── Nav ── */
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 32px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .nav-name {
+    font-family: var(--font-serif);
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+
+  .nav-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--sun);
+  }
+
+  /* ── Main ── */
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 80px 0;
+    max-width: 760px;
+  }
+
+  .eyebrow {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 28px;
+  }
+
+  h1 {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: clamp(40px, 6vw, 76px);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 28px;
+  }
+
+  h1 em {
+    font-style: normal;
+    color: var(--sun);
+  }
+
+  .subtext {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.65;
+    color: var(--ink-2);
+    max-width: 480px;
+    margin-bottom: 48px;
+  }
+
+  /* ── Notify form ── */
+  .notify-form {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .notify-input {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 100px;
+    padding: 12px 20px;
+    outline: none;
+    width: 260px;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+
+  .notify-input::placeholder { color: var(--ink-3); }
+
+  .notify-input:focus {
+    border-color: var(--ink-3);
+    background: var(--bg);
+  }
+
+  .notify-btn {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--bg);
+    background: var(--ink);
+    border: none;
+    border-radius: 100px;
+    padding: 12px 24px;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .notify-btn:hover {
+    background: var(--sun);
+    transform: scale(1.03);
+  }
+
+  .notify-confirm {
+    display: none;
+    font-size: 13px;
+    color: var(--ink-3);
+    margin-top: 14px;
+  }
+
+  .notify-confirm.show { display: block; }
+
+  /* ── Divider ── */
+  .divider {
+    width: 40px;
+    height: 1px;
+    background: var(--rule);
+    margin: 48px 0;
+  }
+
+  /* ── Links row ── */
+  .links {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .links a {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--ink-3);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    transition: color 0.2s ease;
+  }
+
+  .links a:hover { color: var(--ink); }
+
+  /* ── Footer ── */
+  footer {
+    padding: 24px 0 32px;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .footer-copy {
+    font-size: 12px;
+    color: var(--ink-3);
+    font-weight: 400;
+  }
+
+  .footer-role {
+    font-size: 12px;
+    color: var(--ink-3);
+    font-weight: 400;
+    text-align: right;
+  }
+
+  @media (max-width: 600px) {
+    main { padding: 60px 0; }
+    .notify-input { width: 100%; }
+    .footer-role { text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-name">Surya Konijeti</span>
+  <span class="nav-dot"></span>
+</nav>
+
+<main>
+  <p class="eyebrow">Portfolio — Coming soon</p>
+  <h1>Design work,<br><em>almost ready.</em></h1>
+  <p class="subtext">I'm a senior UX designer working at the intersection of strategy, interaction, and craft. The full portfolio is being put together — leave your email and I'll let you know when it's live.</p>
+
+  <form class="notify-form" onsubmit="handleSubmit(event)">
+    <input class="notify-input" type="email" placeholder="your@email.com" required autocomplete="email">
+    <button class="notify-btn" type="submit">Notify me</button>
+  </form>
+  <p class="notify-confirm" id="confirm">Got it — I'll reach out when it's ready.</p>
+
+  <div class="divider"></div>
+
+  <div class="links">
+    <a href="https://linkedin.com/in/suryakonijeti" target="_blank" rel="noopener">LinkedIn</a>
+    <a href="mailto:surya.yahoo@gmail.com">Email</a>
+  </div>
+</main>
+
+<footer>
+  <span class="footer-copy">© 2026 Surya Konijeti</span>
+  <span class="footer-role">Senior UX Designer</span>
+</footer>
+
+<script>
+function handleSubmit(e) {
+  e.preventDefault();
+  var confirm = document.getElementById('confirm');
+  confirm.classList.add('show');
+  e.target.reset();
+  e.target.querySelector('.notify-btn').textContent = 'Done ✓';
+  e.target.querySelector('.notify-btn').style.background = 'var(--ink-3)';
+  e.target.querySelector('.notify-btn').disabled = true;
+}
+</script>
+
+</body>
+</html>
