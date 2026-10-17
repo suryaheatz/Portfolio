@@ -5,18 +5,19 @@ var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 var A=window.anime||{};
 function anim(t,p){ if(reduce||!A.animate){ $$(t).forEach?0:0; return; } return A.animate(t,p); }
 
-/* ---------- pin over pin (GSAP, desktop and tall viewports only) ---------- */
+/* ---------- pin over pin (GSAP) — matches Centronic sectionTransition01 exactly ---------- */
 if(window.gsap&&window.ScrollTrigger){
   gsap.registerPlugin(ScrollTrigger);
-  gsap.matchMedia().add('(min-width:768px) and (min-height:640px)',function(){
-    var cards=$$('[data-st-01],.st-brief,.st-scope');
-    cards.forEach(function(c,i){
-      c.style.zIndex=i+1;
-      if(i===cards.length-1) return;               // last card scrolls away normally
-      if(c.offsetHeight>window.innerHeight+2) return; // too tall to pin: let it scroll
-      ScrollTrigger.create({trigger:c,start:'top top',end:'bottom top',pin:true,pinSpacing:false});
+  (function sectionTransition01(){
+    var pinEls=document.querySelectorAll('[data-st-01="pin"]');
+    pinEls.forEach(function(section){
+      var nextSection=section.nextElementSibling;
+      if(!nextSection) return;
+      ScrollTrigger.create({trigger:nextSection,start:'top bottom',end:'top top',pin:section,pinSpacing:false});
     });
-  });
+  })();
+  /* hero parallax */
+  gsap.to('#hero-img',{yPercent:-18,ease:'none',scrollTrigger:{trigger:'.hero-image-section',start:'top bottom',end:'bottom top',scrub:0.8}});
 }
 
 /* ---------- reveals ---------- */
@@ -128,4 +129,77 @@ var sx=null,stage=$('#stage');
 stage.addEventListener('touchstart',function(e){sx=e.touches[0].clientX},{passive:true});
 stage.addEventListener('touchend',function(e){if(sx===null)return;var dx=e.changedTouches[0].clientX-sx;sx=null;if(Math.abs(dx)>50)go(cur+(dx<0?1:-1))});
 go(0);
+
+/* ---------- chapter rail ---------- */
+(function(){
+  var chapters=[
+    {id:'thumbwheel',label:'The hardware'},
+    {id:'what-i-did',label:'What I did'},
+    {id:'research',label:'Research'},
+    {id:'workshops',label:'Workshops'},
+    {id:'hardware',label:'Hardware to UI'},
+    {id:'styling',label:'Styling and thumbwheel'},
+    {id:'screens',label:'The screens'},
+    {id:'figma',label:'Prototype in Figma'},
+    {id:'handoff',label:'Developer handoff'},
+    {id:'recreation',label:'How the 2026 recreation works'},
+    {id:'impact',label:'Impact'},
+    {id:'limits',label:'Limits and next steps'}
+  ];
+  var rail=document.getElementById('cs-rail');
+  var pill=document.getElementById('cs-pill');
+  var drawer=document.getElementById('cs-drawer');
+  var drawerList=document.getElementById('drawer-list-el');
+  var drawerOverlay=document.getElementById('drawer-overlay');
+  if(!rail||!pill||!drawer) return;
+  /* build rail dots */
+  chapters.forEach(function(ch,i){
+    var dot=document.createElement('button');
+    dot.className='rail-dot';
+    dot.setAttribute('data-label',ch.label);
+    dot.setAttribute('aria-label',ch.label);
+    dot.onclick=function(){var t=document.getElementById(ch.id);if(t)t.scrollIntoView({behavior:'smooth'})};
+    rail.appendChild(dot);
+    /* build drawer list item */
+    var li=document.createElement('li');
+    var num=document.createElement('span');num.className='dl-num';num.textContent=('0'+(i+1)).slice(-2);
+    var title=document.createElement('span');title.className='dl-title';title.textContent=ch.label;
+    li.appendChild(num);li.appendChild(title);
+    li.onclick=function(){closeDrawer();setTimeout(function(){var t=document.getElementById(ch.id);if(t)t.scrollIntoView({behavior:'smooth'})},300)};
+    drawerList.appendChild(li);
+  });
+  var rdots=Array.prototype.slice.call(rail.querySelectorAll('.rail-dot'));
+  var ritems=Array.prototype.slice.call(drawerList.querySelectorAll('li'));
+  var activeIdx=0;
+  function setActive(i){
+    activeIdx=i;
+    rdots.forEach(function(d,k){d.classList.toggle('rail-active',k===i)});
+    ritems.forEach(function(li,k){li.classList.toggle('drawer-active',k===i)});
+    pill.textContent=('0'+(i+1)).slice(-2)+' / '+chapters.length;
+  }
+  /* IntersectionObserver */
+  var sectionEls=chapters.map(function(ch){return document.getElementById(ch.id)});
+  var io2=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(!e.isIntersecting) return;
+      var idx=sectionEls.indexOf(e.target);
+      if(idx>-1) setActive(idx);
+    });
+  },{rootMargin:'-20% 0px -60% 0px',threshold:0});
+  sectionEls.forEach(function(t){if(t)io2.observe(t)});
+  /* rail visibility — show after hero image scrolls away */
+  var heroImg=document.querySelector('.hero-image-section');
+  var railObserver=new IntersectionObserver(function(entries){
+    rail.classList.toggle('rail-visible',!entries[0].isIntersecting);
+    pill.classList.toggle('pill-visible',!entries[0].isIntersecting);
+  },{threshold:0});
+  if(heroImg) railObserver.observe(heroImg);
+  /* pill / drawer */
+  function openDrawer(){drawer.classList.add('drawer-open');document.body.style.overflow='hidden'}
+  function closeDrawer(){drawer.classList.remove('drawer-open');document.body.style.overflow=''}
+  pill.onclick=openDrawer;
+  drawerOverlay.onclick=closeDrawer;
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&drawer.classList.contains('drawer-open'))closeDrawer()});
+  setActive(0);
+})();
 })();
