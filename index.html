@@ -499,8 +499,11 @@
 
     /* BENTO GRID */
     .cs-bento { display: grid; gap: var(--bento-gap); width: 100%; }
+    .cs-bento--2 { grid-template-columns: 1fr 1fr; grid-template-rows: var(--bento-row); }
     .cs-bento--3 { grid-template-columns: 1fr 1fr; grid-template-rows: var(--bento-row) var(--bento-row); }
     .cs-bento--3 .cs-bento-cell:nth-child(3) { grid-column: 1 / -1; }
+    .cs-bento--4 { grid-template-columns: 1fr 1fr 1fr; grid-template-rows: var(--bento-row) var(--bento-row); }
+    .cs-bento--4 .cs-bento-cell:nth-child(1) { grid-column: 1 / -1; }
     .cs-bento-cell {
       border-radius: var(--r-bento); overflow: hidden; position: relative;
       cursor: zoom-in; background: var(--surface); min-height: 140px;
@@ -548,6 +551,78 @@
     .pull-quote cite {
       display: block; margin-top: 20px; font-style: normal;
       font-family: var(--font-sans); font-size: 13px; color: var(--ink-3);
+    }
+
+    /* SLIDE LAYOUT §24 */
+    .sk-slide {
+      display: grid;
+      grid-template-columns: 2fr 3fr;
+      min-height: 420px;
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      background: var(--surface);
+    }
+    .sk-slide-text {
+      padding: var(--col-pad);
+      display: flex; flex-direction: column;
+      justify-content: center; gap: var(--sp-6);
+    }
+    .sk-slide-image {
+      position: relative; overflow: hidden; min-height: 300px;
+    }
+    .sk-slide-image img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center center;
+    }
+
+    /* CASE STUDY TYPOGRAPHY */
+    .cs-label {
+      font-family: var(--font-sans); font-size: 11px; font-weight: 500;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--sun);
+    }
+    .cs-h3 {
+      font-family: var(--font-serif);
+      font-size: clamp(24px, 2.8vw, 34px); line-height: 1.2;
+      color: var(--ink); margin: 0;
+    }
+    .cs-body {
+      font-family: var(--font-sans); font-size: 15px; line-height: 1.65;
+      color: var(--ink-2);
+    }
+
+    /* QUOTE 2-UP §23 */
+    .pq-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--sp-6);
+      align-items: stretch;
+    }
+    .pq-card {
+      background: var(--surface);
+      border-radius: var(--r-lg);
+      padding: var(--sp-8);
+      display: flex; flex-direction: column;
+    }
+    .pq-quote-text {
+      font-family: var(--font-serif); font-style: italic;
+      font-size: clamp(16px, 1.6vw, 20px); line-height: 1.5;
+      color: var(--ink); flex: 1;
+    }
+    .pq-attr {
+      margin-top: var(--sp-4); font-size: 12px;
+      font-family: var(--font-sans); color: var(--ink-3);
+    }
+
+    /* RESPONSIVE — slide & quote 2-up */
+    @media (max-width: 640px) {
+      .sk-slide { grid-template-columns: 1fr; }
+      .sk-slide-text { padding: var(--col-pad-m); }
+      .sk-slide-image { min-height: 240px; }
+      .pq-pair { grid-template-columns: 1fr; }
+      .cs-bento--2 { grid-template-columns: 1fr; grid-template-rows: var(--bento-row) var(--bento-row); }
+      .cs-bento--4 { grid-template-columns: 1fr 1fr; }
     }
 
     /* IMPACT */
@@ -961,8 +1036,212 @@
       <ul class="chapter-list" id="chapter-list-el"></ul>
     </div>
 
+    <!-- ─── THE CONTEXT ─── -->
+    <div id="cs-context" style="scroll-margin-top:80px; margin-top:80px;"></div>
+    <p class="chapter-heading" style="margin-bottom:16px;">The Context</p>
+    <div class="sk-slide anim-block">
+      <div class="sk-slide-text">
+        <p class="cs-label">Starting point</p>
+        <h3 class="cs-h3">The armrest had no language.</h3>
+        <p class="cs-body">In a mid-size passenger car, the centre armrest sits between driver and passenger — physically central, yet entirely passive. No controls. No feedback. No interface. The Centronic brief was to change that: design an interaction model for a new tactile input device that could live in that space and let the passenger control cabin functions without lifting their eyes off the road — or the conversation.</p>
+      </div>
+      <div class="sk-slide-image">
+        <img src="/images/centronic-cockpit.png" alt="Exploded view of the car armrest — two moulded pieces separated to reveal the interior cavity">
+      </div>
+    </div>
+
+    <!-- ─── THE RESEARCH ─── -->
+    <div id="cs-research" style="scroll-margin-top:80px; margin-top:80px;"></div>
+    <p class="chapter-heading" style="margin-bottom:16px;">The Research</p>
+    <div class="cs-bento cs-bento--2 anim-block">
+      <div class="cs-bento-cell">
+        <img src="/images/centronic-research-matrix.jpg" alt="Start-Stop-Continue retrospective: sticky notes on an importance vs frequency matrix">
+        <div class="cs-bento-overlay"></div>
+        <div class="cs-bento-caption">Start–Stop–Continue matrix — mapping what cabin controls passengers actually use, and how often</div>
+        <div class="cs-bento-expand">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 1h4M1 1v4M13 1h-4M13 1v4M1 13h4M1 13v-4M13 13h-4M13 13v-4" stroke="#111110" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+      <div class="cs-bento-cell">
+        <img src="/images/centronic-ia.jpg" alt="Competitive IA comparison across BMW, Mercedes, Audi, GM, Tesla dashboard architectures">
+        <div class="cs-bento-overlay"></div>
+        <div class="cs-bento-caption">Competitive IA audit — how five OEMs structure dashboard information: BMW · Mercedes · Audi · GM · Tesla</div>
+        <div class="cs-bento-expand">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 1h4M1 1v4M13 1h-4M13 1v4M1 13h4M1 13v-4M13 13h-4M13 13v-4" stroke="#111110" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+    <p class="cs-body anim-block" style="margin-top:24px; max-width:640px;">Two lenses shaped the design: a frequency-vs-importance matrix of existing cabin interactions (what people reach for, how often, and what they skip), and a competitive audit of how five OEMs structure their dashboard information architecture. The pattern was consistent — music, climate, and navigation were the three functions passengers wanted most, but the existing interfaces all required visual attention to operate.</p>
+
+    <!-- ─── THE SCENARIO ─── -->
+    <div id="cs-scenario" style="scroll-margin-top:80px; margin-top:80px;"></div>
+    <p class="chapter-heading" style="margin-bottom:16px;">The Scenario</p>
+    <div class="sk-slide anim-block">
+      <div class="sk-slide-text">
+        <p class="cs-label">Gesture vocabulary</p>
+        <h3 class="cs-h3">Six domains, one thumb.</h3>
+        <p class="cs-body">The MRF (Magneto-Rheological Fluid) thumbwheel responds to pressure, rotation, and directional swipes — making it possible to encode six cabin control domains into a gesture vocabulary a passenger can learn in a single ride. The mindmap defined the mapping: which gesture activates which domain, and how the ring resistance changes to signal context.</p>
+      </div>
+      <div class="sk-slide-image">
+        <img src="/images/centronic-scenario-mindmap.jpeg" alt="MindMap showing six cabin control domains mapped to MRF thumbwheel gestures">
+      </div>
+    </div>
+
+    <!-- ─── THE HARDWARE ─── -->
+    <div id="cs-hardware" style="scroll-margin-top:80px; margin-top:80px;"></div>
+    <p class="chapter-heading" style="margin-bottom:16px;">The Hardware</p>
+    <div class="cs-bento cs-bento--3 anim-block">
+      <div class="cs-bento-cell">
+        <img src="/images/centronic-hw-hero.png" alt="Centronic demonstrator unit with screen and ambient glow, product render">
+        <div class="cs-bento-overlay"></div>
+        <div class="cs-bento-caption">Production-intent demonstrator — MRF thumbwheel + embedded display + ambient light layer</div>
+        <div class="cs-bento-expand">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 1h4M1 1v4M13 1h-4M13 1v4M1 13h4M1 13v-4M13 13h-4M13 13v-4" stroke="#111110" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+      <div class="cs-bento-cell">
+        <img src="/images/centronic-hw-expo.png" alt="Centronic V2 unit on expo stand with UI visible on screen">
+        <div class="cs-bento-overlay"></div>
+        <div class="cs-bento-caption">Expo build — V2 UI running on the full demonstrator stand</div>
+        <div class="cs-bento-expand">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 1h4M1 1v4M13 1h-4M13 1v4M1 13h4M1 13v-4M13 13h-4M13 13v-4" stroke="#111110" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+      <div class="cs-bento-cell">
+        <img src="/images/centronic-hw-portable.jpg" alt="Centronic tablet and puck controller on a black mat — compact, portable demonstrator">
+        <div class="cs-bento-overlay"></div>
+        <div class="cs-bento-caption">Modular config — tablet screen + standalone controller puck, portable for client demos</div>
+        <div class="cs-bento-expand">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 1h4M1 1v4M13 1h-4M13 1v4M1 13h4M1 13v-4M13 13h-4M13 13v-4" stroke="#111110" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── WIREFRAMES & GESTURE MAPPING ─── -->
+    <div id="cs-wireframes" style="scroll-margin-top:80px; margin-top:80px;"></div>
+    <p class="chapter-heading" style="margin-bottom:16px;">Wireframes &amp; Gesture Mapping</p>
+    <div class="cs-bento cs-bento--3 anim-block">
+      <div class="cs-bento-cell">
+        <img src="/images/centronic-wire-menu.png" alt="V1 main menu screen — 5-module bubble UI on the armrest controller display">
+        <div class="cs-bento-overlay"></div>
+        <div class="cs-bento-caption">Main menu — 5 modules (Music · Nav · Phone · Menu · Climate) arranged as a radial bubble cluster</div>
+        <div class="cs-bento-expand">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 1h4M1 1v4M13 1h-4M13 1v4M1 13h4M1 13v-4M13 13h-4M13 13v-4" stroke="#111110" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+      <div class="cs-bento-cell">
+        <img src="/images/centronic-wire-climate.png" alt="V1 climate sub-screen — 7 bubble nodes for cabin zone control">
+        <div class="cs-bento-overlay"></div>
+        <div class="cs-bento-caption">Climate sub-screen — 7 zone bubbles; size encodes recency of use</div>
+        <div class="cs-bento-expand">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 1h4M1 1v4M13 1h-4M13 1v4M1 13h4M1 13v-4M13 13h-4M13 13v-4" stroke="#111110" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+      <div class="cs-bento-cell">
+        <img src="/images/centronic-wire-phone.png" alt="V1 phone sub-screen — 4 bubble nodes for call management">
+        <div class="cs-bento-overlay"></div>
+        <div class="cs-bento-caption">Phone sub-screen — 4 nodes, gesture-navigable without looking at the display</div>
+        <div class="cs-bento-expand">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 1h4M1 1v4M13 1h-4M13 1v4M1 13h4M1 13v-4M13 13h-4M13 13v-4" stroke="#111110" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+    <p class="cs-body anim-block" style="margin-top:24px; max-width:640px;">These are the V1 shipped screens — the redlined production specs handed to the engineering team. The bubble UI maps directly to the thumbwheel's gesture vocabulary: rotate to orbit the cluster, press to select, swipe to jump between domains. No text labels required for navigation.</p>
+
+    <!-- ─── THE DESIGN EVOLUTION ─── -->
+    <div id="cs-evolution" style="scroll-margin-top:80px; margin-top:80px;"></div>
+    <p class="chapter-heading" style="margin-bottom:16px;">The Design Evolution</p>
+    <div class="cs-bento cs-bento--4 anim-block">
+      <div class="cs-bento-cell" style="grid-column:1/-1;">
+        <img src="/images/centronic-ux-draft-02.png" alt="Pre-workshop wireframe — early armrest controller concept with gesture icon overlays">
+        <div class="cs-bento-overlay"></div>
+        <div class="cs-bento-caption">Pre-workshop concept (draft 02) — first attempt at mapping swipe gestures to the pill-shaped controller form</div>
+        <div class="cs-bento-expand">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 1h4M1 1v4M13 1h-4M13 1v4M1 13h4M1 13v-4M13 13h-4M13 13v-4" stroke="#111110" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+      <div class="cs-bento-cell">
+        <img src="/images/centronic-ux-draft-03.png" alt="Pre-workshop wireframe — gesture iteration with single tap and swipe right variants">
+        <div class="cs-bento-overlay"></div>
+        <div class="cs-bento-caption">Draft 03 — single-tap + swipe-right gesture variants explored before the workshop aligned the team</div>
+        <div class="cs-bento-expand">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 1h4M1 1v4M13 1h-4M13 1v4M1 13h4M1 13v-4M13 13h-4M13 13v-4" stroke="#111110" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+      <div class="cs-bento-cell">
+        <img src="/images/centronic-v2-menu.png" alt="V2 tablet main menu — colourful bubble cluster on a full touchscreen, not shipped">
+        <div class="cs-bento-overlay"></div>
+        <div class="cs-bento-caption">V2 main menu — tablet-first approach with a richer visual language; not shipped due to build timeline</div>
+        <div class="cs-bento-expand">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 1h4M1 1v4M13 1h-4M13 1v4M1 13h4M1 13v-4M13 13h-4M13 13v-4" stroke="#111110" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+      <div class="cs-bento-cell">
+        <img src="/images/centronic-v2-climate.png" alt="V2 climate sub-screen — bubble cluster with Driver, Passenger, Rear, Other zones">
+        <div class="cs-bento-overlay"></div>
+        <div class="cs-bento-caption">V2 climate sub-screen — dynamic bubble sizing by zone priority; complex but visually coherent</div>
+        <div class="cs-bento-expand">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 1h4M1 1v4M13 1h-4M13 1v4M1 13h4M1 13v-4M13 13h-4M13 13v-4" stroke="#111110" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+    <p class="cs-body anim-block" style="margin-top:24px; max-width:640px;">The design moved through three distinct phases. Pre-workshop drafts established the gesture grammar. The 3-day workshop locked the interaction model and the bubble UI metaphor. V2 extended that metaphor onto a full tablet with richer visual hierarchy — but the engineering team couldn't build it in the given timeline, so V1 (the armrest-native bubble UI) shipped as the final product.</p>
+
+    <!-- ─── THE INTERACTION MODEL ─── -->
+    <div id="cs-interaction" style="scroll-margin-top:80px; margin-top:80px;"></div>
+    <p class="chapter-heading" style="margin-bottom:16px;">The Interaction Model</p>
+    <div class="pq-pair anim-block">
+      <div class="pq-card">
+        <p class="pq-quote-text">"One thumb, zero eyes. The system has to be fully navigable by rotation and pressure alone — the passenger should never need to look down at the controller to operate it."</p>
+        <p class="pq-attr">— Guiding principle · ZF Centronic interaction model, 2019</p>
+      </div>
+      <div class="pq-card">
+        <p class="pq-quote-text">"Every gesture teaches itself. The first time you rotate the wheel into a new module, the ring resistance changes. That tactile boundary is the tutorial — no onboarding screen needed."</p>
+        <p class="pq-attr">— MRF haptic design principle · ZF Centronic, 2019</p>
+      </div>
+    </div>
+    <p class="cs-body anim-block" style="margin-top:32px; max-width:640px;">The interaction model was built around a single constraint: the passenger must never need to look at the device. Every function in the system maps to a gesture — rotate to browse, press to select, swipe to jump domains. The MRF ring changes resistance at module boundaries, giving the passenger a physical sense of the menu structure. The display exists as confirmation, not as the primary input signal.</p>
+
+    <!-- ─── THE AMBIENT LANGUAGE ─── -->
+    <div id="cs-ambient" style="scroll-margin-top:80px; margin-top:80px;"></div>
+    <p class="chapter-heading" style="margin-bottom:16px;">The Ambient Language</p>
+    <div class="sk-slide anim-block" style="background:var(--ink); color:var(--bg);">
+      <div class="sk-slide-text" style="color:var(--bg);">
+        <p class="cs-label" style="color:var(--ink-3);">Haptic layer</p>
+        <h3 class="cs-h3" style="color:var(--bg);">Light as the last channel.</h3>
+        <p class="cs-body" style="color:var(--ink-3);">Beyond the screen and the thumbwheel, the Centronic communicates through light. Ambient LEDs under the fabric surface of the armrest pulse and shift colour in response to module state — a slow breath for idle, a warm amber when music is active, a cool blue for navigation. The passenger doesn't need to read the display to know the system is listening. The armrest tells them.</p>
+      </div>
+      <div class="sk-slide-image">
+        <img src="/images/centronic-ambient.gif" alt="Ambient light glowing pink and purple through the armrest fabric surface — animated GIF">
+      </div>
+    </div>
+
     <!-- PROCESS label -->
-    <div id="cs-workshop" style="scroll-margin-top:80px;"></div>
+    <div id="cs-workshop" style="scroll-margin-top:80px; margin-top:80px;"></div>
     <p class="chapter-heading" style="margin-bottom:16px;">Workshop · 3 days</p>
 
     <!-- WORKSHOP BENTO -->
@@ -1004,7 +1283,6 @@
   <div class="container">
 
     <!-- PULL QUOTE -->
-    <div id="cs-interaction" style="scroll-margin-top:80px;"></div>
     <hr class="rule anim-block" style="margin-top:72px;">
     <div class="pull-quote anim-block">
       <blockquote>
