@@ -19,7 +19,7 @@ window.SK_PROJECTS = [
     title:    'ZF Centronic',
     subtitle: 'Automotive HMI · R&D · 2018–2019',
     url:      '/',
-    cover:    '/public/images/centronic-sketch.png',
+    cover:    '/images/centronic-sketch.png',
     template: 1
   },
   {
