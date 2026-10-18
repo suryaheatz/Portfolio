@@ -40,6 +40,7 @@
 
       /* ── Layout ── */
       --page-w:      1080px;  /* max-width of the .container */
+      --proto-card-w: var(--page-w); /* max-width of prototype embed section */
       --col-pad:     48px;    /* desktop horizontal gutter */
       --col-pad-m:   24px;    /* mobile horizontal gutter */
       --section-gap:   80px;  /* standard section vertical padding */
@@ -672,7 +673,7 @@
     /* Section heading for prototype */
     .proto-section-head {
       width: 100%;
-      max-width: 780px;
+      max-width: var(--proto-card-w);
       /* Large gap between heading and card — B >> A */
       padding-bottom: 48px;
     }
@@ -697,7 +698,7 @@
 
     .proto-thumb-inner {
       width: 100%;
-      max-width: 780px;
+      max-width: var(--proto-card-w);
       border: 1px solid var(--rule);
       border-radius: var(--r-md);
       background: var(--bg);
