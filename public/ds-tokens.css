@@ -16,10 +16,8 @@
   --bg:        #f5f4f0;
   --ink:       #111110;
   --ink-2:     #545450;
-  --ink-3:     #9a9a94;
+  --ink-3:     #636360;
   --rule:      #dddad0;
-  --teal:      #E8490F;
-  --teal-dim:  rgba(232,73,15,0.08);
   --surface:   #eeece7;
   --sun:       #E8490F;
   --sun-light: rgba(232,73,15,0.12);
@@ -49,9 +47,12 @@
   --bento-gap: 16px;   /* grid gap (single value = row + col) */
   --bento-row: 200px;  /* base row height unit */
 
-  /* ── Typography ── */
-  --font-serif: 'DM Serif Display', serif;
-  --font-sans:  'DM Sans', system-ui, sans-serif;
+  /* ── Typography — DS-03 approved system ── */
+  --font-display: 'Bricolage Grotesque', 'Bricolage Grotesque Fallback', system-ui, sans-serif;
+  --font-sans:    'Manrope', system-ui, sans-serif;
+  --font-quote:   'Zodiak', Georgia, serif;
+  /* Legacy alias — kept for any residual var(--font-serif) usages; migrate to --font-display */
+  --font-serif:   'Bricolage Grotesque', 'Bricolage Grotesque Fallback', system-ui, sans-serif;
 
   --text-label:    11px;
   --text-caption:  12px;
@@ -91,10 +92,6 @@
   --ease-path:      cubic-bezier(0.16,1,0.3,1);
   --ease-out-quart: cubic-bezier(0.165,0.84,0.44,1);
   --ease-out:       cubic-bezier(0.16,1,0.3,1);
-
-  /* ── Transition durations (component-level) ── */
-  --t-fast: 150ms;
-  --t-mid:  250ms;
 
   /* ── Component chrome ── */
   --surface-chrome: #fafaf8;
