@@ -365,6 +365,66 @@ Three-section sequence: hero image → brief card → scope card
 
 Single source of truth: `https://claude.ai/artifact/Gydy1zgdhExe8x1hxaJpLt`
 
-Sections: Colour · Spacing · Typography · Type Pairs · Responsive · List View · Tabs · Proto Card · Nav & Tags · Dark Card · Accordion · Modal · Progress · Tooltip · Image Block · Pullquote · Tags · Buttons · Patterns · Templates · Motion · **Bento Grid** · **Quote 2-up** · **Slide Layout**
+Sections: Colour · Spacing · Typography · Type Pairs · Responsive · List View · Tabs · Proto Card · Nav & Tags · Dark Card · Accordion · Modal · Progress · Tooltip · Image Block · Pullquote · Tags · Buttons · Patterns · Templates · Motion · **Bento Grid** · **Quote 2-up** · **Slide Layout** · **Statistical Visualization (§25)**
 
 **Before building any new component:** check the design system first. If the pattern isn't there, add it to the design system before implementing on the page.
+
+---
+
+## Statistical Visualization — SK-DATA-VIZ-001
+
+Rule: **SK Design System §25**
+Skill: `.claude/skills/sk-data-viz/SKILL.md`
+Doc: `sk-data-viz/docs/sk-data-viz-001.md`
+
+**Observable Plot is the mandatory statistical rendering engine for all new charts.**
+SK Design System controls typography, colour, spacing, responsive behaviour, label management, and accessibility. Observable Plot controls scales, quantitative marks, axes, and data-driven positioning.
+
+**Four-stage workflow — mandatory for every chart task:**
+1. Extract & validate source data → store in `sk-data-viz/data/<id>.json`
+2. Select visualization type → use Observable Plot for quantitative rendering
+3. Apply SK visual rules → tokens, alignment, responsive, accessibility
+4. Validate & integrate → verify against source; obtain approval for new patterns
+
+**Key constraints:**
+- Never build a new custom statistical renderer without approval
+- `sk-bar-chart.js` is an approved visual reference — do not modify or migrate it
+- Never right-align category labels
+- Never place raw data editors on public-facing pages
+- Decap CMS integration deferred — do not implement until instructed
+- Do not modify Centronic, Haptix, existing prototypes, or published layouts
+
+**Canonical DS artifact** (`https://claude.ai/artifact/Gydy1zgdhExe8x1hxaJpLt`) **cannot be edited from the repository** — §25 must be synced there manually via the artifact editor.
+
+---
+
+## Case Study Media System — SK-CASE-MEDIA-001
+
+Rule: **SK Design System §26**  
+Skill: `.claude/skills/sk-case-media/SKILL.md`  
+Pattern doc: `.claude/skills/sk-case-media/SK-CASE-MEDIA-001.md`  
+Gallery spec: `.claude/skills/sk-case-media/SK-CASE-GALLERY-001.md`
+
+**Load `.claude/skills/sk-case-media/SKILL.md` whenever working with case study images,
+wireframes, screenshots, bento layouts, design evolution, workshop scans, research
+artefacts, galleries, before/after comparisons, annotated media, or fullscreen media.**
+
+Six approved patterns (full spec in SK-CASE-MEDIA-001.md):
+
+- **A. Full-Width Figure** — single image, must not be cropped
+- **B. Adaptive Bento** — multiple comparable images where cropping is safe (§22)
+- **C. Two-Up Comparison** — before/after, V1/V2, related states
+- **D. Evolution / Sequence** — temporal or process order
+- **E. Annotated Media** — technical callouts, hardware specs, gesture maps
+- **F. Evidence Gallery** — large secondary collections (SK-CASE-GALLERY-001)
+
+**Key constraints:**
+- Never crop wireframes, IA diagrams, research maps, workshop scans, or annotated screenshots
+- `object-fit: contain` is the default for evidentiary content
+- Bento is NOT the default for every image group — evaluate content first
+- Evidence Gallery: wire images from the shared `I[]` object — never duplicate base64
+- GSAP + Flip for gallery transitions: inline both in separate `<script>` blocks before gallery JS
+- New patterns require approval before being added to the Design System
+- Do not modify Centronic production, Haptix production, Chapter structure, or Decap CMS
+
+**Canonical DS artifact** (`https://claude.ai/artifact/Gydy1zgdhExe8x1hxaJpLt`) **cannot be edited from the repository** — §26 must be synced there manually via the artifact editor.

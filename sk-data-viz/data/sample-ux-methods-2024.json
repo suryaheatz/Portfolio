@@ -1,0 +1,24 @@
+{
+  "_meta": {
+    "id": "sample-ux-methods-2024",
+    "title": "UX Research Methods by Adoption Rate",
+    "subtitle": "% of UX practitioners using method regularly · 2024",
+    "source": "Non-production sample dataset — for component verification only",
+    "source_page": null,
+    "note": "Do not use in production",
+    "unit": "%",
+    "unit_label": "% regular usage",
+    "max_value": 100,
+    "yoy_label": "Change vs. prior year survey"
+  },
+  "rows": [
+    { "rank": 1, "label": "User interviews",                         "value": 88, "yoy":  2 },
+    { "rank": 2, "label": "Usability testing",                       "value": 81, "yoy":  1 },
+    { "rank": 3, "label": "Surveys and questionnaires",              "value": 74, "yoy":  3 },
+    { "rank": 4, "label": "Competitive analysis",                    "value": 68, "yoy":  0 },
+    { "rank": 5, "label": "Journey mapping and service blueprints",  "value": 62, "yoy":  5 },
+    { "rank": 6, "label": "Card sorting and tree testing",           "value": 54, "yoy": -2 },
+    { "rank": 7, "label": "Heuristic evaluation",                    "value": 49, "yoy":  1 },
+    { "rank": 8, "label": "Diary studies and longitudinal research", "value": 31, "yoy":  4 }
+  ]
+}

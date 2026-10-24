@@ -1,0 +1,27 @@
+{
+  "_meta": {
+    "id": "kpmg-2018-key-trends",
+    "title": "Global Automotive Key Trends Until 2025",
+    "subtitle": "% of executives rating trend as extremely important · 2018",
+    "source": "KPMG Global Automotive Executive Survey 2018",
+    "source_page": 14,
+    "note": "n = 907 executives, 43 countries",
+    "unit": "%",
+    "unit_label": "% extremely important",
+    "max_value": 60,
+    "yoy_label": "YoY rank change vs. 2017"
+  },
+  "rows": [
+    { "rank": 1,  "label": "Fuel cell electric mobility",                      "value": 52, "yoy":  5 },
+    { "rank": 2,  "label": "Connectivity & digitalization",                    "value": 50, "yoy":  1 },
+    { "rank": 3,  "label": "Battery electric mobility",                        "value": 49, "yoy": -1 },
+    { "rank": 4,  "label": "Hybrid electric mobility",                         "value": 47, "yoy":  5 },
+    { "rank": 5,  "label": "Market growth in emerging markets",                "value": 47, "yoy":  4 },
+    { "rank": 6,  "label": "Creating value out of big data",                   "value": 44, "yoy":  5 },
+    { "rank": 7,  "label": "Mobility-as-a-service",                            "value": 43, "yoy":  4 },
+    { "rank": 8,  "label": "Autonomous and self-driving vehicles",             "value": 41, "yoy":  4 },
+    { "rank": 9,  "label": "Platform strategies & module standardization",     "value": 40, "yoy":  0 },
+    { "rank": 10, "label": "Downsizing of internal combustion engine",         "value": 35, "yoy":  4 },
+    { "rank": 11, "label": "Rationalization of production in Western Europe",  "value": 31, "yoy":  0 }
+  ]
+}
