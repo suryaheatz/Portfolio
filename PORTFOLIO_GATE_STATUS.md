@@ -79,3 +79,12 @@ Perform **only Section 01 visual QA**: review actual desktop/mobile output, diag
 - GitHub manual dispatch requires the workflow to exist on the default branch. Since changes to `main` are separately gated, seek explicit approval for a **workflow-only** main-branch addition before installing it.
 - Prefer manual dispatch for the first run and an explicit gate identifier in the workflow. Do not auto-run on every status-file change until cost, security, and approval boundaries are verified.
 - Running an Action is separate from messaging the user's existing local Claude Code conversation.
+
+
+## User review decision — 2026-10-25 (Section 01)
+
+- User reviewed the genuine GitHub Actions Section 01 QA screenshots and considers the recovered appearance substantially better than the regressed version.
+- **Provisional visual acceptance for recovery sequencing**: preserve the current Section 01 visual composition and move forward with recovering the remaining sections. This is **not a claim of defect-free QA or final production sign-off**.
+- Defer minor visual refinements until after the full page recovery. Avoid repeated polish passes on Section 01 during recovery.
+- Record separately for the later stabilization pass: mobile drawer closed-state overlay (functional blocker), left chapter navigation styling, mobile gutter discrepancy, and Anime.js CDN 404. Functional issues should not be represented as merely aesthetic or silently ignored before final release.
+- Do not change Section 01 layout without a new approval. Next section can enter inspection/design proposal stage only; no unapproved implementation or deployment.
