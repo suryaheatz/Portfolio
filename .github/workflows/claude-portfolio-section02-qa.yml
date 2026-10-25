@@ -1,0 +1,71 @@
+name: Claude Portfolio Section 02 QA
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: claude-portfolio-section02-qa
+  cancel-in-progress: false
+
+jobs:
+  section02-qa:
+    if: github.repository == 'suryaheatz/Portfolio' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Check out approved recovery branch
+        uses: actions/checkout@v4
+        with:
+          ref: recovery/r0-centronic
+          persist-credentials: false
+
+      - name: Check current gate
+        shell: bash
+        run: |
+          set -eu
+          test -f PORTFOLIO_GATE_STATUS.md
+          grep -q 'Section 02: The Research' PORTFOLIO_GATE_STATUS.md
+          mkdir -p design-research/qa-r2-section02
+
+      - name: Install Chromium testing support
+        shell: bash
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/portfolio-http.log 2>&1 &
+          echo $! > /tmp/portfolio-http.pid
+          npx --yes playwright@1.58.2 install chromium --with-deps
+
+      - name: Claude Section 02 evidence-only review
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            Inspect ONLY Centronic Section 02: The Research. This is evidence-only.
+            Read PORTFOLIO_GATE_STATUS.md, including the current handoff, first.
+            Do not modify website source, style tokens, design files, or workflows.
+            Do not commit, push, deploy, open PRs, begin Section 03, or redesign.
+            Use http://127.0.0.1:4173 and real Chromium screenshots at 1440px,
+            390px and 375px. Capture Section 02 in context with adjacent boundaries.
+            Investigate section heading, research charts/diagrams, text, captions,
+            viewport scaling/clipping, horizontal overflow, gutters, transitions,
+            motion, and external resource errors. Distinguish Section 03 defects.
+            Compare against existing documented design decisions, not invented ideals.
+            Identify technical issues versus decisions for Claude Design. Preserve
+            content and figure assets. Write a factual findings report to
+            design-research/qa-r2-section02/report.md and genuine browser images
+            to that same directory. State what could not be verified. Stop for user
+            review with NO implementation changes.
+          claude_args: |
+            --max-turns 40
+            --allowedTools "Read,Glob,Grep,Bash,Write"
+      - name: Upload QA evidence even if Claude fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: centronic-section02-qa-evidence
+          path: design-research/qa-r2-section02/
+          if-no-files-found: warn
+          retention-days: 30
