@@ -1,0 +1,76 @@
+name: Claude Portfolio Section 01 QA
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: claude-portfolio-section01-qa
+  cancel-in-progress: false
+
+jobs:
+  section01-qa:
+    if: github.repository == 'suryaheatz/Portfolio' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out approved recovery branch
+        uses: actions/checkout@v4
+        with:
+          ref: recovery/r0-centronic
+          persist-credentials: false
+
+      - name: Check current gate
+        shell: bash
+        run: |
+          set -eu
+          test -f PORTFOLIO_GATE_STATUS.md
+          grep -q 'Visual lock: pending' PORTFOLIO_GATE_STATUS.md
+          mkdir -p design-research/qa-r2d-section01
+
+      - name: Install Chromium testing support
+        shell: bash
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 > /tmp/portfolio-http.log 2>&1 &
+          echo $! > /tmp/portfolio-http.pid
+          npx --yes playwright@1.58.2 install chromium --with-deps
+
+      - name: Claude Section 01 evidence-only review
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            You are performing ONLY the approved Centronic R2-D Section 01 visual QA gate.
+            Read PORTFOLIO_GATE_STATUS.md first and respect every pending approval.
+            This is a GitHub Actions ephemeral, evidence-only run. The GitHub token is read-only.
+            Do not edit site source, design tokens, workflows, or documentation outside
+            design-research/qa-r2d-section01. Do not git commit, push, deploy, open PRs,
+            or proceed to Section 02. Do not silently redesign anything.
+            Use the local static HTTP server at http://127.0.0.1:4173 and installed
+            Chromium to inspect Section 01. Use npx playwright CLI or a short
+            temporary browser automation script if needed; do not modify project files.
+            Inspect and report: (1) fidelity to approved Option C marginal label stack;
+            (2) actual origin/function of left chapter-navigation dots from DOM/CSS/JS;
+            (3) mobile at 375px and 390px, overflow, gutters, figure containment and caption;
+            (4) desktop at 1440px; (5) Section 01 scroll/motion behavior and external
+            JS/font loading, explicitly stating any conditions not verified.
+            Research/Scenario diagram issues are separate later gates: only log them.
+            Save readable QA findings in design-research/qa-r2d-section01/report.md.
+            Save genuine browser screenshots in that directory whenever possible.
+            Do not invent screenshots or claim tests passed without browser evidence.
+            Include tested URLs/viewports, failures, caveats, and file names.
+            Finish by summarizing evidence and STOP for user approval.
+          claude_args: |
+            --max-turns 22
+            --allowedTools "Read,Glob,Grep,Bash,Write"
+      - name: Upload QA evidence even if Claude fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: centronic-section01-qa-evidence
+          path: design-research/qa-r2d-section01/
+          if-no-files-found: warn
+          retention-days: 30
