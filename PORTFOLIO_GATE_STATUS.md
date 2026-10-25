@@ -1,0 +1,54 @@
+# SK Portfolio: Gate Status and Shared Handoff
+
+Updated: 2026-10-25
+Repository: `suryaheatz/Portfolio`
+Working branch: `recovery/r0-centronic`
+
+## Operating agreement
+
+- Claude Code performs implementation and reports evidence. ChatGPT evaluates screenshots, code, and audit findings; the user approves each gate.
+- Only work on the recovery branch. Never deploy or merge to `main` without the user's explicit approval.
+- Before beginning work, Claude Code must read this file from the checked-out branch and check Git status. A file update does not automatically send Claude a message or trigger execution.
+- After each gate Claude Code must write an evidence report into `design-research/`, commit screenshots or stable references, list files changed and known limitations, then stop for approval.
+- Do not infer approval from commits or from technical success. Previous decisions can be challenged, but require explanation and user approval before changing.
+- Preserve case-study content, assets, 12-chapter architecture, Evidence Gallery, and verified repairs unless explicitly approved otherwise.
+
+## Current status: R2-D / Section 01: The Context
+
+- Layout Option C, marginal label stack: **approved for implementation**.
+- Claude reported implementation in commit `ec1294a` on recovery branch.
+- User has submitted desktop screenshots showing the layout and neighboring sections.
+- **Visual lock: pending**. Section 02 is NOT authorized yet.
+
+### Outstanding checks
+
+- Investigate the visible vertical chapter-navigation dots at the left of one screenshot. Do not label them a rendering artifact without evidence.
+- Verify and present actual Section 01 mobile screenshots, including responsive alignment, diagram legibility and caption treatment.
+- Check animation behavior in a browser with required dependencies loaded; explicitly distinguish unverified cases.
+- Research and Scenario diagram scaling / right-edge clipping belong to their own later section gates. Do not change now.
+
+## Foundation and design decisions
+
+| Decision | Status |
+|---|---|
+| Historical surface-card wrappers | Approved as baseline; section exceptions require approval |
+| Dark scope card `#1a1917` with four metadata fields | Approved |
+| Historical `--sp-20` section rhythm | Approved as baseline |
+| GSAP core, ScrollTrigger, SplitText alignment at 3.15.0 | Claude reports implementation in `dad4bc6`; real-browser regression evidence incomplete |
+| Typography choice | Open; no bulk replacements |
+| Meta labels/chips | Open; no blanket decision |
+| Section 01 layout Option C | Approved for implementation; visual QA pending |
+| Section 02 layout | Not approved |
+| Production deployment / merge to main | Not approved |
+
+## Next Claude task (limited)
+
+Perform **only Section 01 visual QA**: review actual desktop/mobile output, diagnose navigation dots, and report whether Option C matches approved composition. Do not redesign or advance to Section 02 until user explicitly locks Section 01.
+
+## Handoff protocol
+
+1. Claude fetches Git and reads this file at session start.
+2. Claude works only within the approved gate, then commits an evidence report and stops.
+3. ChatGPT reviews the GitHub report directly when user asks for review.
+4. User approves, requests revisions, or rejects the gate.
+5. Approval must be recorded in this file before Claude begins the next gate. If ChatGPT cannot write to GitHub, Claude must record the user-confirmed approval after receiving it.
