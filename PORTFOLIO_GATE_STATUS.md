@@ -99,3 +99,24 @@ Inspect **only Section 02: The Research**, including diagram scaling, layout, mo
 **Inspection goals:** use real browser screenshots at desktop 1440px and mobile 390px/375px; confirm Section 02 heading, research copy, actual research figures, scaling and clipping, caption treatment, responsive gutters, overflow, and motion. Explain all broken assets/dependencies and distinguish findings originating from adjacent Section 03. Preserve project copy/images/12-chapter structure. Report under an uploaded GitHub Action artifact, and stop. Do not modify website source or present reference imagery as actual screenshot evidence.
 
 **Deferred stabilization list:** Section 01 drawer overlay, chapter rail button styling, mobile gutter discrepancy, anime.js CDN 404; track rather than silently redesign.
+
+
+## Recovery process correction — user direction, 2026-10-25
+
+**Authority:** the user's explicit approvals control. Existing Section 02 side-by-side research Bento is **NOT APPROVED**. It is existing implementation evidence, not a sanctioned design or baseline. Do not treat it as implicitly approved.
+
+### Mandatory gates for EACH section
+1. **Inventory + technical inspection**: Claude Code records actual content, asset list, interaction/motion (including previously built tooltips), current implementation, prior versions, and deviations. No visual redesign.
+2. **Interactive design playground**: design authority is Claude Design. Present real, identical section content and assets in 2–3 genuinely different compositions with responsive states and interactive motion/tooltip preview when relevant. Include a side-by-side comparison; references and mockups are labeled. No placeholder substitutions for actual section images.
+3. **User feedback and explicit approval**: user selects or revises layout, media behavior, motion and content mapping. Do not infer approval from existing code, a successful workflow or passage of time.
+4. **Implementation gate**: Claude Code implements ONLY approved artifact/spec, preserving named semantic component mappings and the existing design system. Any discrepancy is reported for approval, not improvised. No changes outside approved scope.
+5. **Browser QA / user visual gate**: actual desktop/mobile screenshots, interactions, known defects and comparisons to approved artifact; user locks or requests revision, then move to next section.
+6. **CMS integration AFTER full-page design recovery**: do not divert recovery effort into CMS migration now. Later evaluate Decap CMS vs WordPress and other options based on an exhaustive content field/component inventory, real editor preview and round-trip, and image editing without agent coding. Supabase not automatically required.
+
+### Content + design system contract
+- Enumerate every content element and its type: heading/section heading, paragraph, caption, tooltip trigger/body, image, alt text, figure, evidence diagram, component variant, external link, interaction, media layout, motion configuration.
+- The taxonomy must map to semantic UI components; no giant undifferentiated HTML/markdown entry replacing structured content, and no silently flattened tooltip into paragraph.
+- Retrieve existing tooltip implementation/motion reference and present it in the playground before any replacement/integration decision.
+- Prevent token-heavy edit cycles by deferring CMS decisions until content architecture and all section visual structures are approved; the later CMS must support field edits, media replacement and preview.
+
+**Next action:** Section 02 is in INVENTORY + DESIGN PLAYGROUND planning, not implementation. Pause automated section-02 changes. Section 01 provisional acceptance is unchanged; protect all other approved work and no deployment.
