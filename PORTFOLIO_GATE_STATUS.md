@@ -13,7 +13,7 @@ Working branch: `recovery/r0-centronic`
 - Do not infer approval from commits or from technical success. Previous decisions can be challenged, but require explanation and user approval before changing.
 - Preserve case-study content, assets, 12-chapter architecture, Evidence Gallery, and verified repairs unless explicitly approved otherwise.
 
-## Current status: Section 02: The Research — design playground explicitly authorized
+## Current status: Section 02: The Research — layout implementation approved, QA pending
 
 - Layout Option C, marginal label stack: **approved for implementation**.
 - Claude reported implementation in commit `ec1294a` on recovery branch.
@@ -38,12 +38,12 @@ Working branch: `recovery/r0-centronic`
 | Typography choice | Open; no bulk replacements |
 | Meta labels/chips | Open; no blanket decision |
 | Section 01 layout Option C | Provisionally visually accepted for recovery sequencing; final release QA pending; does not block Section 02 |
-| Section 02 layout | Interactive design playground explicitly authorized; implementation not approved |
+| Section 02 layout | Direction 1 stacked editorial layout approved for scoped implementation on recovery branch; image and copy approvals remain separate |
 | Production deployment / merge to main | Not approved |
 
 ## Next Claude task (limited)
 
-**Claude Design:** read `design-research/section02-research-design-brief.md` and produce the interactive Section 02 playground with three layout options, using existing images as *temporary unapproved stand-ins*. User will choose the final images independently. Present the playground for user approval, do not implement the website. **Claude Code:** provide inspection/source evidence only when needed. Do not change Section 01, proceed to Section 03, or deploy.
+**Claude Code:** implement the specifically approved Section 02 Direction 1 editorial stacked-evidence design from `design-research/section02-review/playground.html` on `recovery/r0-centronic`. Follow the scoped implementation specification in `design-research/section02-review/IMPLEMENTATION-GATE.md`. Preserve Section 01 and Section 03, do not deploy or merge. Capture actual browser QA evidence and stop for review.
 
 ## Handoff protocol
 
@@ -125,3 +125,8 @@ Working branch: `recovery/r0-centronic`
 ## Clarification to Claude Design — explicit authorization
 
 The earlier phrase `Visual lock: pending. Section 02 is NOT authorized yet` was **superseded** after the user viewed Section 01 QA screenshots and provisionally accepted Section 01 for recovery sequencing (recorded 2026-10-25). User subsequently explicitly instructed us to proceed with Section 02 design. **Do not demand another Section 01 visual lock before creating the Section 02 playground.** Final Section 01 stabilization and production sign-off remain pending, but they do not block the Section 02 *design* gate. This authorization does not extend to Section 02 implementation.
+
+
+## User approval — Section 02 layout implementation (2026-10-26)
+
+User said **“go ahead”** in response to the specific choice to approve Section 02 layout implementation with final images and copy remaining provisional. This explicitly authorizes only the **approved stacked editorial layout direction** described in the v3 playground and its independent QA report. It does NOT approve final media assets, the proposed new heading “What people reach for, and what they ignore.”, “Two lenses” label, Section 03, deployment, or CMS migration. Implementation must preserve existing content as the source of truth unless each new copy element is marked provisional. Fix lightbox accessibility and responsiveness during the scoped implementation, and submit actual screenshots/interaction evidence for user review. No automatic advance to Section 03.
