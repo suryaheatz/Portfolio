@@ -1,0 +1,39 @@
+name: Claude Portfolio Gate Smoke Test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: claude-portfolio-smoke
+  cancel-in-progress: false
+
+jobs:
+  smoke:
+    if: github.repository == 'suryaheatz/Portfolio'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out recovery branch
+        uses: actions/checkout@v4
+        with:
+          ref: recovery/r0-centronic
+          persist-credentials: false
+
+      - name: Confirm gate file exists
+        run: test -f PORTFOLIO_GATE_STATUS.md
+
+      - name: Claude read-only authentication and handoff test
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            This is an authentication/read-only smoke test, NOT authorization to implement.
+            Read PORTFOLIO_GATE_STATUS.md in the checked-out recovery branch.
+            Report the current gate, next permitted task, and the actions prohibited by the approval contract.
+            Do not edit files, make commits, push, create a pull request, deploy, or begin Section 02.
+          claude_args: |
+            --max-turns 5
+            --allowedTools "Read,Glob,Grep"
