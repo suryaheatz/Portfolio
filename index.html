@@ -522,6 +522,61 @@
       object-fit: cover; object-position: center center;
     }
 
+    /* CONTEXT LAYOUT §01 — Option C: Marginal Label Stack */
+    .cs-context-layout {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: var(--col-pad);
+      align-items: start;
+    }
+    .cs-context-margin {
+      padding-top: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-4);
+    }
+    .cs-context-main {
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-6);
+    }
+    .cs-context-figure {
+      margin-top: var(--sp-10);
+      width: 100%;
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      background: var(--surface);
+    }
+    .cs-context-figure img {
+      display: block;
+      width: 100%;
+      max-height: 480px;
+      object-fit: contain;
+      object-position: center center;
+    }
+    .cs-context-caption {
+      padding: var(--sp-3) var(--sp-4) var(--sp-4);
+      font-family: var(--font-sans);
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--ink-3);
+    }
+    @media (max-width: 640px) {
+      .cs-context-layout {
+        grid-template-columns: 1fr;
+        gap: var(--sp-4);
+      }
+      .cs-context-margin {
+        flex-direction: row;
+        align-items: center;
+        padding-top: 0;
+        gap: var(--sp-3);
+      }
+      .cs-context-figure img {
+        max-height: 280px;
+      }
+    }
+
     /* CASE STUDY TYPOGRAPHY */
     .cs-label {
       display: inline-block;
@@ -997,17 +1052,20 @@
 
     <!-- ─── THE CONTEXT ─── -->
     <div id="cs-context" style="scroll-margin-top:80px; margin-top:80px;"></div>
-    <p class="chapter-heading" style="margin-bottom:16px;">The Context</p>
-    <div class="sk-slide anim-block">
-      <div class="sk-slide-text">
+    <p class="chapter-heading" style="margin-bottom:24px;">The Context</p>
+    <div class="cs-context-layout anim-block">
+      <div class="cs-context-margin">
         <p class="cs-label">Starting point</p>
+      </div>
+      <div class="cs-context-main">
         <h3 class="cs-h3">The armrest had no language.</h3>
         <p class="cs-body">In a mid-size passenger car, the centre armrest sits between driver and passenger — physically central, yet entirely passive. No controls. No feedback. No interface. The Centronic brief was to change that: design an interaction model for a new tactile input device that could live in that space and let the passenger control cabin functions without lifting their eyes off the road — or the conversation.</p>
       </div>
-      <div class="sk-slide-image">
-        <img src="/public/images/centronic-cockpit.png" alt="Exploded view of the car armrest — two moulded pieces separated to reveal the interior cavity">
-      </div>
     </div>
+    <figure class="cs-context-figure anim-block">
+      <img src="/public/images/centronic-cockpit.png" alt="Exploded view of the car armrest — two moulded pieces separated to reveal the interior cavity">
+      <figcaption class="cs-context-caption">Exploded view of the centre armrest — two moulded halves separated to show the internal cavity where the MRF thumbwheel assembly sits</figcaption>
+    </figure>
 
     <!-- ─── THE RESEARCH ─── -->
     <div id="cs-research" style="scroll-margin-top:80px; margin-top:80px;"></div>
