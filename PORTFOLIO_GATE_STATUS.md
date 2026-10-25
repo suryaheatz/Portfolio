@@ -13,12 +13,12 @@ Working branch: `recovery/r0-centronic`
 - Do not infer approval from commits or from technical success. Previous decisions can be challenged, but require explanation and user approval before changing.
 - Preserve case-study content, assets, 12-chapter architecture, Evidence Gallery, and verified repairs unless explicitly approved otherwise.
 
-## Current status: R2-D / Section 01: The Context
+## Current status: R2 / Section 02: The Research — inspection authorized
 
 - Layout Option C, marginal label stack: **approved for implementation**.
 - Claude reported implementation in commit `ec1294a` on recovery branch.
 - User has submitted desktop screenshots showing the layout and neighboring sections.
-- **Visual lock: pending**. Section 02 is NOT authorized yet.
+- **Provisionally accepted for recovery sequencing** after user reviewed actual QA screenshots. Final production sign-off pending.
 
 ### Outstanding checks
 
@@ -38,12 +38,12 @@ Working branch: `recovery/r0-centronic`
 | Typography choice | Open; no bulk replacements |
 | Meta labels/chips | Open; no blanket decision |
 | Section 01 layout Option C | Approved for implementation; visual QA pending |
-| Section 02 layout | Not approved |
+| Section 02 layout | Inspection and design review authorized; implementation not approved |
 | Production deployment / merge to main | Not approved |
 
 ## Next Claude task (limited)
 
-Perform **only Section 01 visual QA**: review actual desktop/mobile output, diagnose navigation dots, and report whether Option C matches approved composition. Do not redesign or advance to Section 02 until user explicitly locks Section 01.
+Inspect **only Section 02: The Research**, including diagram scaling, layout, mobile responsiveness, and transitions to adjacent sections. Capture genuine screenshots, explain technical versus visual issues, and report findings. Do not redesign or implement. Preserve Section 01, the approved content, and other chapters. Stop for design review.
 
 ## Handoff protocol
 
@@ -88,3 +88,14 @@ Perform **only Section 01 visual QA**: review actual desktop/mobile output, diag
 - Defer minor visual refinements until after the full page recovery. Avoid repeated polish passes on Section 01 during recovery.
 - Record separately for the later stabilization pass: mobile drawer closed-state overlay (functional blocker), left chapter navigation styling, mobile gutter discrepancy, and Anime.js CDN 404. Functional issues should not be represented as merely aesthetic or silently ignored before final release.
 - Do not change Section 01 layout without a new approval. Next section can enter inspection/design proposal stage only; no unapproved implementation or deployment.
+
+
+## Current handoff — Section 02 / The Research (2026-10-25)
+
+**User authorization:** proceed to **inspection and design review** for Section 02 after provisional acceptance of Section 01. **Not** authorization to implement, deploy, or merge.
+
+**Division of responsibility:** Claude Code is an evidence-only technical inspector. Claude Design is the design authority for any visual change; user approves before implementation. ChatGPT reviews technical evidence and design alignment.
+
+**Inspection goals:** use real browser screenshots at desktop 1440px and mobile 390px/375px; confirm Section 02 heading, research copy, actual research figures, scaling and clipping, caption treatment, responsive gutters, overflow, and motion. Explain all broken assets/dependencies and distinguish findings originating from adjacent Section 03. Preserve project copy/images/12-chapter structure. Report under an uploaded GitHub Action artifact, and stop. Do not modify website source or present reference imagery as actual screenshot evidence.
+
+**Deferred stabilization list:** Section 01 drawer overlay, chapter rail button styling, mobile gutter discrepancy, anime.js CDN 404; track rather than silently redesign.
