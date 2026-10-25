@@ -13,14 +13,14 @@ Working branch: `recovery/r0-centronic`
 - Do not infer approval from commits or from technical success. Previous decisions can be challenged, but require explanation and user approval before changing.
 - Preserve case-study content, assets, 12-chapter architecture, Evidence Gallery, and verified repairs unless explicitly approved otherwise.
 
-## Current status: R2 / Section 02: The Research — inspection authorized
+## Current status: Section 02: The Research — design playground explicitly authorized
 
 - Layout Option C, marginal label stack: **approved for implementation**.
 - Claude reported implementation in commit `ec1294a` on recovery branch.
 - User has submitted desktop screenshots showing the layout and neighboring sections.
 - **Provisionally accepted for recovery sequencing** after user reviewed actual QA screenshots. Final production sign-off pending.
 
-### Outstanding checks
+### Deferred Section 01 stabilization checks (not blockers to Section 02 design)
 
 - Investigate the visible vertical chapter-navigation dots at the left of one screenshot. Do not label them a rendering artifact without evidence.
 - Verify and present actual Section 01 mobile screenshots, including responsive alignment, diagram legibility and caption treatment.
@@ -37,13 +37,13 @@ Working branch: `recovery/r0-centronic`
 | GSAP core, ScrollTrigger, SplitText alignment at 3.15.0 | Claude reports implementation in `dad4bc6`; real-browser regression evidence incomplete |
 | Typography choice | Open; no bulk replacements |
 | Meta labels/chips | Open; no blanket decision |
-| Section 01 layout Option C | Approved for implementation; visual QA pending |
-| Section 02 layout | Inspection and design review authorized; implementation not approved |
+| Section 01 layout Option C | Provisionally visually accepted for recovery sequencing; final release QA pending; does not block Section 02 |
+| Section 02 layout | Interactive design playground explicitly authorized; implementation not approved |
 | Production deployment / merge to main | Not approved |
 
 ## Next Claude task (limited)
 
-Inspect **only Section 02: The Research**, including diagram scaling, layout, mobile responsiveness, and transitions to adjacent sections. Capture genuine screenshots, explain technical versus visual issues, and report findings. Do not redesign or implement. Preserve Section 01, the approved content, and other chapters. Stop for design review.
+**Claude Design:** read `design-research/section02-research-design-brief.md` and produce the interactive Section 02 playground with three layout options, using existing images as *temporary unapproved stand-ins*. User will choose the final images independently. Present the playground for user approval, do not implement the website. **Claude Code:** provide inspection/source evidence only when needed. Do not change Section 01, proceed to Section 03, or deploy.
 
 ## Handoff protocol
 
@@ -58,11 +58,11 @@ Inspect **only Section 02: The Research**, including diagram scaling, layout, mo
 ## Agent handoff queue (ChatGPT authored, 2026-10-25)
 
 **Queue item:** `CENTRONIC-R2D-QA-001`  
-**Status:** READY FOR RUNNER SETUP; NOT EXECUTING  
+**Status:** HISTORICAL / COMPLETED (Section 01 QA ran; evidence archived in GitHub Actions run 40207934681)  
 **Gate:** R2-D Section 01 visual QA only  
 **Approval:** User approved establishing automation infrastructure, **not** broad redesign, production deployment, or bypassing section gates.
 
-### Task for Claude Code when the runner is configured
+### Archived instructions for the completed Section 01 QA run (not current directions)
 
 1. Fetch the recovery branch and read this file first.
 2. Inspect the Section 01 implementation for Option C without redesigning it.
@@ -120,3 +120,8 @@ Inspect **only Section 02: The Research**, including diagram scaling, layout, mo
 - Prevent token-heavy edit cycles by deferring CMS decisions until content architecture and all section visual structures are approved; the later CMS must support field edits, media replacement and preview.
 
 **Next action:** Section 02 is in INVENTORY + DESIGN PLAYGROUND planning, not implementation. Pause automated section-02 changes. Section 01 provisional acceptance is unchanged; protect all other approved work and no deployment.
+
+
+## Clarification to Claude Design — explicit authorization
+
+The earlier phrase `Visual lock: pending. Section 02 is NOT authorized yet` was **superseded** after the user viewed Section 01 QA screenshots and provisionally accepted Section 01 for recovery sequencing (recorded 2026-10-25). User subsequently explicitly instructed us to proceed with Section 02 design. **Do not demand another Section 01 visual lock before creating the Section 02 playground.** Final Section 01 stabilization and production sign-off remain pending, but they do not block the Section 02 *design* gate. This authorization does not extend to Section 02 implementation.
