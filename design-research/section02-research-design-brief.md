@@ -3,7 +3,7 @@
 Status: **PRE-IMPLEMENTATION. NO LAYOUT APPROVED.** Owner of design exploration: Claude Design. Reviewer: user. Technical inspector: Claude Code.
 Date: 2026-10-25. Source: current recovery-branch `index.html` lines 1070–1095 and prior GitHub QA artifact run 40210163255.
 
-## Actual content to preserve in every variant
+## Existing content and temporary assets for layout evaluation
 - Section heading: **The Research**.
 - Evidence image 1: `/public/images/centronic-research-matrix.jpg`; alt: “Start-Stop-Continue retrospective: sticky notes on an importance vs frequency matrix”.
 - Caption 1: “Start–Stop–Continue matrix — mapping what cabin controls passengers actually use, and how often”.
@@ -13,11 +13,20 @@ Date: 2026-10-25. Source: current recovery-branch `index.html` lines 1070–1095
 - Existing expand-icon affordances are nonfunctional; do not claim they work.
 - Section boundary follows approved Context; next chapter is Scenario, excluded from changes.
 
+## Image ownership and approval (user clarification, 2026-10-25)
+- The currently implemented research images are **temporary layout stand-ins**, not verified or approved final assets. They may have been chosen without the user's consent.
+- Use these existing files for playground geometry and layout comparison **only**, clearly labeled **TEMPORARY / IMAGE NOT APPROVED**. Do not imply that image selection or visual narrative is approved.
+- User independently selects, prepares, uploads, crops, orders and approves the final images. Do not auto-fetch, generate, substitute, or commit final images without explicit approval.
+- Layout approval is separate from **media approval**. The section cannot receive final production sign-off until actual assets, alt text, captions, scale and crop policies are reviewed.
+- The playground must allow independent examination of composition with variable aspect ratios and show how a future user-supplied image would fit. Asset replacement must preserve layout and interactions without Claude recreating the whole section.
+- Keep original current images only as reference placeholders, preserve file provenance, and expose clear image slots (Research figure 1, Research figure 2), with customizable fit/contain/full-view behavior.
+- CMS later should make image replacement and preview self-service, avoiding coding or prompt iterations.
+
 ## Critical constraint
-The existing side-by-side clipped Bento is a **historical implementation, never user-approved**. Do not use it as an approval default. The task is to provide genuine choices. Never replace the actual matrix/IA images with stock, AI-generated or reference imagery.
+The existing side-by-side clipped Bento is a **historical implementation, never user-approved**. Do not use it as an approval default. The task is to provide genuine choices. Never replace the current placeholder files with stock, AI-generated or newly retrieved images; they are NOT approved as final.
 
 ## Required interactive playground (Claude Design)
-Produce one interactive artifact with a switcher and 3 genuinely different candidate arrangements, using identical real text, images and captions, not independent copywriting:
+Produce one interactive artifact with a switcher and 3 genuinely different candidate arrangements, using identical current text, temporary images and captions (all media clearly tagged as not approved), not independent copywriting:
 - **A. Evidence-first vertical**: complete/uncropped figure 1 followed by figure 2, each with a caption, concise framing paragraph.
 - **B. Editorial guided narrative**: text + figure sequencing that foregrounds the two research lenses with figure sizes determined by legibility, not forced Bento cropping.
 - **C. Inspectable evidence**: accessible previews with explicit full-size modal/zoom/pan or separate expanded evidence panel; maintain visible captions and support keyboard and mobile interactions.
