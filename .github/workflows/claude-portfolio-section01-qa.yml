@@ -64,7 +64,7 @@ jobs:
             Include tested URLs/viewports, failures, caveats, and file names.
             Finish by summarizing evidence and STOP for user approval.
           claude_args: |
-            --max-turns 22
+            --max-turns 40
             --allowedTools "Read,Glob,Grep,Bash,Write"
       - name: Upload QA evidence even if Claude fails
         if: always()
