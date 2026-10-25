@@ -52,3 +52,30 @@ Perform **only Section 01 visual QA**: review actual desktop/mobile output, diag
 3. ChatGPT reviews the GitHub report directly when user asks for review.
 4. User approves, requests revisions, or rejects the gate.
 5. Approval must be recorded in this file before Claude begins the next gate. If ChatGPT cannot write to GitHub, Claude must record the user-confirmed approval after receiving it.
+
+---
+
+## Agent handoff queue (ChatGPT authored, 2026-10-25)
+
+**Queue item:** `CENTRONIC-R2D-QA-001`  
+**Status:** READY FOR RUNNER SETUP; NOT EXECUTING  
+**Gate:** R2-D Section 01 visual QA only  
+**Approval:** User approved establishing automation infrastructure, **not** broad redesign, production deployment, or bypassing section gates.
+
+### Task for Claude Code when the runner is configured
+
+1. Fetch the recovery branch and read this file first.
+2. Inspect the Section 01 implementation for Option C without redesigning it.
+3. Diagnose the left-side chapter-navigation dots from screenshot evidence and the actual DOM/CSS/JS. Distinguish intended behavior from defects.
+4. Capture **real** mobile screenshots at 375px and 390px, and desktop evidence. Include viewport sizes, URLs, and page positions. Test diagram containment, caption legibility, horizontal overflow, and gutters.
+5. Test Section 01 related scroll reveals and transitions with dependencies successfully loaded; report failures and untested conditions separately.
+6. Commit an evidence report and screenshots under `design-research/` on the recovery branch, listing checks, conclusions, changes (if any), and outstanding issues.
+7. **STOP.** Do not modify neighboring sections, start Section 02, merge to main, or deploy production. Ask the user to lock Section 01 after ChatGPT reviews the evidence.
+
+### Runner prerequisites
+
+- Set up the official Anthropic Claude Code GitHub Action after reviewing its security and usage terms.
+- Provide authentication via a GitHub Actions secret (e.g. `ANTHROPIC_API_KEY` or `CLAUDE_CODE_OAUTH_TOKEN`). Never place secret values in files or chat.
+- GitHub manual dispatch requires the workflow to exist on the default branch. Since changes to `main` are separately gated, seek explicit approval for a **workflow-only** main-branch addition before installing it.
+- Prefer manual dispatch for the first run and an explicit gate identifier in the workflow. Do not auto-run on every status-file change until cost, security, and approval boundaries are verified.
+- Running an Action is separate from messaging the user's existing local Claude Code conversation.
