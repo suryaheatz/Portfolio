@@ -1,7 +1,7 @@
 /*
  * SK DESIGN SYSTEM — Shared Token File
  * Single source of truth for all DS tokens.
- * Both index.html and case-studies/*/index.html link to this file.
+ * Both index.html and case-studies/<slug>/index.html link to this file.
  * Updating tokens here propagates to every page on the next Vercel deploy.
  *
  * Usage: <link rel="stylesheet" href="/public/ds-tokens.css">

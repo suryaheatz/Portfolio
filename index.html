@@ -190,28 +190,30 @@
     }
 
     /* ══════════════════════════════════════════════════
-       SECTION TRANSITION CARDS — GSAP sectionTransition01
-       Each card is full-page (100vh) so it completely
-       covers the section above when pinned over it.
+       SECTION TRANSITION CARDS — CSS sticky stack
+       Each card sticks at top:0 while the next slides
+       over it. No GSAP pin — CSS sticky is the correct
+       tool here (GSAP pin breaks the full-bleed trick).
     ══════════════════════════════════════════════════ */
     .st-card {
-      position: relative;
-      width: 100vw;
-      left: 50%;
-      margin-left: -50vw;
+      position: sticky;
+      top: 0;
+      width: 100%;
       min-height: 100vh;
     }
 
-    /* Brief: full-page light card, covers hero image */
+    /* Brief: z-index 2 — stacks above hero image */
     .st-brief {
       background: var(--bg);
       border-radius: var(--r-lg) var(--r-lg) 0 0;
+      z-index: 2;
     }
 
-    /* Scope: full-page dark card, covers brief */
+    /* Scope: z-index 3 — stacks above brief */
     .st-scope {
       background: var(--ink-dark);
       border-radius: var(--r-lg) var(--r-lg) 0 0;
+      z-index: 3;
     }
 
     /* Sketch image below scope strip */
@@ -606,12 +608,12 @@
     /* ─────────────────────────────────────────
        SPHERE → PROTOTYPE SEQUENCE
     ───────────────────────────────────────── */
-    /* ── Prototype section — slides over scope card like scope slides over brief ── */
+    /* ── Prototype section — slides over scope card (z:4 > scope z:3) ── */
     #proto-trigger {
-      position: relative;
-      width: 100vw;
-      left: 50%;
-      margin-left: -50vw;
+      position: sticky;
+      top: 0;
+      z-index: 4;
+      width: 100%;
       min-height: 100vh;
       background: var(--bg);
       border-radius: var(--r-lg) var(--r-lg) 0 0;
@@ -1393,24 +1395,12 @@
   });
 
   /* ─────────────────────────────────────────
-     sectionTransition01 — pin-over-pin stack
-     Each [data-st-01="pin"] element is pinned
-     while its next sibling scrolls over it.
+     sectionTransition01 — handled by CSS sticky
+     .st-brief (z:2) and .st-scope (z:3) use
+     position:sticky; top:0 so each card stays
+     visible while the next slides over it.
+     No GSAP pin needed — CSS sticky is correct.
   ───────────────────────────────────────── */
-  (function sectionTransition01() {
-    const pinEls = document.querySelectorAll('[data-st-01="pin"]');
-    pinEls.forEach((section) => {
-      const nextSection = section.nextElementSibling;
-      if (!nextSection) return;
-      ScrollTrigger.create({
-        trigger: nextSection,
-        start: 'top bottom',
-        end: 'top top',
-        pin: section,
-        pinSpacing: false,
-      });
-    });
-  })();
 
   /* ─────────────────────────────────────────
      5. CHAPTER LIST — one ScrollTrigger per row
