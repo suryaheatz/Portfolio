@@ -14,7 +14,7 @@ concurrency:
 jobs:
   section01-qa:
     if: github.repository == 'suryaheatz/Portfolio' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
       - name: Check out approved recovery branch
