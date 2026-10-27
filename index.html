@@ -1631,6 +1631,35 @@
     // Nav entrance (GSAP still handles this small fade-in)
     gsap.from('.nav', { autoAlpha: 0, duration: 0.5, ease: 'power3.out', delay: 0.1 });
 
+    /* ─────────────────────────────────────────
+       5. CHAPTER LIST — one ScrollTrigger per row
+       Must run inside window.load because items are
+       added to the DOM dynamically by the chapter
+       rail JS (after DOMContentLoaded). At load time
+       the items exist; at script-parse time they don't.
+    ───────────────────────────────────────── */
+    const chapterSection = document.querySelector('.chapter-list')
+      ? document.querySelector('.chapter-list').closest('.section') : null;
+
+    if (chapterSection) {
+      const chItems = gsap.utils.toArray('.chapter-list li');
+      gsap.set(chItems, { autoAlpha: 0, x: -14 });
+
+      chItems.forEach((item) => {
+        gsap.to(item, {
+          autoAlpha: 1, x: 0,
+          duration: 0.5,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: item,
+            start: 'top 88%',       // fires as each row enters viewport
+            toggleActions: 'play none none none',
+            invalidateOnRefresh: true,
+          }
+        });
+      });
+    }
+
   }); // end window load
 
   /* ─────────────────────────────────────────
@@ -1674,33 +1703,6 @@
      visible while the next slides over it.
      No GSAP pin needed — CSS sticky is correct.
   ───────────────────────────────────────── */
-
-  /* ─────────────────────────────────────────
-     5. CHAPTER LIST — one ScrollTrigger per row
-     Each row has its own trigger so they fire
-     in sequence as the user scrolls, not all at once.
-  ───────────────────────────────────────── */
-  const chapterSection = document.querySelector('.chapter-list')
-    ? document.querySelector('.chapter-list').closest('.section') : null;
-
-  if (chapterSection) {
-    const chItems = gsap.utils.toArray('.chapter-list li');
-    gsap.set(chItems, { autoAlpha: 0, x: -14 });
-
-    chItems.forEach((item) => {
-      gsap.to(item, {
-        autoAlpha: 1, x: 0,
-        duration: 0.5,
-        ease: 'power2.out',
-        scrollTrigger: {
-          trigger: item,
-          start: 'top 88%',       // fires as each row enters viewport
-          toggleActions: 'play none none none',
-          invalidateOnRefresh: true,
-        }
-      });
-    });
-  }
 
   /* ─────────────────────────────────────────
      6. PULL QUOTE — simple scroll-in, no pin
