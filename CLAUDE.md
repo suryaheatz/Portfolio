@@ -107,9 +107,21 @@ missing documentation before implementing a new pattern.
 ### Radii
 
 ```css
+/* Legacy aliases (backward compatibility) */
 --r-sm:  6px;
 --r-md: 12px;
 --r-lg: 20px;
+
+/* Numeric scale (4px base; 28px intentionally excluded) */
+--r-1:  4px;
+--r-2:  8px;
+--r-3: 12px;
+--r-4: 16px;
+--r-5: 20px;
+--r-6: 24px;
+--r-7: 32px;
+--r-8: 40px;
+--r-9: 48px;
 ```
 
 ### Spacing (4px base)
