@@ -119,12 +119,12 @@ Working branch: `recovery/r0-centronic`
 - Retrieve existing tooltip implementation/motion reference and present it in the playground before any replacement/integration decision.
 - Prevent token-heavy edit cycles by deferring CMS decisions until content architecture and all section visual structures are approved; the later CMS must support field edits, media replacement and preview.
 
-**Next action:** Section 02 is in INVENTORY + DESIGN PLAYGROUND planning, not implementation. Pause automated section-02 changes. Section 01 provisional acceptance is unchanged; protect all other approved work and no deployment.
+**Historical note (superseded):** Section 02 was previously in inventory/design planning. The later user approval authorizes scoped implementation per `design-research/section02-review/IMPLEMENTATION-GATE.md`. Section 01 provisional acceptance is unchanged; protect all other approved work and no deployment.
 
 
 ## Clarification to Claude Design — explicit authorization
 
-The earlier phrase `Visual lock: pending. Section 02 is NOT authorized yet` was **superseded** after the user viewed Section 01 QA screenshots and provisionally accepted Section 01 for recovery sequencing (recorded 2026-10-25). User subsequently explicitly instructed us to proceed with Section 02 design. **Do not demand another Section 01 visual lock before creating the Section 02 playground.** Final Section 01 stabilization and production sign-off remain pending, but they do not block the Section 02 *design* gate. This authorization does not extend to Section 02 implementation.
+The earlier phrase `Visual lock: pending. Section 02 is NOT authorized yet` was **superseded** after the user viewed Section 01 QA screenshots and provisionally accepted Section 01 for recovery sequencing (recorded 2026-10-25). User subsequently explicitly instructed us to proceed with Section 02 design. **Do not demand another Section 01 visual lock before creating the Section 02 playground.** Final Section 01 stabilization and production sign-off remain pending, but they do not block the Section 02 *design* gate. At the time of this earlier design-stage note, implementation was not yet authorized. **SUPERSEDED by the later explicit user approval recorded under “User approval — Section 02 layout implementation (2026-10-26)” below.**
 
 
 ## User approval — Section 02 layout implementation (2026-10-26)
