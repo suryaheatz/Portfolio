@@ -29,10 +29,10 @@ All composite components inherit from the L1 token set. The following specific d
 | Composite Component | Critical Token Dependencies |
 |--------------------|-----------------------------|
 | Bento Cell (in Bento Grid) | `--r-bento`, `--bento-gap`, `--bento-row`, `--surface`, `--ink` |
-| Pull Quote Card | `--font-serif`, `--surface`, `--r-lg`, `--sp-8` |
+| Pull Quote Card | `--font-quote` (Zodiak — DS-03 active), `--surface`, `--r-lg`, `--sp-8` |
 | Burst Divider | `--sun`, `--ease-out`, `--t-mid` (SVG stroke animation) |
 | Gallery Item | `--r-md`, `--ease-out`, `--t-mid` |
-| Slide Card | `--font-serif`, `--surface` / `--ink-dark`, `--col-pad`, `--r-lg` |
+| Slide Card | `--font-display` (Bricolage Grotesque — DS-03 active), `--surface` / `--ink-dark`, `--col-pad`, `--r-lg` |
 | Chip / Tag | `--surface`, `--sun-muted`, `--sun`, `--r-sm` |
 | Accordion Item | `--rule`, `--ink`, `--ease-out`, `--t-mid` |
 
@@ -289,8 +289,19 @@ The following behaviors are shared across multiple block types. They must be ini
 | BentoBlock cannot be nested inside TabsBlock | Animation complexity — 3D tilt + Flip expand inside a hidden tab panel breaks GSAP |
 | PrototypeEmbedBlock must not appear inside Bento cells | GSAP morph requires fixed viewport coordinates |
 | Slides Panel (L4-02) is incompatible with arbitrary block ordering | It is a page-level tab panel, not a content block |
-| HeroBlock must appear first in block array if used | Pin-over-pin sequence depends on DOM order |
+| HeroBlock must appear first in block array if used | GSAP pin-over-pin sequence (`sectionTransition01`) depends on DOM order of `[data-st-01="pin"]` elements |
 
 ---
 
-*Generated 2026-10-27 · SK Portfolio Payload CMS Migration · Read-only inventory*
+## §25 / §26 Hierarchy Additions (G6.1)
+
+| Block Family | Level | Variants | Notes |
+|-------------|-------|----------|-------|
+| BK-14 Statistical Chart | L3 | 3 (bar, line, scatter) | Observable Plot L2 component; SK wrapper L2; combined = L3 block |
+| BK-15 Case Media | L3 | 6 (A–F) | Media pattern selector; some variants embed Bento (BK-02) as L2 component |
+
+**BK-15-B (Adaptive Bento)** is the only Case Media variant that nests an L2 Bento composition. The bento grid itself (CSS, tilt, Flip) remains the same §22 system. BK-15-B adds the pattern-selection layer on top.
+
+---
+
+*Generated 2026-10-27 · Updated G6.1 2026-10-27 · SK Portfolio Payload CMS Migration · Read-only inventory*

@@ -83,7 +83,7 @@ function sectionTransition01() {
 }
 ```
 
-**CRITICAL NOTE (from CLAUDE.md):** `CSS sticky` is the correct tool for `.hero-image-section`. DO NOT attempt GSAP `pin` on it. GSAP pin breaks the full-bleed `left: 50%; margin-left: -50vw` trick used on `.st-card`.
+**CORRECTION (G6.1 — verified 2026-10-27):** The live `index.html` uses `ScrollTrigger.create({ pin: section, pinSpacing: false })` on ALL FOUR `[data-st-01="pin"]` elements: `.hero-image-section`, `.st-brief`, `.st-scope`, and `#proto-trigger`. This is GSAP ScrollTrigger pin, not CSS sticky. The pattern was restored in commit `40e2d95` ("fix: restore GSAP pin-over-pin for Hero→Brief→Scope scroll transition"). The user has visually confirmed the transition works. The `CLAUDE.md` warning ("Do NOT attempt GSAP pin on `.hero-image-section`") is outdated relative to the live implementation and must NOT be used as migration guidance. Do not change the working animation code.
 
 **Present in:** Both case studies (identical code)  
 **Migration risk:** High  
@@ -440,7 +440,7 @@ var io2 = new IntersectionObserver(function(entries) {
 |-----------|-----------|------|---------------|
 | AN-01 SplitText entrance | HeroBlock | Medium | Hydration conflict with DOM restructuring |
 | AN-02 Hero parallax | HeroBlock | Low | Standard pattern |
-| AN-03 Pin-over-pin | HeroBriefScopeStack | High | Page-level ScrollTrigger, sticky CSS interaction |
+| AN-03 Pin-over-pin | HeroBriefScopeStack | High | GSAP ScrollTrigger pin, pinSpacing:false — confirmed working (commit 40e2d95) |
 | AN-14 Bento 3D tilt | BentoBlock | Medium | Ref-based event listeners, cleanup on unmount |
 | AN-15 Bento Flip expand | BentoBlock | High | GSAP Flip + React reconciliation conflict |
 | AN-16 Mobile card stack | BentoBlock | High | Media query branch rendering |
@@ -470,4 +470,34 @@ The existing vanilla JS behavior **can be adapted to React/TypeScript** without 
 
 ---
 
-*Generated 2026-10-27 · SK Portfolio Payload CMS Migration · Read-only inventory*
+## Motion Token Values (recovered G6.1 — 2026-10-27)
+
+Previously missing from this inventory. All values confirmed from `public/ds-tokens.css`.
+
+### Duration scale
+
+| Token | Value |
+|-------|-------|
+| `--dur-instant` | `120ms` |
+| `--dur-fast` | `220ms` |
+| `--dur-mid` | `380ms` |
+| `--dur-slow` | `580ms` |
+
+### Easing tokens
+
+| Token | Cubic-bezier | Character |
+|-------|--------------|-----------|
+| `--ease-reveal` | `cubic-bezier(0.39,0.575,0.565,1)` | Smooth decelerate (Sinusoidal Out) |
+| `--ease-enter` | `cubic-bezier(0.19,1,0.22,1)` | Fast in, slow settle (Expo Out) |
+| `--ease-leave` | `cubic-bezier(0.95,0.05,0.795,0.035)` | Sharp accelerate out (Expo In) |
+| `--ease-lift` | `cubic-bezier(0.34,1.1,0.64,1)` | Slight overshoot (Back Out) |
+| `--ease-snap` | `cubic-bezier(0.37,0,0.63,1)` | Symmetric smooth (Sine InOut) |
+| `--ease-path` | `cubic-bezier(0.16,1,0.3,1)` | Hard ease out — same as `--ease-out` |
+| `--ease-out-quart` | `cubic-bezier(0.165,0.84,0.44,1)` | Quart Out |
+| `--ease-out` | `cubic-bezier(0.16,1,0.3,1)` | Canonical ease-out alias |
+
+**Note:** MC-12 (motion token values) is resolved. Status updated in `MISSING-COMPONENTS-AND-ARTIFACTS.md`.
+
+---
+
+*Generated 2026-10-27 · Updated G6.1 2026-10-27 · SK Portfolio Payload CMS Migration · Read-only inventory*

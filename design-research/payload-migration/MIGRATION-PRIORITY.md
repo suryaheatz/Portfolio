@@ -297,18 +297,22 @@ These components cannot be migrated until missing source evidence is recovered (
 
 ---
 
-## First Sprint Recommendation
+## First Sprint Recommendation — G6.1 REVISED
 
-**Sprint 1 scope (lowest risk, immediately testable):**
+**Sprint 1 scope (G6.1 revised — foundation first, not full case study rebuild):**
 
-1. `P-01` Design Tokens — global CSS import  
-2. `P-02` Page Shell — Payload `case-studies` collection + nav + rail  
-3. `P-03` Hero Block — hero image, title, subtitle  
-4. **`P-04` Prose Block** — variant A (plain prose) only, to prove the blocks renderer pattern  
-5. `P-05` Chips Block — standalone + inline in Prose  
-6. `P-09` Quote Two-Up Block — simplest editorial block after Prose  
+1. **Payload foundation** — Install, configure Next.js integration, admin panel running locally  
+2. **Token integration** — `ds-tokens.css` loaded in Payload frontend; SK tokens verified in admin UI  
+3. **Admin access** — User (Surya) can log in, navigate collections  
+4. **`P-04` Prose Block (plain variant only)** — one real editable block, proves the blocks renderer  
+5. **Live preview** — Desktop + mobile preview working for Prose content  
+6. **Draft/publish verification** — Save draft → publish → render on frontend  
+7. **Comparison checkpoint** — Side-by-side against existing HTML
 
-At the end of Sprint 1: one case study should be partially authorable in Payload, with hero, plain prose sections, chips, and a quote block all rendering correctly, with scroll reveals firing.
+**Do not** start Sprint 1 by rebuilding the entire Centronic case study.  
+**Do not** include Hero Block, Chips Block, or Quote Two-Up Block in Sprint 1 — these come in Sprint 2 after the foundation is proven.  
+**Do** preserve existing HTML, CSS, GSAP behaviors, imagery and content as the source of truth at all times.  
+**Do** account for access-management requirements already committed in `b14f834`.
 
 ---
 
@@ -320,11 +324,11 @@ From `CLAUDE.md`:
 |-----------|----------------|
 | No dark mode — `body` always `var(--bg)` | Never add a dark mode toggle. Tokens stay fixed. |
 | Never remove animations unilaterally | GSAP and Anime.js behaviors must survive migration. Discuss before dropping any. |
-| CSS sticky for pin-over-pin — no GSAP pin | `st-brief` and `st-scope` must remain CSS sticky, never GSAP ScrollTrigger pin. |
+| GSAP pin-over-pin — sectionTransition01 (G6.1 CORRECTION) | `.hero-image-section`, `.st-brief`, `.st-scope`, `#proto-trigger` all use `ScrollTrigger.create({ pin:section, pinSpacing:false })`. This is GSAP pin, NOT CSS sticky. The CLAUDE.md instruction "Do NOT attempt GSAP pin on .hero-image-section" is outdated. Live code confirmed via commit `40e2d95`. Do not revert to CSS sticky. |
 | Never attempt proximity border-radius | Not to be reimplemented in React. |
 | No close icon / exit text / status bar | PrototypeEmbedBlock overlay has no close button. |
 | ZF is not a client — copy uses "I was a Senior UX Designer at ZF" | Prose content must be preserved verbatim. |
 
 ---
 
-*Generated 2026-10-27 · SK Portfolio Payload CMS Migration · Read-only inventory*
+*Generated 2026-10-27 · Updated G6.1 2026-10-27 · SK Portfolio Payload CMS Migration · Read-only inventory*

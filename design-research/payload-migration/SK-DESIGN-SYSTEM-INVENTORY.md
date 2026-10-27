@@ -25,11 +25,11 @@
 | `CLAUDE.md` | ✅ Complete | Agent instructions, system docs |
 | `vercel.json` | ⚠️ Not read | Deployment config; not relevant to component inventory |
 | `_cms/case-studies/haptix.json` | ⚠️ Not read | Runtime content, not design system |
-| `prototypes/v1/index.html` | ⚠️ Not accessible | Embedded iframe; no direct URL in production HTML |
-| `prototypes/v2/index.html` | ⚠️ Not accessible | Same; referenced by `data-src` in Haptix |
-| `session.md` | ⚠️ Not read | May contain historical decisions |
-| Git history | ⚠️ Not inspected | Repo not cloned with history; no `git log` available |
-| Historical Claude Design artifacts | ⚠️ Inaccessible | Not accessible from this session |
+| `prototypes/v1/index.html` | ✅ Directory confirmed | `prototypes/v1/` directory exists; contains `index.html`, `bg.png`, `support.js`, `uploads/`, `screenshots/` |
+| `prototypes/v2/index.html` | ✅ Directory confirmed | Same structure as v1 |
+| `session.md` | ✅ Read (G6.1) | Pre-DS-03 handoff log; references historical DM Serif/DM Sans type system and `--teal: #0c7a66` accent (both superseded by DS-03) |
+| Git history | ✅ Accessible (G6.1) | `git log` accessible; 30+ commits visible; key: `40e2d95` (restore GSAP pin), `4ad3a45` (DS-03 type); no tooltip or scroll-gallery commits found |
+| Historical Claude Design artifacts | ⚠️ Inaccessible | Not accessible from this session; §14 Tooltip spec not recovered |
 
 ---
 
@@ -77,12 +77,18 @@ These are token-level foundations. They are **dependencies for all blocks** — 
 
 ### L1-03 · Typography Tokens
 
-**Source:** `public/ds-tokens.css`, `case-studies/haptix/css/style.css`
+**Source:** `public/ds-tokens.css` (DS-03 approved system — confirmed G6.1 2026-10-27)
+
+**CORRECTION (G6.1):** The G6 inventory incorrectly listed `DM Serif Display` and `DM Sans`. These are historical references predating commit `4ad3a45` (DS-03 typography overhaul). The live `index.html` (line 10) loads Bricolage Grotesque, Manrope and Zodiak. The active token names are `--font-display`, `--font-sans` and `--font-quote`. `session.md` (pre-DS-03 handoff log) is the source of the obsolete font references.
 
 ```
---font-serif: 'DM Serif Display', serif
---font-sans:  'DM Sans', system-ui, sans-serif
+--font-display: 'Bricolage Grotesque', system-ui, sans-serif   (DS-03 active — display / headings)
+--font-sans:    'Manrope', system-ui, sans-serif               (DS-03 active — body / UI)
+--font-quote:   'Zodiak', Georgia, serif                       (DS-03 active — pullquotes only)
+--font-serif:   'Bricolage Grotesque', system-ui, sans-serif   (legacy alias in ds-tokens.css — bridges any residual var(--font-serif) usage; maps to --font-display)
 ```
+
+**Historical note:** `DM Serif Display` and `DM Sans` appear in `CLAUDE.md` token reference and `session.md`. They were the active system before DS-03. They are not used in the current production codebase.
 
 Type scale (from Haptix style.css):
 ```
@@ -586,9 +592,9 @@ st-scope (dark card, z-index:3, border-radius top)
 ```
 
 **Implementation:**
-- CSS sticky (`position:sticky; top:0`) — NOT GSAP pin (see CLAUDE.md warning)
-- GSAP `sectionTransition01`: ScrollTrigger per `[data-st-01="pin"]` element
-- `start:'top bottom'`, `end:'top top'`, `pin: section`, `pinSpacing:false`
+- **CORRECTION (G6.1):** GSAP `ScrollTrigger.create({ pin: section, pinSpacing: false })` — NOT CSS sticky. All four `[data-st-01="pin"]` elements use this pattern (restored commit `40e2d95`). The `CLAUDE.md` warning "Do NOT attempt GSAP pin" is outdated.
+- `sectionTransition01()` IIFE: iterates `[data-st-01="pin"]`; for each, creates `ScrollTrigger` with `trigger: nextSection`, `start:'top bottom'`, `end:'top top'`, `pin: section`, `pinSpacing: false`
+- Pinned elements: `.hero-image-section`, `.st-brief`, `.st-scope`, `#proto-trigger`
 
 **Scope card (Centronic):** project title, role chips, brief description  
 **Scope card (Haptix):** `.dots` radial pattern overlay + `.scope-strip` 4×`.scope-box` + chips + brief  
@@ -739,13 +745,50 @@ st-scope (dark card, z-index:3, border-radius top)
 
 ---
 
-## Summary Statistics
+## §25 Statistical Visualization (BK-14) — Added G6.1
 
-- **Total block families discovered:** 26
-- **Total variants across all families:** 52
-- **Components requiring historical recovery:** 6 (CodePen tooltip animation system, prototype v1/v2 sources, session.md decisions, historical git commits, inaccessible Claude Design artifacts)
+**Source:** `CLAUDE.md §25`, `.claude/skills/sk-data-viz/SKILL.md`  
+**Status:** Skill-defined and partially implemented (sk-bar-chart.js confirmed in repository)
+
+| Variant | Description | Status |
+|---------|-------------|--------|
+| BK-14-A | Horizontal Ranked Bar Chart | ✅ Approved reference (`sk-bar-chart.js`) |
+| BK-14-B | Line Chart (time series) | 🟡 Observable Plot target — not yet implemented |
+| BK-14-C | Scatterplot (correlation) | 🟡 Observable Plot target — not yet implemented |
+
+**Architecture:** Observable Plot (mandatory rendering engine) + SK Design System wrapper.  
+**Data contract:** `sk-data-viz/data/<id>.json` — one file per chart.  
+**Payload migration note:** BK-14 is a Payload block family. Schema must include: `chartType`, `dataSource` (JSON upload or inline array), `title`, `subtitle`, `source`, `unit`.
+
+---
+
+## §26 Case Study Media (BK-15) — Added G6.1
+
+**Source:** `CLAUDE.md §26`, `.claude/skills/sk-case-media/SK-CASE-MEDIA-001.md`  
+**Status:** Skill-defined and approved; patterns implemented across Centronic and Haptix
+
+| Variant | Pattern | object-fit | Status |
+|---------|---------|-----------|--------|
+| BK-15-A | Full-Width Figure | `contain` | ✅ Approved; `.fig-full` CSS defined |
+| BK-15-B | Adaptive Bento | `cover` | ✅ Approved; uses §22 bento grid system |
+| BK-15-C | Two-Up Comparison | `contain` | ✅ Approved; `.twoup` confirmed in Haptix |
+| BK-15-D | Evolution / Sequence | `contain` | ✅ Approved; temporal ordering pattern |
+| BK-15-E | Annotated Media | `contain` | ✅ Approved; callout overlay system |
+| BK-15-F | Evidence Gallery | `cover`/`contain` | ✅ Approved; `SK-CASE-GALLERY-001` spec |
+
+**Key constraint:** `object-fit: contain` is the default for evidentiary content (wireframes, IA diagrams, research maps, workshop scans, annotated screenshots). Bento (`object-fit: cover`) is NOT the default.  
+**Payload migration note:** BK-15 is a Payload block family with 6 variants, each with different field sets. Evidence Gallery (BK-15-F) shares the `I[]` image object — never duplicate base64.
+
+---
+
+## Summary Statistics (updated G6.1)
+
+- **Total block families discovered:** 28 (previously 26; added BK-14 Statistical Chart, BK-15 Case Media)
+- **Total variants across all families:** 61 (previously 52; added 3 chart variants, 6 media patterns)
+- **Components requiring historical recovery:** 3 remaining (CodePen tooltip animation, inaccessible Claude Design artifacts §14, MC-03 image comparison clarification)
+- **Recovered G6.1:** git history (no tooltip/gallery commits), session.md (pre-DS-03 handoff), prototype directory structure, motion token values
 - **Recommended first component to migrate:** `ProseBlock` — simplest, highest reuse, lowest animation risk
 
 ---
 
-*Generated 2026-10-27 · SK Portfolio Payload CMS Migration · Read-only inventory*
+*Generated 2026-10-27 · Updated G6.1 2026-10-27 · SK Portfolio Payload CMS Migration · Read-only inventory*

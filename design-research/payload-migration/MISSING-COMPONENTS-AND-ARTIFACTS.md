@@ -151,59 +151,72 @@ These items have source evidence in schema or CSS but have not been verified in 
 
 ---
 
-### MC-09 · Git History
+### MC-09 · Git History — G6.1 RECOVERED
 
-**Context:** The git repository was not cloned with history for this inspection. The local `/home/claude/portfolio` directory appears to be a working copy without `.git` history accessible.
+**Context (G6.1 correction):** Git history was accessible. `git log --oneline --all` executed successfully in G6.1.
 
-**What may be there:**
-- Previous implementations of tooltip animation (MC-01)
-- Removed or refactored components
-- Design decisions captured in commit messages
-- Version of continuous scroll gallery (MC-02)
+**Findings:**
+- Repository IS a git repo with full history
+- Key commits confirmed: `40e2d95` (restore GSAP pin — sectionTransition01), `4ad3a45` (DS-03 type system), `2f26ea0` (G6 inventory), `b14f834` (access-management requirements)
+- No commits mentioning "tooltip", "scroll gallery", or "continuous gallery" found
+- No removed or refactored tooltip components found in history
+- No evidence of continuous scroll gallery (MC-02) in any commit
 
-**Recovery path:** Run `git log --oneline --all` and `git log --stat` in the repository. Search for commits mentioning "tooltip", "gallery", "scroll", "bento", "slide".
-
----
-
-### MC-10 · Prototype Source Files
-
-**Context:** The Haptix case study embeds two prototype iframes referenced by `data-src` attributes. The source files for these prototypes were not accessible.
-
-**Expected content:**
-- `prototypes/v1/index.html` — V1 thumbwheel prototype
-- `prototypes/v2/index.html` — V2 recreation prototype
-
-**Why relevant:** These may contain additional UI patterns, component states or animation techniques developed for the thumbwheel interaction that are not yet reflected in the main case study HTML.
-
-**Recovery path:** Read `/home/claude/portfolio/prototypes/` directory if it exists locally.
+**Status update:** MC-02 (continuous scroll gallery) is not in git history — it was either never committed or was discussed but never implemented.
 
 ---
 
-### MC-11 · session.md
+### MC-10 · Prototype Source Files — G6.1 PARTIALLY RECOVERED
 
-**Context:** A `session.md` file was referenced in the project structure but not read during this inspection.
+**Context (G6.1 update):** The `prototypes/` directory was confirmed to exist at `/home/claude/portfolio/case-studies/haptix/prototypes/`. Two subdirectories confirmed: `v1/` and `v2/`, each containing `index.html`.
 
-**Why relevant:** May contain historical design decisions, approved component specifications or notes from previous development sessions.
+**Status:** Directory structure confirmed. Full file contents were not read in G6.1 (out of scope — prototype source code, not documentation). The prototype files exist and are accessible for future inspection.
 
-**Recovery path:** Read `/home/claude/portfolio/session.md`
+**Remaining question:** Whether these prototypes contain UI patterns not yet in the case study HTML. This can be read at any time with `Read /home/claude/portfolio/case-studies/haptix/prototypes/v1/index.html`.
 
 ---
 
-### MC-12 · Motion Token Values (partial)
+### MC-11 · session.md — G6.1 RECOVERED
 
-**Context:** `public/ds-tokens.css` defines the following tokens whose values were noted as defined but whose exact CSS values were not captured during inspection:
+**Context (G6.1 update):** `session.md` was read in full during G6.1.
 
+**Findings:**
+- Pre-DS-03 handoff log — documents the state of the system BEFORE the DS-03 typography update
+- References historical DM Serif Display + DM Sans fonts (both superseded by Bricolage Grotesque + Manrope in DS-03 active implementation)
+- References `--teal: #0c7a66` as the brand accent (superseded by `--sun: #E8490F`)
+- Documents historical animation architecture (partially superseded by current sectionTransition01 GSAP pin system)
+- Does NOT contain specifications for tooltip animation or continuous gallery
+- **Is not authoritative for the current system** — DS-03 tokens in `public/ds-tokens.css` are the source of truth
+
+---
+
+### MC-12 · Motion Token Values — G6.1 RECOVERED
+
+**Context (G6.1 update):** All motion tokens recovered from `public/ds-tokens.css`.
+
+**Duration tokens:**
 ```css
---ease-reveal:  /* not captured */
---ease-enter:   /* not captured */
---ease-leave:   /* not captured */
---ease-lift:    /* not captured */
---ease-snap:    /* not captured */
---ease-path:    /* not captured */
+--dur-instant: 120ms
+--dur-fast:    220ms
+--dur-mid:     380ms
+--dur-slow:    580ms
 ```
 
-**Risk:** Low — these are CSS custom properties. Their values can be read from `ds-tokens.css` at any time.  
-**Recovery path:** `Read /home/claude/portfolio/public/ds-tokens.css` and capture lines defining these tokens.
+**Easing tokens:**
+```css
+--ease-reveal:     cubic-bezier(0.39, 0.575, 0.565, 1)
+--ease-enter:      cubic-bezier(0.19, 1, 0.22, 1)
+--ease-leave:      cubic-bezier(0.95, 0.05, 0.795, 0.035)
+--ease-lift:       cubic-bezier(0.34, 1.1, 0.64, 1)
+--ease-snap:       cubic-bezier(0.37, 0, 0.63, 1)
+--ease-path:       cubic-bezier(0.16, 1, 0.3, 1)
+--ease-out-quart:  cubic-bezier(0.165, 0.84, 0.44, 1)
+--ease-out:        cubic-bezier(0.16, 1, 0.3, 1)
+```
+
+**Note:** `ds-tokens.css` also defines `--ink-3: #636360` — slight discrepancy from CLAUDE.md which states `--ink-3: #9a9a94`. `ds-tokens.css` is authoritative.
+
+**Status:** ✅ Fully recovered
 
 ---
 
@@ -232,14 +245,15 @@ The proximity-based border-radius effect (dynamically changing border-radius on 
 | MC-06 | Key Dates Tabbed | B — Schema-defined | Low | Implement when needed |
 | MC-07 | BENTO-2,4,5,6,7,8,9 | B — CSS-defined | Low | CSS ready; content needed |
 | MC-08 | Historical DS Artifacts | C — Inaccessible | High | Read artifact at provided URL |
-| MC-09 | Git History | C — Inaccessible | High | `git log` in repository |
-| MC-10 | Prototype Source Files | C — Inaccessible | Low | Read prototypes/ directory |
-| MC-11 | session.md | C — Inaccessible | Medium | Read file |
-| MC-12 | Motion Token Values | C — Partial | Low | Re-read ds-tokens.css |
+| MC-09 | Git History | ✅ Recovered (G6.1) | High → Done | No tooltip/gallery commits found |
+| MC-10 | Prototype Source Files | 🟡 Partially recovered (G6.1) | Low | v1/ v2/ dirs confirmed; content not read |
+| MC-11 | session.md | ✅ Recovered (G6.1) | Medium → Done | Pre-DS-03 log; not authoritative |
+| MC-12 | Motion Token Values | ✅ Recovered (G6.1) | Low → Done | All cubic-bezier values captured |
 | MC-13 | Proximity Border-Radius | D — Abandoned | None | Do not implement |
 
-**Total components requiring historical recovery:** 6 (MC-01, MC-02, MC-08, MC-09, MC-10, MC-11)
+**Total components requiring historical recovery (G6 original):** 6 (MC-01, MC-02, MC-08, MC-09, MC-10, MC-11)  
+**After G6.1 recovery:** 3 still unresolved (MC-01 Tooltip Animation, MC-02 Continuous Gallery, MC-08 Historical DS Artifact — all inaccessible from repository)
 
 ---
 
-*Generated 2026-10-27 · SK Portfolio Payload CMS Migration · Read-only inventory*
+*Generated 2026-10-27 · Updated G6.1 2026-10-27 · SK Portfolio Payload CMS Migration · Read-only inventory*

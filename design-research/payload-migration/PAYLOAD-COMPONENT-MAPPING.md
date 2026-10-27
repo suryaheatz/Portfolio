@@ -32,7 +32,9 @@ Payload CMS
     ├── ImpactListBlock
     ├── HeroBlock
     ├── PrototypeEmbedBlock
-    └── TabsBlock
+    ├── TabsBlock
+    ├── StatisticalChartBlock    ← §25 added G6.1
+    └── CaseMediaBlock           ← §26 added G6.1
 ```
 
 ---
@@ -558,10 +560,104 @@ function BlocksRenderer({ blocks }) {
 
 ---
 
+## Block Schema: StatisticalChartBlock — Added G6.1
+
+```typescript
+// Conceptual schema — not yet implemented
+// Rule: SK Design System §25 / sk-data-viz/SKILL.md
+// Rendering engine: Observable Plot (mandatory)
+
+{
+  slug: 'statistical-chart',
+  fields: [
+    {
+      name: 'chartType',
+      type: 'select',
+      options: [
+        { label: 'Horizontal Bar (ranked)', value: 'bar' },      // BK-14-A — confirmed
+        { label: 'Line Chart', value: 'line' },                  // BK-14-B — specified
+        { label: 'Scatterplot', value: 'scatter' }               // BK-14-C — specified
+      ],
+      required: true
+    },
+    { name: 'title', type: 'text', required: true },
+    { name: 'subtitle', type: 'text' },
+    { name: 'sourceAttribution', type: 'text' },   // e.g. "KPMG Global Tech Report 2024"
+    { name: 'unit', type: 'text' },                // axis unit, e.g. "% of respondents"
+    { name: 'note', type: 'text' },                // methodology note
+    { name: 'dataJson', type: 'textarea' }         // JSON array — validated against sk-data-viz schema
+  ]
+}
+```
+
+**Frontend note:** The `dataJson` field feeds Observable Plot. Do not build a custom statistical renderer. The `sk-bar-chart.js` file is a reference implementation only — do not modify it.
+
+---
+
+## Block Schema: CaseMediaBlock — Added G6.1
+
+```typescript
+// Conceptual schema — not yet implemented
+// Rule: SK Design System §26 / sk-case-media/SK-CASE-MEDIA-001.md
+
+{
+  slug: 'case-media',
+  fields: [
+    {
+      name: 'pattern',
+      type: 'select',
+      options: [
+        { label: 'A — Full-Width Figure (contain)', value: 'full-width' },
+        { label: 'B — Adaptive Bento (cover)', value: 'bento' },
+        { label: 'C — Two-Up Comparison', value: 'two-up' },
+        { label: 'D — Evolution / Sequence', value: 'evolution' },
+        { label: 'E — Annotated Media', value: 'annotated' },
+        { label: 'F — Evidence Gallery', value: 'gallery' }
+      ],
+      required: true
+    },
+    {
+      name: 'images',
+      type: 'array',
+      fields: [
+        { name: 'image', type: 'upload', relationTo: 'media', required: true },
+        { name: 'alt', type: 'text', required: true },
+        { name: 'caption', type: 'text' }
+      ]
+    },
+    { name: 'expandable', type: 'checkbox', defaultValue: true }
+  ]
+}
+```
+
+**Frontend note:** Pattern A renders with `object-fit: contain` (`.fig-full` CSS class). Pattern B delegates to BentoBlock logic with `object-fit: cover`. Patterns C–E use `object-fit: contain`. Pattern F requires GSAP + Flip for gallery transitions. Never crop wireframes, IA diagrams, research maps, or annotated screenshots.
+
+---
+
+## Sprint 1 Milestone (G6.1 Revised)
+
+**The first technical milestone — after user approval of this inventory — is:**
+
+| Step | Deliverable | Scope |
+|------|-------------|-------|
+| 1 | Payload foundation | Install Payload, configure Next.js integration, admin panel running locally |
+| 2 | Token integration | `ds-tokens.css` imported into Payload frontend; SK design tokens verified in admin UI |
+| 3 | Admin access | User (Surya) can log in to Payload admin and navigate collections |
+| 4 | One real editable block | ProseBlock (BK-01) only — plain variant, one case study section |
+| 5 | Live preview | Desktop + mobile preview working for ProseBlock content |
+| 6 | Draft/publish verification | Save as draft → publish → visible on frontend |
+| 7 | Comparison checkpoint | Side-by-side comparison of Payload-rendered ProseBlock vs existing HTML |
+
+**Do NOT start Sprint 1 by rebuilding the entire Centronic case study.**  
+**Preserve existing HTML, CSS, GSAP, imagery and content as the source of truth.**  
+**Account for access-management requirements already documented in commit `b14f834`.**
+
+---
+
 ## Access Management Note
 
 Access management (case study password protection, token-gated access) is **a platform capability** documented separately. It is not modeled as a content block. It should be implemented at the collection level via Payload's access control functions, not in the blocks schema.
 
 ---
 
-*Generated 2026-10-27 · SK Portfolio Payload CMS Migration · Read-only inventory*
+*Generated 2026-10-27 · Updated G6.1 2026-10-27 · SK Portfolio Payload CMS Migration · Read-only inventory*

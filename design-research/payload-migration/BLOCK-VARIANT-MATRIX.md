@@ -476,7 +476,83 @@ No table HTML found in inspected case study pages. Schema-only evidence from `ad
 | BK-11 Hero | ✅ | ❌ (1 per page) | ❌ | ❌ (must be first) | Yes (Brief/Scope follow) |
 | BK-12 Prototype | ✅ | ⚠️ (untested) | ❌ | ✅ | No |
 | BK-13 Tabs | ✅ | ✅ | ✅ (sub-blocks) | ✅ | No |
+| BK-14 Statistical Chart | ✅ | ✅ | ❌ | ✅ | No |
+| BK-15 Case Media | ✅ | ✅ | ❌ | ✅ | No |
 
 ---
 
-*Generated 2026-10-27 · SK Portfolio Payload CMS Migration · Read-only inventory*
+## BK-14 · Statistical Chart Block — Added G6.1
+
+**Block ID:** `BK-14`  
+**Family:** Statistical Visualization  
+**Level:** L3 Content Block  
+**Rule:** SK Design System §25 / `sk-data-viz/SKILL.md`
+
+### Variants
+
+| Variant ID | Name | Rendering Engine | Status | Description |
+|-----------|------|-----------------|--------|-------------|
+| BK-14-A | Horizontal Ranked Bar | Observable Plot | ✅ Approved reference (`sk-bar-chart.js`) | Survey results, ranked comparisons |
+| BK-14-B | Line Chart | Observable Plot | 🟡 Specified, not yet implemented | Time series, trends |
+| BK-14-C | Scatterplot | Observable Plot | 🟡 Specified, not yet implemented | Correlation analysis |
+
+### Settings
+
+| Setting | Type | Notes |
+|---------|------|-------|
+| `chartType` | Enum (`bar` / `line` / `scatter`) | Selects variant |
+| `dataSource` | JSON upload or inline array | `sk-data-viz/data/<id>.json` schema |
+| `title` | String | Chart heading |
+| `subtitle` | String | Optional sub-heading |
+| `source` | String | Attribution line (e.g. "KPMG Global Tech Report 2024") |
+| `unit` | String | Axis unit label (e.g. "% of respondents") |
+| `note` | String | Optional methodology note |
+
+### Constraints
+
+- Observable Plot is the mandatory rendering engine for all new charts. No custom statistical renderers without approval.
+- `sk-bar-chart.js` is a reference implementation only — do not modify or migrate it.
+- Left-aligned category labels always. Never right-align.
+- Raw data editors must never appear on public-facing pages.
+
+---
+
+## BK-15 · Case Media Block — Added G6.1
+
+**Block ID:** `BK-15`  
+**Family:** Case Study Media  
+**Level:** L3 Content Block  
+**Rule:** SK Design System §26 / `sk-case-media/SK-CASE-MEDIA-001.md`
+
+### Variants
+
+| Variant ID | Pattern | `object-fit` | Status | Use when |
+|-----------|---------|-------------|--------|----------|
+| BK-15-A | Full-Width Figure | `contain` | ✅ Approved (`.fig-full` CSS defined) | Single important image; no cropping acceptable |
+| BK-15-B | Adaptive Bento | `cover` | ✅ Approved (§22 system reused) | Multiple images with compatible proportions; cropping safe |
+| BK-15-C | Two-Up Comparison | `contain` | ✅ Approved (`.twoup` confirmed in Haptix) | Before/after, V1/V2, related states |
+| BK-15-D | Evolution / Sequence | `contain` | ✅ Approved | Temporal or process order |
+| BK-15-E | Annotated Media | `contain` | ✅ Approved | Technical callouts, gesture maps, hardware specs |
+| BK-15-F | Evidence Gallery | `cover`/`contain` | ✅ Approved (`SK-CASE-GALLERY-001` spec) | Large secondary collections |
+
+### Settings
+
+| Setting | Type | Notes |
+|---------|------|-------|
+| `pattern` | Enum (A–F) | Selects which media pattern to use |
+| `images[]` | Upload array | All images in the `I[]` shared object — never duplicate base64 |
+| `caption` | String | Per-image caption |
+| `alt` | String | Accessibility alt text |
+| `expandable` | Boolean | Whether fullscreen viewer is available |
+
+### Constraints
+
+- `object-fit: contain` is the default for evidentiary content (wireframes, IA diagrams, research maps, workshop scans, annotated screenshots). Never use `cover` on these.
+- Bento (BK-15-B) is NOT the default pattern — evaluate content type first.
+- Evidence Gallery (BK-15-F): images wired from shared `I[]` object; never duplicate base64.
+- GSAP + Flip required for gallery transitions (BK-15-F).
+- Never crop wireframes, IA diagrams, research maps, workshop scans, or annotated screenshots.
+
+---
+
+*Generated 2026-10-27 · Updated G6.1 2026-10-27 · SK Portfolio Payload CMS Migration · Read-only inventory*
