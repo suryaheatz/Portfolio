@@ -1,0 +1,1684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SK Atlas — Grid Gateways &amp; Orange Ripple</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400&family=Manrope:wght@400;500;600&family=DM+Serif+Display:ital@1&display=swap" rel="stylesheet">
+<style>
+  /* SK Design System tokens (read-only copy of the existing light-theme values; nothing is redefined or added to the system) */
+  :root { --bg:#F5F4F0; --surface:#EEECE7; --ink:#111110; --ink-2:#545450; --ink-3:#6A6A64; --rule:#DDDAD0; --accent:#E8490F;
+          --font-display:'Bricolage Grotesque', system-ui, sans-serif; --font-sans:'Manrope', system-ui, sans-serif; --font-mark:'DM Serif Display', Georgia, serif;   /* --font-mark: the SK wordmark only (logo lockup, not a text style) */
+          --text-label:11px; --text-caption:12px; --text-body-sm:13px; --text-body:16px;
+          --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:20px; --sp-6:24px; --sp-8:32px; --sp-10:40px; --r-sm:6px; --r-md:12px;
+          --ease-out:cubic-bezier(0.16,1,0.3,1); --t-mid:380ms; }
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html, body { background:var(--bg); color:var(--ink); font:400 16px/1.5 var(--font-sans); -webkit-font-smoothing:antialiased; }
+  button { font:inherit; color:inherit; background:none; border:0; cursor:pointer; text-align:left; }
+  button:disabled { cursor:default; }
+  :focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+  .sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+
+  /* ═══ ATLAS. Every position is derived from the 12-column canvas grid, six baseline rows and the rail divider (unchanged from Stage 1). ═══ */
+  .atlas { --rail-w:clamp(168px, 10.4vw, 200px); --m:clamp(24px, 4.2vw, 80px); --g:clamp(12px, 1.25vw, 24px);
+           --y0:216px; --pitch:88px; --axis:calc(100% * 6.5 / 12);
+           --ring:clamp(88px, 7.1vw, 136px); --solid:clamp(32px, 3.6vw, 70px); --gate:clamp(28px, 1.9vw, 36px);
+           --panel-w:clamp(340px, 26vw, 480px); --po:0;
+           position:relative; min-height:max(760px, 100svh); overflow:hidden; background:var(--bg); }
+
+  /* — rail — */
+  .rail__div { position:absolute; left:var(--rail-w); top:0; bottom:0; width:1px; background:var(--rule); }
+  .rail__brand { position:absolute; left:40px; top:40px; font:italic 400 40px/1 var(--font-mark); }
+  .rail__brand::after { content:""; position:absolute; left:0; top:74px; width:120px; height:1px; background:var(--rule); }
+  .rail__list { list-style:none; }
+  .rail__item { position:absolute; left:0; width:var(--rail-w); height:44px; margin-top:-22px; top:calc(var(--y0) + var(--i) * var(--pitch)); padding-left:40px; display:flex; flex-direction:column; justify-content:center; }
+  .rail__num { font:500 var(--text-label)/1.2 var(--font-sans); letter-spacing:0.14em; color:var(--ink-3); transition:color var(--t-mid); }
+  .rail__name { font:500 var(--text-body-sm)/1.4 var(--font-sans); letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-2); transition:color var(--t-mid); }
+  .rail__item:hover .rail__name { color:var(--ink); }
+  .rail__item::after { content:""; position:absolute; top:50%; left:calc(100% + 0.5px); width:10px; height:10px; transform:translate(-50%, -50%); border:1.25px solid var(--ink-3); border-radius:50%; background:var(--bg); transition:border-color var(--t-mid); }
+  .rail__item:hover::after { border-color:var(--ink); }
+  .rail__item[aria-current="true"] .rail__num { color:var(--accent); }
+  .rail__item[aria-current="true"] .rail__name { color:var(--ink); font-weight:600; }
+  .rail__item[aria-current="true"]::after { width:12px; height:12px; border:0; background:var(--accent); box-shadow:0 0 0 4px var(--bg); }
+  .rail__item[aria-current="true"]::before { content:""; position:absolute; left:calc(100% - 0.5px); top:calc(50% - 30px); width:2px; height:60px; background:var(--accent); }
+  .rail__lead { position:absolute; right:9px; top:50%; width:calc(var(--rail-w) - 140px); height:1px; background:var(--accent); display:none; }
+  .rail__item[aria-current="true"] .rail__lead { display:block; }
+
+  /* — rail layout zones (desktop). Each item is its own CSS Grid with four zones, left to right:
+        1 label column   sized by the label's REAL rendered width (fit-content), capped so the zones to its right always fit; longer labels wrap, then clamp to two lines
+        2 corridor       reserved gutter (clearance) + the outgoing connector (.rail__lead); never narrower than clearance + minimum connector length
+        3 axis           fixed track at the item's right edge: the divider and the navigation dot sit on it, so every dot shares one vertical axis
+     The connector is a grid item that fills the corridor, so it can only ever start after the label's actual right edge plus the clearance. No per-label offsets exist. — */
+  @media (min-width:1024px) {
+    .rail { --rail-pad:clamp(24px, calc(var(--rail-w) - 160px), 40px); --clear:14px; --lead-min:12px; --axis-half:9px; }
+    .rail__item { display:grid; grid-template-columns:fit-content(calc(100% - var(--clear) - var(--lead-min) - var(--axis-half))) minmax(calc(var(--clear) + var(--lead-min)), 1fr) var(--axis-half); grid-template-rows:auto auto; align-content:center; justify-items:start; height:auto; min-height:44px; margin-top:0; transform:translateY(-50%); padding-left:var(--rail-pad); text-align:left; }
+    .rail__num { grid-column:1; grid-row:1; }
+    .rail__name { grid-column:1; grid-row:2; max-width:100%; min-width:0; overflow:hidden; overflow-wrap:anywhere; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; line-clamp:2; }
+    .rail__lead { position:static; grid-column:2; grid-row:1 / 3; align-self:center; justify-self:end; width:calc(100% - var(--clear)); max-width:max(var(--lead-min), calc(var(--rail-w) - 140px)); }   /* same length as before when there is room; shorter only as far as the label requires */
+  }
+
+  /* — layers: bg grid (guides + gateways) < tree (bridge + progression + preview) < temporary state < panel — */
+  .grid { position:absolute; top:0; bottom:0; left:calc(var(--rail-w) + 1px); right:0; padding-inline:var(--m); display:grid; grid-template-columns:repeat(12, minmax(0, 1fr)); grid-template-rows:repeat(12, minmax(0, 1fr)); column-gap:var(--g); }
+  @media (min-width:1200px) { .grid { right:calc(var(--panel-w) * var(--po)); } }     /* the canvas gives way to the open panel; every coordinate below is grid-derived, so alignment is preserved */
+  .tree { position:absolute; inset:0; pointer-events:none; transform-origin:55% 50%; }
+  .tree[hidden] { display:none; }
+  .grid--tree, .grid--tmp { pointer-events:none; }
+  .guide { grid-row:1 / -1; border-left:1px solid color-mix(in srgb, var(--rule) 55%, transparent); pointer-events:none; }
+  .guide--end { border-left:0; border-right:1px solid color-mix(in srgb, var(--rule) 55%, transparent); }
+
+  /* — bridge: divider → margin line → axis → Foundations ring — */
+  .bridge { position:absolute; background:var(--accent); pointer-events:none; }
+  .bridge--stub { left:calc(var(--rail-w) + 1px); width:calc(var(--m) + 1px); top:calc(var(--y0) - 1px); height:2px; }
+  .bridge--rise { left:calc(var(--rail-w) + var(--m)); width:2px; top:calc(var(--y0) - 1px); height:calc(var(--axis) - var(--y0) + 2px); }
+  .bridge--m { display:none; }
+
+  /* — progression axis: 4 modules, each 3 columns wide, node centred — */
+  .axis { grid-column:1 / -1; grid-row:7; align-self:center; height:0; display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); column-gap:var(--g); list-style:none; position:relative; }
+  .mod { position:relative; height:0; }
+  .node { position:absolute; left:50%; top:0; width:var(--ring); height:var(--ring); margin:calc(var(--ring) / -2) 0 0 calc(var(--ring) / -2); border-radius:50%; background:none; pointer-events:auto; }   /* the hit area keeps the full Stage 2B.1 size */
+  .node__disc { --rest:1; position:absolute; inset:0; border-radius:50%; background:var(--bg); transform:scale(var(--rest)); transition:transform 520ms var(--ease-out), box-shadow var(--t-mid); will-change:transform; }
+  @media (min-width:1024px) { .node__disc { --rest:0.5; } }                                   /* resting diameter = exactly 50% of the previous one; hover / focus / selected return it to 100% */
+  .node__ring { position:absolute; inset:0; width:100%; height:100%; overflow:visible; pointer-events:none; }
+  .node__ring circle, .node__ring line { fill:none; stroke:var(--ink); stroke-width:1.25; vector-effect:non-scaling-stroke; }   /* stroke stays 1.25px at every scale */
+  /* node focus rings: a default node is a plain circle. Two concentric rings exist only on hover or keyboard focus (and never while a transition runs). */
+  .node { --nrip:1; } @media (min-width:1024px) { .node { --nrip:0.5; } }
+  .node__rip { position:absolute; left:50%; top:50%; width:calc(var(--ring) * var(--nrip)); height:calc(var(--ring) * var(--nrip)); margin:calc(var(--ring) * var(--nrip) / -2) 0 0 calc(var(--ring) * var(--nrip) / -2); border:1px solid var(--accent); border-radius:50%; opacity:0; pointer-events:none; }   /* same ring + motion as .gate__rip */
+  .node__img { position:absolute; inset:11.76%; border-radius:50%; overflow:hidden; background:var(--surface); transition:transform var(--t-mid) var(--ease-out); }
+  .node__img svg { display:block; width:100%; height:100%; }
+
+
+
+  .node__label { position:absolute; left:calc(50% - var(--ring) / 2); bottom:calc(var(--ring) / 2 + 22px); width:max-content; display:flex; flex-direction:column; justify-content:flex-end; height:calc(var(--text-caption) * 1.2 + 4px + clamp(20px, 1.5vw, 28px) * 2.3); pointer-events:none; }   /* fixed number + two-line region: its bottom edge is the anchor, so a second line grows upward and the circle never moves; width is set per label by fitLabels() */
+  .node__num { display:block; font:500 var(--text-caption)/1.2 var(--font-sans); letter-spacing:0.14em; color:var(--ink-3); }
+  .node__name { display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; line-clamp:2; overflow:hidden; overflow-wrap:break-word; margin-top:4px; font:300 clamp(20px, 1.5vw, 28px)/1.15 var(--font-display); letter-spacing:-0.01em; color:var(--ink); }
+  /* node states: hover = the image disc grows a little inside a fixed ring (nothing moves); selected = one extra outer stroke; inactive = the others recede */
+  @media (hover:hover) { .node:hover { z-index:4; } .node:hover .node__disc { transform:scale(1); } .node:hover .node__img { transform:scale(1.07); } }
+  .node:focus-visible { z-index:4; } .node:focus-visible .node__disc { transform:scale(1); }
+  .node:focus-visible .node__img { transform:scale(1.07); }
+  .node[aria-pressed="true"] .node__disc { transform:scale(1); box-shadow:0 0 0 1.5px var(--ink); }
+
+  .node, .node__label { transition:opacity var(--t-mid); }
+  .node__num { transition:color var(--t-mid); }
+  .mod.is-pv .node__num { color:#BC3A0B; }                                                 /* the hovered node and its preview share one accent */
+  :is(.axis, .grid--net)[data-sel] .mod:not(.is-sel) :is(.node, .node__label) { opacity:0.5; }          /* the pathway and bridge never dim */
+
+  /* technical pathway */
+  .seg { position:absolute; top:-0.5px; height:1px; background-repeat:no-repeat; pointer-events:none;
+         background-image:linear-gradient(var(--ink), var(--ink)), repeating-linear-gradient(90deg, var(--ink) 0 8px, transparent 8px 14px); background-size:var(--solid) 100%, calc(100% - var(--solid)) 100%; }
+  .seg--r { left:calc(50% + var(--ring) / 4); right:calc(var(--g) / -2); background-position:left center, right center; }
+  .seg--l { left:calc(var(--g) / -2); right:calc(50% + var(--ring) / 4); background-position:right center, left center; }
+  .seg--bridge { left:-1px; top:-1px; height:2px; background:var(--accent); }
+
+  /* — hover preview: ONE grid-aligned region per category (data.previewRegions). Empty at rest. — */
+  .grid--pv { z-index:5; pointer-events:none; }
+  .pv { position:absolute; inset:0; pointer-events:none; }                                   /* overlay; each preview layer is placed inside the category's preview region by pickZone() */
+  .pvz { display:none; }
+  .pv__layer { position:absolute; left:0; top:0; clip-path:inset(0 0 0 100%); overflow:hidden; will-change:clip-path; border-radius:var(--r-sm); }
+  .pv__layer--sum { display:flex; flex-direction:column; }
+  .pv__pic { position:relative; flex:none; overflow:hidden; border-radius:var(--r-sm); }
+  .pv__layer--sum .pv__cap { position:static; padding:10px 0 4px; background:none; }
+  .pv__sum { margin:0; font:400 var(--text-body-sm)/1.5 var(--font-sans); color:var(--ink-2); }
+  .pv__id { color:#BC3A0B; font-weight:600; }
+  .pv__layer.is-narrow .pv__cap span:last-child { display:none; }
+  .pv__img { position:absolute; left:-10%; top:0; width:120%; height:100%; will-change:transform; }
+  .pv__img svg { display:block; width:100%; height:100%; }
+  .pv__cap { position:absolute; left:0; right:0; bottom:0; padding:10px 14px; display:flex; justify-content:space-between; gap:12px; background:var(--bg); font:500 var(--text-label)/1.3 var(--font-sans); letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-2); }
+  .pv__cap span { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
+  .pv__cap span:first-child { white-space:normal; overflow:visible; text-overflow:clip; }          /* the preview always shows the full title */
+  .pv__cap span:last-child { color:var(--ink-3); }
+
+  /* — background gateways: stroke-only, unlabeled at rest. Hover/focus: ripple + faded name and descriptor, behind the career layer. — */
+  .grid--bg { z-index:0; }
+  .gate { position:relative; place-self:center; width:44px; height:44px; display:grid; place-items:center; z-index:1; }
+  .gate__art { display:grid; place-items:center; width:100%; height:100%; opacity:0.85; transition:opacity 0.45s var(--ease-out); }
+  .gate svg { width:var(--gate); height:var(--gate); overflow:visible; transform:rotate(var(--rot, 0deg)); }
+  .gate circle, .gate path { fill:none; stroke:var(--ink-3); stroke-width:1; vector-effect:non-scaling-stroke; }
+  .gate .g1 { opacity:0.38; } .gate .g2 { opacity:0.26; } .gate .g3 { opacity:0.2; }
+  .gate__rip { position:absolute; left:50%; top:50%; width:var(--gate); height:var(--gate); margin:calc(var(--gate) / -2) 0 0 calc(var(--gate) / -2); border:1px solid var(--accent); border-radius:50%; opacity:0; pointer-events:none; }
+  .gate__txt { position:absolute; top:50%; left:calc(100% + 6px); transform:translate(-6px, -50%); opacity:0; white-space:nowrap; pointer-events:none; transition:opacity 0.5s var(--ease-out), transform 0.5s var(--ease-out); }
+  .gate--left .gate__txt { left:auto; right:calc(100% + 6px); text-align:right; transform:translate(6px, -50%); }
+  .gate__name { display:block; font:500 var(--text-label)/1.3 var(--font-sans); letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-3); }
+  .gate__desc { display:block; margin-top:2px; font:400 var(--text-caption)/1.4 var(--font-sans); letter-spacing:0.03em; color:var(--ink-3); opacity:0.85; }
+  .gate:is(:hover, :focus-visible) .gate__art { opacity:1; }
+  .gate:is(:hover, :focus-visible) .gate__txt { opacity:0.9; transform:translate(0, -50%); }
+  .gate:is(:hover, :focus-visible) circle.g1 { opacity:0.75; }
+
+  /* — temporary state for categories that have no approved content yet (no invented content) — */
+  .tmp { grid-column:4 / span 6; grid-row:7; align-self:center; }
+  .grid[hidden] { display:none; }
+  .tmp__k { display:block; font:500 var(--text-label)/1.4 var(--font-sans); letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-3); }
+  .tmp__t { margin-top:var(--sp-3); font:400 var(--text-body)/1.6 var(--font-sans); color:var(--ink-2); max-width:44ch; }
+
+  /* — detail panel (Adaptive Editorial Panel): fixed right on desktop, bottom sheet on mobile — */
+  .panel { position:fixed; z-index:40; top:0; right:0; bottom:0; width:var(--panel-w); background:var(--bg); border-left:1px solid var(--rule); display:flex; flex-direction:column; visibility:hidden; }
+  /* elevation (desktop): the panel is a sheet above the canvas. Hairline = the existing rule border; the soft shadow reuses the Design System's shadow-frame-mobile recipe (rgba(0,0,0,0.12), 40px blur), turned to fall on the left edge only. No new colours. */
+  @media (min-width:1024px) { .panel { box-shadow:-8px 0 40px rgba(0,0,0,0.12); } .panel .pn__body > .pn__media { flex:none; width:min(100%, calc(42vh * var(--arn, 1.3333))); } }   /* media slot keeps the asset's aspect ratio (no crop) */
+  .panel[data-open] { visibility:visible; }
+  .pn__head { display:flex; justify-content:space-between; align-items:center; padding:var(--sp-5) var(--sp-6) var(--sp-4); border-bottom:1px solid var(--rule); }
+  .pn__idx { font:500 var(--text-label)/1.2 var(--font-sans); letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-3); }
+  .pn__close { width:44px; height:44px; margin:-10px -12px -10px 0; display:grid; place-items:center; border-radius:50%; }
+  .pn__close svg { width:16px; height:16px; stroke:var(--ink); stroke-width:1.5; fill:none; }
+  .pn__close:hover { background:var(--surface); }
+  .pn__body { flex:1; min-height:0; overflow-y:auto; padding:var(--sp-6); display:flex; flex-direction:column; gap:var(--sp-5); }
+  .pn__media { aspect-ratio:var(--ar, 4 / 3); max-height:42vh; align-self:flex-start; width:100%; border-radius:var(--r-sm); overflow:hidden; background:var(--surface); }
+  .pn__media svg { display:block; width:100%; height:100%; }
+  .pn__cap { margin-top:calc(var(--sp-3) * -1); font:400 var(--text-caption)/1.4 var(--font-sans); letter-spacing:0.03em; color:var(--ink-3); }
+  .pn__title { font:300 clamp(32px, 2.6vw, 44px)/1.08 var(--font-display); letter-spacing:-0.02em; outline-offset:6px; }
+  .pn__flag { font:500 var(--text-label)/1.3 var(--font-sans); letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-3); }
+  .pn__flag[hidden] { display:none; }
+  .pn__copy { font:400 var(--text-body)/1.6 var(--font-sans); color:var(--ink-2); }
+  .pn__meta { display:grid; grid-template-columns:auto 1fr; column-gap:var(--sp-6); row-gap:var(--sp-3); padding-top:var(--sp-4); border-top:1px solid var(--rule); }
+  .pn__meta dt { font:500 var(--text-label)/1.6 var(--font-sans); letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-3); }
+  .pn__meta dd { font:400 var(--text-body-sm)/1.55 var(--font-sans); color:var(--ink-3); }
+  .pn__nav { display:flex; justify-content:space-between; gap:var(--sp-4); padding:var(--sp-4) var(--sp-6); border-top:1px solid var(--rule); }
+  .pn__btn { min-height:44px; display:flex; flex-direction:column; justify-content:center; padding:0 var(--sp-3); margin-inline:calc(var(--sp-3) * -1); border-radius:var(--r-sm); }
+  .pn__btn[data-dir="next"] { text-align:right; align-items:flex-end; }
+  .pn__btn small { font:500 var(--text-label)/1.3 var(--font-sans); letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-3); }
+  .pn__btn span { font:500 var(--text-body-sm)/1.3 var(--font-sans); }
+  .pn__btn:hover:not(:disabled) { background:var(--surface); }
+  .pn__btn:disabled { opacity:0.35; }
+
+  /* — network layers: every category except Practice. Same nodes, labels and connector language, placed from data on the 12-column grid. — */
+  .grid--net { pointer-events:none; z-index:2; }
+  .net__svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; pointer-events:none; }
+  .net__svg path { fill:none; stroke:var(--ink); stroke-width:1; }
+  .net__svg path.d { stroke-dasharray:8 6; }
+  .net__svg path.br { stroke:var(--accent); stroke-width:2; }                       /* the bridge: rail item → first node, same accent line as Practice */
+  .grid--net .mod { align-self:center; }
+  .grid--net .node { pointer-events:auto; }
+  .node__label--b { bottom:auto; top:calc(var(--ring) / 2 + 22px); justify-content:flex-start; }          /* the one label rule, mirrored: used only when a connector leaves the node upward (derived, never configured) */
+  .net__tag { grid-column:1 / span 5; grid-row:12; align-self:end; padding-bottom:var(--sp-6); font:500 var(--text-label)/1.5 var(--font-sans); letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-3); }
+
+  /* — spatial transition surface: the chosen gateway's own rings, drawn above the layers, expand past the canvas — */
+  .portal { position:absolute; top:0; bottom:0; left:calc(var(--rail-w) + 1px); right:0; z-index:30; pointer-events:none; overflow:hidden; }
+  .portal[hidden] { display:none; }
+  .portal svg { position:absolute; inset:0; width:100%; height:100%; color:var(--ink); overflow:hidden; }
+  .portal svg path, .portal svg circle { fill:none; stroke:currentColor; stroke-width:1; vector-effect:non-scaling-stroke; }
+  .portal .g1 { opacity:0.6; } .portal .g2 { opacity:0.32; } .portal .g3 { opacity:0.26; }
+  .portal .g0 { display:none; }
+  .is-transit .gate:not(.is-origin) .gate__art { opacity:0.3; }
+  .is-transit .gate__txt { opacity:0 !important; }
+  .is-transit .node, .is-transit .node__label, .is-transit .node__disc { transition:none !important; pointer-events:none; }
+  .is-transit .node__rip { display:none; }
+  @media (prefers-reduced-motion:reduce) { .node__img, .node, .node__disc, .node__disc::before, .node__disc::after, .node__label, .gate__art, .gate__txt { transition-duration:0.01ms; } }
+
+  /* — below 1024px: rail becomes a top strip, progression turns vertical, details open as a bottom sheet — */
+  @media (max-width:1023px) {
+    .portal { display:none; }
+    .atlas { --ring:72px; --m:20px; --g:16px; --solid:0px; min-height:0; padding-bottom:var(--sp-10); display:flex; flex-direction:column; }
+    .atlas[data-sheet] { padding-bottom:72svh; }
+    .rail__div, .bridge--stub, .bridge--rise, .rail__brand::after, .rail__lead, .rail__item[aria-current="true"] .rail__lead, .guide, .pv, .gate__txt { display:none; }
+    .rail { position:relative; padding:var(--sp-5) var(--m) 0; border-bottom:1px solid var(--rule); }
+    .rail__brand { position:static; display:block; font-size:32px; margin-bottom:var(--sp-4); }
+    .rail__list { display:flex; gap:var(--sp-6); overflow-x:auto; scrollbar-width:none; }
+    .rail__item { position:relative; left:auto; top:auto; width:auto; height:48px; margin:0; padding:0 0 var(--sp-3); flex:none; border-bottom:2px solid transparent; }
+    .rail__item::after, .rail__item[aria-current="true"]::before { display:none; }
+    .rail__item[aria-current="true"] { border-bottom-color:var(--accent); }
+    .grid { position:relative; top:auto; bottom:auto; left:auto; right:auto; display:flex; flex-direction:column; padding:var(--sp-10) var(--m) 0; }
+    .tree { position:relative; inset:auto; order:2; }
+    .grid--tmp { order:2; }
+    .grid--bg { order:3; flex-direction:row; justify-content:center; gap:var(--sp-4); padding-top:var(--sp-10); }
+    .axis { display:flex; flex-direction:column; align-self:stretch; height:auto; position:relative; padding-left:calc(var(--ring) + var(--sp-5)); }
+    .axis::before { content:""; position:absolute; left:calc(var(--ring) / 2 - 0.5px); top:calc(var(--ring) / 2); bottom:calc(var(--ring) / 2); width:1px; background:repeating-linear-gradient(180deg, var(--ink) 0 8px, transparent 8px 14px); }
+    .mod { height:auto; min-height:calc(var(--ring) + var(--sp-8)); }
+    .mod:last-child { height:auto; min-height:var(--ring); }
+    .node { left:calc(var(--ring) / -2 - var(--sp-5)); top:calc(var(--ring) / 2); }
+    .node__label { position:relative; left:0; bottom:auto; top:auto; margin-top:calc(var(--ring) / 2 - 22px); width:auto; height:auto; display:block; }
+    .node__name { display:block; overflow:visible; -webkit-line-clamp:unset; line-clamp:unset; }
+    .seg { display:none; }
+    .bridge--m { display:block; position:absolute; left:calc(var(--ring) / 2 - 1px); top:calc(var(--sp-10) * -1); width:2px; height:var(--sp-10); }
+    .tmp { padding:var(--sp-10) 0 0; }
+    .panel { top:auto; left:0; right:0; width:auto; height:auto; max-height:72svh; border-left:0; border-top:1px solid var(--rule); border-radius:var(--r-md) var(--r-md) 0 0; }
+    .pn__media { max-height:30svh; }
+  }
+</style>
+</head>
+<body>
+<main class="atlas" id="atlas" aria-label="Skill atlas">
+  <nav class="rail" id="rail" aria-label="Skill categories"></nav>
+  <div class="grid grid--bg" id="bg-grid"></div>
+  <div class="tree" id="tree">
+    <div class="bridge bridge--stub"></div><div class="bridge bridge--rise"></div>
+    <div class="grid grid--tree" id="tree-grid"></div>
+  </div>
+  <div class="grid grid--tmp" id="tmp-grid" hidden inert><div class="tmp" id="tmp"></div></div>
+  <div class="grid grid--tmp" id="tmp-grid2" hidden inert><div class="tmp" id="tmp2"></div></div>
+  <div class="grid grid--net" id="net-grid" hidden inert></div>
+  <div class="grid grid--net" id="net-grid2" hidden inert></div>
+  <div class="grid grid--pv" id="pv-grid" aria-hidden="true"><div class="pv" id="pv"></div></div>
+  <div class="portal" id="portal" aria-hidden="true" hidden><svg><g id="pg"><g id="pgk"><g id="pgu"><circle class="g0" cx="24" cy="24" r="17"/><circle class="g1" cx="24" cy="24" r="17"/><path class="g2" d="M24 13.5 A10.5 10.5 0 1 1 13.5 24"/><path class="g3" d="M24 2 A22 22 0 0 1 46 24"/></g></g></g></svg></div>
+  <aside class="panel" id="panel" role="dialog" aria-modal="false" aria-labelledby="pn-title" inert></aside>
+  <div class="sr" role="status" aria-live="polite" id="live"></div>
+</main>
+
+<!-- Data model. Categories are independent content systems; only Practice has content in this prototype. Imagery is placeholder art, not verified portfolio assets.
+     Gateway descriptors are placeholder one-liners derived from the category names. -->
+<script type="application/json" id="atlas-data">
+{
+ "active": "practice",
+ "categories": [
+  {
+   "id": "practice",
+   "n": "01",
+   "name": "PRACTICE",
+   "desc": "Career"
+  },
+  {
+   "id": "teach",
+   "n": "02",
+   "name": "TEACH",
+   "desc": "Sharing what I learn"
+  },
+  {
+   "id": "play",
+   "n": "03",
+   "name": "PLAY",
+   "desc": "Music, games, side explorations"
+  },
+  {
+   "id": "explore",
+   "n": "04",
+   "name": "EXPLORE",
+   "desc": "Space and curiosity"
+  },
+  {
+   "id": "recognition",
+   "n": "05",
+   "name": "RECOGNITION",
+   "desc": "Awards and patents"
+  },
+  {
+   "id": "freelance",
+   "n": "06",
+   "name": "FREELANCE",
+   "desc": "Independent work"
+  }
+ ],
+ "practice": {
+  "nodes": [
+   {
+    "id": "foundations",
+    "n": "01",
+    "name": "Foundations",
+    "art": "shards",
+    "ar": "4 / 3",
+    "arLabel": "4:3",
+    "column": 2,
+    "span": 1,
+    "row": 7,
+    "content": {
+     "category": "Practice",
+     "descriptor": "Industrial Design · Product Design · R&D",
+     "summary": "Built my foundation through tangible product design, healthcare R&D, industrial design, visualization, and early UX work before moving deeper into connected products and digital systems.",
+     "signature": "Industrial Design · Product Design · UX · Visualization · R&D",
+     "intro": "This chapter groups the earlier professional experiences:",
+     "includes": [
+      "Skanray",
+      "ADES / Advandes",
+      "Desmania",
+      "Earlier engineering / R&D work"
+     ]
+    }
+   },
+   {
+    "id": "zf-group",
+    "n": "02",
+    "name": "ZF Group",
+    "art": "towers",
+    "ar": "16 / 9",
+    "arLabel": "16:9",
+    "column": 5,
+    "span": 1,
+    "row": 7,
+    "content": {
+     "summary": "Evolved across industrial design, automotive HMI and enterprise UX, working on physical products, autonomous-vehicle interfaces, SAP applications, data visualization, and design-system guidelines.",
+     "rows": [
+      [
+       "Category",
+       "Practice"
+      ],
+      [
+       "Descriptor",
+       [
+        "UX Specialist · Global UX Team",
+        "Previously Senior Industrial Designer"
+       ]
+      ],
+      [
+       "Capability",
+       "Industrial Design · HMI · UX · Data Visualization · Design Systems"
+      ],
+      [
+       "Known work",
+       [
+        "Industrial design",
+        "Automotive HMI",
+        "SAE Level 3/4 autonomous-vehicle demonstrators",
+        "EV interface concepts",
+        "Product styling, CMF and prototyping",
+        "SAP / Fiori applications",
+        "Enterprise UX",
+        "Data visualization guidelines",
+        "Icon and interface guidelines",
+        "Internal products and platforms",
+        "Branding",
+        "Design-system work"
+       ]
+      ],
+      [
+       "Career phases",
+       [
+        "Senior Industrial Designer, approximately 2019–2021",
+        "UX Specialist, IT Innovation / Global UX Team, approximately 2021–2022"
+       ]
+      ]
+     ]
+    }
+   },
+   {
+    "id": "tvs-motor",
+    "n": "03",
+    "name": "TVS Motor",
+    "art": "form",
+    "ar": "1 / 1",
+    "arLabel": "1:1",
+    "column": 8,
+    "span": 1,
+    "row": 7,
+    "content": {
+     "summary": "Led EV and connected-mobility experience design across TVS X, TVS Connect and TALES, while managing a 16-person extended design team, planning priorities, shaping briefs, and pitching features to senior stakeholders.",
+     "story": [
+      "At TVS, I led UX for electric and connected mobility across the vehicle, app, and supporting digital ecosystem. My role went beyond interface design into team management, prioritization, briefs, feature definition, stakeholder pitching, and delivery planning.",
+      "I managed an extended team of around 16 consultancy designers, along with interns, while also shaping major initiatives including the TVS X HMI, TVS Connect, and TALES, the design system created to bring consistency across connected experiences.",
+      "The work also led into broader innovation areas including sonic branding, research and validation, and multiple patented interaction concepts."
+     ],
+     "rows": [
+      [
+       "Category",
+       "Practice"
+      ],
+      [
+       "Descriptor",
+       "UX Manager · Electric Vehicle"
+      ],
+      [
+       "Capability",
+       "Product Design · Industrial Design · HMI · UX · Design Systems · Connected Mobility"
+      ],
+      [
+       "Supporting work",
+       [
+        "TVS X HMI",
+        "TALES Design System",
+        "TVS Connect",
+        "560+ HMI screens",
+        "Connected mobility ecosystem",
+        "Sonic branding",
+        "Research and usability validation",
+        "SUS / CSAT / NPS",
+        "Four published international patents"
+       ]
+      ],
+      [
+       "Cross-references",
+       [
+        "iF Design Award",
+        "Four published international patents"
+       ]
+      ]
+     ]
+    }
+   },
+   {
+    "id": "bounteous",
+    "n": "04",
+    "name": "Bounteous",
+    "art": "facade",
+    "ar": "3 / 4",
+    "arLabel": "3:4",
+    "column": 11,
+    "span": 1,
+    "row": 7,
+    "content": {
+     "summary": "Leading enterprise UX strategy for Verizon Business across upgrades, shopping, AI-assisted tools and digital transformation, while driving prioritization, implementation planning, tech-debt decisions, documentation, and stakeholder alignment.",
+     "rows": [
+      [
+       "Category",
+       "Practice"
+      ],
+      [
+       "Client context",
+       "Verizon Business"
+      ],
+      [
+       "Employment",
+       [
+        "User Experience Lead, Accolite",
+        "July 2024 – February 2025",
+        "Lead Specialist, Bounteous India",
+        "February 2025 – Present"
+       ]
+      ],
+      [
+       "Responsibilities",
+       [
+        "UX strategy",
+        "Implementation planning",
+        "Prioritization",
+        "Tech-debt decisions",
+        "Documentation",
+        "Briefs and first cuts",
+        "Feature pitching to senior stakeholders",
+        "Delivery coordination",
+        "Stakeholder alignment"
+       ]
+      ],
+      [
+       "AI-assisted work",
+       [
+        "AI-assisted tools and digital transformation",
+        "Content creation",
+        "Document review",
+        "Contextual productivity support"
+       ]
+      ],
+      [
+       "Impact Champion",
+       [
+        "Bounteous IGNITE Spotlight Award",
+        "04 November 2025",
+        "Recognition for significant impact through innovation."
+       ]
+      ],
+      [
+       "Emerging Icon Award",
+       [
+        "Bounteous IGNITE ACE Award",
+        "09 March 2026",
+        "Recognition for outstanding service, tireless effort and support to the company."
+       ]
+      ]
+     ]
+    }
+   }
+  ]
+ },
+ "layouts": {
+  "_note": "PROTOTYPE PLACEHOLDERS ONLY. Every category copies Practice exactly: four nodes on columns 2, 5, 8 and 11 of row 7, joined by horizontal connectors, with the bridge from the active rail item to the first node. art/ar = placeholder media and its aspect ratio. links = [from, to, h]. Titles are placeholders.",
+  "teach": {
+   "nodes": [
+    {
+     "id": "node-01",
+     "column": 2,
+     "span": 1,
+     "row": 7,
+     "art": "shards",
+     "ar": "16 / 9",
+     "arLabel": "16:9",
+     "name": "CARE College",
+     "content": {
+      "summary": "Teaching and mentoring aspiring designers through classroom programs, independent sessions, and design academies, with a focus on helping students build practical skills, confidence, and career direction.",
+      "story": [
+       "Teaching has become an important part of how I practice design. I currently teach UX at CARE College, and have also mentored independently through Topmate and taught through Launchpad Academy.",
+       "What matters to me is not just explaining methods or tools, but helping students understand how to think through problems, present their work, and build enough confidence to move into the industry. Some of the students I have worked with have gone on to secure strong roles, including opportunities abroad."
+      ],
+      "rows": [
+       [
+        "Category",
+        "Teach"
+       ],
+       [
+        "Descriptor",
+        "UX Educator · Mentor"
+       ],
+       [
+        "Status",
+        "Active"
+       ],
+       [
+        "Capability",
+        "Teaching · Mentorship · UX Foundations · Portfolio Guidance · Career Development"
+       ],
+       [
+        "Supporting contexts",
+        [
+         "CARE College, Tiruchirappalli",
+         "Topmate",
+         "Launchpad Academy, Bengaluru"
+        ]
+       ]
+      ]
+     }
+    },
+    {
+     "id": "node-02",
+     "column": 5,
+     "span": 1,
+     "row": 7,
+     "art": "towers",
+     "ar": "4 / 3",
+     "arLabel": "4:3",
+     "name": "Topmate: Independent Mentorship"
+    },
+    {
+     "id": "node-03",
+     "column": 8,
+     "span": 1,
+     "row": 7,
+     "art": "form",
+     "ar": "1 / 1",
+     "arLabel": "1:1",
+     "name": "Launchpad Academy"
+    },
+    {
+     "id": "node-04",
+     "column": 11,
+     "span": 1,
+     "row": 7,
+     "art": "facade",
+     "ar": "3 / 4",
+     "arLabel": "3:4",
+     "name": "Design Thinking Workshops"
+    }
+   ],
+   "links": [
+    [
+     0,
+     1,
+     "h"
+    ],
+    [
+     1,
+     2,
+     "h"
+    ],
+    [
+     2,
+     3,
+     "h"
+    ]
+   ]
+  },
+  "play": {
+   "nodes": [
+    {
+     "id": "node-01",
+     "column": 2,
+     "span": 1,
+     "row": 7,
+     "art": "shards",
+     "ar": "16 / 9",
+     "arLabel": "16:9",
+     "name": "Gaming + F1",
+     "content": {
+      "summary": "Gaming became my bridge between curiosity, design, storytelling, and UX, long before I had words for any of them.",
+      "story": [
+       "I started gaming when I was around 10 years old. I remember standing outside internet cafés, waiting for them to open at 8 in the morning. Once they opened, I would rush inside and spend almost the entire day playing, stepping out only for lunch and returning until around 8 at night.",
+       "Those were the days of the original GTA, Claw, Virtua Cop (V-Cop), the early Prince of Persia games, Age of Empires, and several others whose names I can barely remember now. Over time, I moved towards racing games like Need for Speed, Forza and The Crew. But Assassin's Creed has always been my favourite franchise. I've played every instalment in the series.",
+       "Formula 1 was a separate interest that began with the sport itself. The racing, engineering and strategy fascinated me long before I started playing F1 on my PS5.",
+       "Looking back, gaming introduced me to interactive experiences before I even knew what UX was. I wasn't analysing interfaces or studying game mechanics. I was simply fascinated by these worlds, their stories and the freedom to explore them. That curiosity has stayed with me, even as the games and platforms have changed."
+      ],
+      "rows": [
+       [
+        "Category",
+        "Play"
+       ],
+       [
+        "Descriptor",
+        "Interactive Worlds · Racing · Storytelling"
+       ],
+       [
+        "Status",
+        "Active / Long-term Passion"
+       ]
+      ]
+     }
+    },
+    {
+     "id": "node-02",
+     "column": 5,
+     "span": 1,
+     "row": 7,
+     "art": "towers",
+     "ar": "4 / 3",
+     "arLabel": "4:3",
+     "name": "Lyrics / Music Experiments",
+     "content": {
+      "summary": "I enjoy writing lyrics and experimenting with how words, rhythm, and AI-assisted music tools can turn an idea into a song.",
+      "story": [
+       "It started with poetry. I enjoyed putting thoughts into words, sometimes playing with rhymes, sometimes just writing whatever came to mind. Over time, some of those poems began taking the shape of lyrics, and eventually, I wanted to hear what they would sound like as actual songs.",
+       "Rap became one of the ways I experimented with storytelling, rhythm, and wordplay. I write the lyrics myself and use AI tools like Suno to explore different tunes and musical arrangements. I'm neither a trained singer nor a music producer, but that hasn't stopped me from experimenting.",
+       "What began as poetry has gradually evolved into lyrics, songs, and a few creative experiments, including a rap video and recordings on SoundCloud. It's still something I do out of curiosity and the simple pleasure of turning words into something I can listen to."
+      ],
+      "rows": [
+       [
+        "Category",
+        "Play"
+       ],
+       [
+        "Descriptor",
+        "Songwriting · Rap · Creative Experimentation"
+       ],
+       [
+        "Status",
+        "Active / Personal Exploration"
+       ],
+       [
+        "Progression",
+        "Poetry → Lyrics → Songs / Tunes"
+       ]
+      ],
+      "media": {
+       "rapVideo": null,
+       "soundcloud": null
+      }
+     }
+    }
+   ],
+   "links": [
+    [
+     0,
+     1,
+     "h"
+    ]
+   ]
+  },
+  "explore": {
+   "nodes": [
+    {
+     "id": "node-01",
+     "column": 1,
+     "span": 2,
+     "row": 7,
+     "art": "shards",
+     "ar": "16 / 9",
+     "arLabel": "16:9",
+     "name": "Black Holes / Space",
+     "content": {
+      "summary": "My fascination with black holes led me to study astrophysics beyond my design profession, exploring questions about spacetime, gravity, and the limits of our understanding of the universe.",
+      "story": [
+       "I've always been fascinated by space, particularly black holes. There is something intriguing about objects that push our understanding of physics to its limits. The more I read about them, the more questions I seem to have.",
+       "That curiosity eventually led me to take Astro 101: Black Holes from the University of Alberta. What started as an interest turned into hours of studying concepts like general relativity, spacetime, event horizons, and the unanswered questions surrounding quantum gravity. I filled pages with handwritten notes, diagrams, and questions as I tried to make sense of ideas that are difficult to imagine, let alone fully understand.",
+       "I'm not a physicist, and I don't pretend to be one. But I enjoy learning about things that have little to do with my profession. Sometimes, exploring an unfamiliar subject makes me question assumptions I wouldn't otherwise think to challenge.",
+       "I still have those notebooks, and my curiosity about the universe is far from over."
+      ],
+      "rows": [
+       [
+        "Category",
+        "Explore"
+       ],
+       [
+        "Descriptor",
+        "Astrophysics · Curiosity · Independent Learning"
+       ],
+       [
+        "Status",
+        "Active / Ongoing Exploration"
+       ]
+      ]
+     }
+    },
+    {
+     "id": "node-02",
+     "column": 3,
+     "span": 2,
+     "row": 7,
+     "art": "towers",
+     "ar": "4 / 3",
+     "arLabel": "4:3",
+     "name": "Generative AI Foundations",
+     "content": {
+      "rows": [
+       [
+        "Category",
+        "Explore"
+       ],
+       [
+        "Credential",
+        "Generative AI Foundations, UpGrad × Microsoft"
+       ]
+      ]
+     }
+    },
+    {
+     "id": "node-03",
+     "column": 5,
+     "span": 2,
+     "row": 7,
+     "art": "form",
+     "ar": "1 / 1",
+     "arLabel": "1:1",
+     "name": "Google Project Management",
+     "content": {
+      "rows": [
+       [
+        "Category",
+        "Explore"
+       ],
+       [
+        "Credential",
+        "Google Project Management certifications"
+       ]
+      ]
+     }
+    },
+    {
+     "id": "node-04",
+     "column": 7,
+     "span": 2,
+     "row": 7,
+     "art": "facade",
+     "ar": "3 / 4",
+     "arLabel": "3:4",
+     "name": "UX DesignOps",
+     "content": {
+      "rows": [
+       [
+        "Category",
+        "Explore"
+       ],
+       [
+        "Credential",
+        "UX DesignOps"
+       ]
+      ]
+     }
+    },
+    {
+     "id": "node-05",
+     "column": 9,
+     "span": 2,
+     "row": 7,
+     "art": "shards",
+     "ar": "9 / 16",
+     "arLabel": "9:16",
+     "name": "Leadership Competencies",
+     "content": {
+      "rows": [
+       [
+        "Category",
+        "Explore"
+       ],
+       [
+        "Credential",
+        "Leadership Competencies"
+       ]
+      ]
+     }
+    },
+    {
+     "id": "node-06",
+     "column": 11,
+     "span": 2,
+     "row": 7,
+     "art": "towers",
+     "ar": "16 / 9",
+     "arLabel": "16:9",
+     "name": "Python for Data Science",
+     "content": {
+      "rows": [
+       [
+        "Category",
+        "Explore"
+       ],
+       [
+        "Credential",
+        "Python for Data Science"
+       ]
+      ]
+     }
+    }
+   ],
+   "links": [
+    [
+     0,
+     1,
+     "h"
+    ],
+    [
+     1,
+     2,
+     "h"
+    ],
+    [
+     2,
+     3,
+     "h"
+    ],
+    [
+     3,
+     4,
+     "h"
+    ],
+    [
+     4,
+     5,
+     "h"
+    ]
+   ]
+  },
+  "recognition": {
+   "nodes": [
+    {
+     "id": "node-01",
+     "column": 1,
+     "span": 2,
+     "row": 7,
+     "art": "shards",
+     "ar": "16 / 9",
+     "arLabel": "16:9",
+     "name": "International Bicycle Design Competition",
+     "content": {
+      "summary": "2nd Prize · Taiwan · 2026",
+      "caseStudy": null,
+      "rows": [
+       [
+        "Category",
+        "Recognition"
+       ],
+       [
+        "Competition",
+        "International Bicycle Design Competition"
+       ],
+       [
+        "Location",
+        "Taiwan"
+       ],
+       [
+        "Year",
+        "2026"
+       ],
+       [
+        "Result",
+        "2nd Prize"
+       ],
+       [
+        "Travel",
+        "Travelled to Taiwan to receive the prize in March 2026."
+       ],
+       [
+        "Project context",
+        "Bicycle design, industrial design, digital experience and motivation for children to cycle."
+       ],
+       [
+        "Concept",
+        [
+         "A bicycle with a speedometer",
+         "A companion experience for parents",
+         "Parent-created tasks",
+         "Points and motivational leaderboards for children in schools or residential communities"
+        ]
+       ]
+      ]
+     }
+    },
+    {
+     "id": "node-02",
+     "column": 3,
+     "span": 2,
+     "row": 7,
+     "art": "towers",
+     "ar": "4 / 3",
+     "arLabel": "4:3",
+     "name": "iF Design Award",
+     "content": {
+      "summary": "Award-winning TVS Motor work",
+      "rows": [
+       [
+        "Category",
+        "Recognition"
+       ],
+       [
+        "Award",
+        "iF Design Award"
+       ],
+       [
+        "Cross-reference",
+        "TVS Motor"
+       ]
+      ]
+     }
+    },
+    {
+     "id": "node-03",
+     "column": 5,
+     "span": 2,
+     "row": 7,
+     "art": "form",
+     "ar": "1 / 1",
+     "arLabel": "1:1",
+     "name": "Michelin Design Challenge",
+     "content": {
+      "summary": "2018 · 3rd Prize · International",
+      "projectFile": null,
+      "video": null,
+      "rows": [
+       [
+        "Category",
+        "Recognition"
+       ],
+       [
+        "Competition",
+        "Michelin Design Challenge"
+       ],
+       [
+        "Year",
+        "2018"
+       ],
+       [
+        "Result",
+        "3rd Prize"
+       ],
+       [
+        "Level",
+        "International"
+       ],
+       [
+        "Evidence",
+        [
+         {
+          "t": "michelinmedia.com gallery",
+          "u": "https://michelinmedia.com/pages/galleries/detail/6/126/"
+         }
+        ]
+       ]
+      ]
+     }
+    },
+    {
+     "id": "node-04",
+     "column": 7,
+     "span": 2,
+     "row": 7,
+     "art": "facade",
+     "ar": "3 / 4",
+     "arLabel": "3:4",
+     "name": "Dell Designathon",
+     "content": {
+      "summary": "2017 — 2nd Prize, National · 2019 — 2nd Prize, National",
+      "rows": [
+       [
+        "Category",
+        "Recognition"
+       ],
+       [
+        "Competition",
+        "Dell Designathon"
+       ],
+       [
+        "Results",
+        [
+         "2017 — 2nd Prize, National",
+         "2019 — 2nd Prize, National"
+        ]
+       ]
+      ]
+     }
+    },
+    {
+     "id": "node-05",
+     "column": 9,
+     "span": 2,
+     "row": 7,
+     "art": "shards",
+     "ar": "9 / 16",
+     "arLabel": "9:16",
+     "name": "Four Published International Patents",
+     "content": {
+      "summary": "Four published international patents · TVS Motor",
+      "rows": [
+       [
+        "Category",
+        "Recognition"
+       ],
+       [
+        "Patents",
+        "Four published international patents"
+       ],
+       [
+        "Cross-reference",
+        "TVS Motor"
+       ]
+      ]
+     }
+    },
+    {
+     "id": "node-06",
+     "column": 11,
+     "span": 2,
+     "row": 7,
+     "art": "towers",
+     "ar": "16 / 9",
+     "arLabel": "16:9",
+     "name": "IIT Kharagpur B-Plan / Hope Box",
+     "content": {
+      "summary": "IIT Kharagpur B-Plan · 2017 · 3rd Prize",
+      "rows": [
+       [
+        "Category",
+        "Recognition"
+       ],
+       [
+        "Competition",
+        "IIT Kharagpur B-Plan"
+       ],
+       [
+        "Year",
+        "2017"
+       ],
+       [
+        "Result",
+        "3rd Prize"
+       ],
+       [
+        "Contribution",
+        "Brand identity and co-development of industrial design"
+       ],
+       [
+        "Project reference",
+        [
+         {
+          "t": "Hopebox on Behance",
+          "u": "https://www.behance.net/gallery/30786191/Hopebox-_-Logo-design"
+         }
+        ]
+       ]
+      ]
+     }
+    }
+   ],
+   "links": [
+    [
+     0,
+     1,
+     "h"
+    ],
+    [
+     1,
+     2,
+     "h"
+    ],
+    [
+     2,
+     3,
+     "h"
+    ],
+    [
+     3,
+     4,
+     "h"
+    ],
+    [
+     4,
+     5,
+     "h"
+    ]
+   ]
+  },
+  "freelance": {
+   "nodes": [
+    {
+     "id": "node-01",
+     "column": 1,
+     "span": 2,
+     "row": 7,
+     "art": "shards",
+     "ar": "16 / 9",
+     "arLabel": "16:9",
+     "name": "Amar Chitra Katha / Supandi",
+     "content": {
+      "summary": "Character-related NFT / digital commerce experience.",
+      "prototypeLink": null,
+      "rows": [
+       [
+        "Category",
+        "Freelance"
+       ]
+      ]
+     }
+    },
+    {
+     "id": "node-02",
+     "column": 3,
+     "span": 3,
+     "row": 7,
+     "art": "towers",
+     "ar": "4 / 3",
+     "arLabel": "4:3",
+     "name": "Xpertiz",
+     "content": {
+      "summary": "Independent client.",
+      "rows": [
+       [
+        "Category",
+        "Freelance"
+       ]
+      ]
+     }
+    },
+    {
+     "id": "node-03",
+     "column": 6,
+     "span": 2,
+     "row": 7,
+     "art": "form",
+     "ar": "1 / 1",
+     "arLabel": "1:1",
+     "name": "Celestial",
+     "content": {
+      "summary": "Design-related project associated with later Murugappa Group acquisition context.",
+      "rows": [
+       [
+        "Category",
+        "Freelance"
+       ]
+      ]
+     }
+    },
+    {
+     "id": "node-04",
+     "column": 8,
+     "span": 3,
+     "row": 7,
+     "art": "facade",
+     "ar": "3 / 4",
+     "arLabel": "3:4",
+     "name": "Techno Sport",
+     "content": {
+      "summary": "UI and UX design for mobile and web experiences.",
+      "rows": [
+       [
+        "Category",
+        "Freelance"
+       ]
+      ]
+     }
+    },
+    {
+     "id": "node-05",
+     "column": 11,
+     "span": 2,
+     "row": 7,
+     "art": "shards",
+     "ar": "9 / 16",
+     "arLabel": "9:16",
+     "name": "Independent Client Work",
+     "content": {
+      "summary": "Various independent client engagements.",
+      "rows": [
+       [
+        "Category",
+        "Freelance"
+       ]
+      ]
+     }
+    }
+   ],
+   "links": [
+    [
+     0,
+     1,
+     "h"
+    ],
+    [
+     1,
+     2,
+     "h"
+    ],
+    [
+     2,
+     3,
+     "h"
+    ],
+    [
+     3,
+     4,
+     "h"
+    ]
+   ]
+  }
+ },
+ "gateways": [
+  {
+   "cat": "teach",
+   "row": 3,
+   "rot": -100,
+   "line": 4
+  },
+  {
+   "cat": "explore",
+   "row": 4,
+   "rot": 30,
+   "line": 10
+  },
+  {
+   "cat": "play",
+   "row": 10,
+   "rot": 80,
+   "line": 4
+  },
+  {
+   "cat": "freelance",
+   "row": 11,
+   "rot": 200,
+   "line": 7
+  },
+  {
+   "cat": "recognition",
+   "row": 10,
+   "rot": -30,
+   "line": 13
+  }
+ ],
+ "_grid": "SHARED 12 x 12 EDITORIAL GRID. Every node is declared logically as {id, column, span, row}; screen positions are resolved from the grid tracks (column track centres x row track centres), never from pixels. previewRegions = ONE grid-aligned preview region per category (column, span, row, rows).",
+ "previewRegions": {
+  "practice": {
+   "column": 5,
+   "span": 4,
+   "row": 2,
+   "rows": 3
+  },
+  "teach": {
+   "column": 5,
+   "span": 4,
+   "row": 2,
+   "rows": 3
+  },
+  "play": {
+   "column": 5,
+   "span": 4,
+   "row": 2,
+   "rows": 3
+  },
+  "explore": {
+   "column": 5,
+   "span": 4,
+   "row": 2,
+   "rows": 3
+  },
+  "recognition": {
+   "column": 5,
+   "span": 4,
+   "row": 2,
+   "rows": 3
+  },
+  "freelance": {
+   "column": 5,
+   "span": 4,
+   "row": 2,
+   "rows": 3
+  }
+ }
+}
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+/* Components: AtlasRail · GatewayLayer(Gateway) · Tree(CareerAxis > CareerNode, TechPath, HoverPreview) · TempState · DetailPanel.
+   State is one object (S). Listeners are delegated and attached ONCE; every animation reuses a fixed set of elements and kills its own previous tween, so repeated switching never accumulates anything. */
+(function () {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const data = JSON.parse($('#atlas-data').textContent), CAT = Object.fromEntries(data.categories.map(c => [c.id, c]));
+  const nodes = data.practice.nodes, last = nodes.length - 1, cap = s => s.charAt(0) + s.slice(1).toLowerCase();
+  const rmq = matchMedia('(prefers-reduced-motion: reduce)'), deskq = matchMedia('(min-width:1024px)'), hoverq = matchMedia('(hover:hover) and (pointer:fine)');
+  const atlas = $('#atlas'), live = $('#live');
+
+  /* placeholder artwork (monochrome, abstract; never logos) */
+  const ART = {
+    shards: '<defs><linearGradient id="a1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d9d8d3"/><stop offset="1" stop-color="#6d6c68"/></linearGradient></defs><rect width="104" height="104" fill="url(#a1)"/><polygon points="0,104 60,20 104,70 104,104" fill="#2b2b29" opacity=".85"/><polygon points="10,30 62,14 40,62" fill="#f3f2ee" opacity=".7"/><polygon points="0,70 36,50 70,104 0,104" fill="#8f8e89" opacity=".8"/>',
+    towers: '<defs><linearGradient id="a2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e3e2dd"/><stop offset="1" stop-color="#8a8984"/></linearGradient></defs><rect width="104" height="104" fill="url(#a2)"/><rect x="18" width="34" height="104" fill="#3d3d3a" opacity=".85"/><rect x="62" y="34" width="30" height="70" fill="#a9a8a3" opacity=".9"/>',
+    form: '<defs><linearGradient id="a3" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2a2a28"/><stop offset="1" stop-color="#4a4a47"/></linearGradient></defs><rect width="104" height="104" fill="url(#a3)"/><ellipse cx="52" cy="56" rx="44" ry="14" fill="#0d0d0c" transform="rotate(-24 52 56)"/><path d="M6 78 Q52 18 98 28" stroke="#8d8c87" stroke-width="1.2" fill="none"/>',
+    facade: '<defs><linearGradient id="a4" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#bdbcb7"/><stop offset="1" stop-color="#f1f0ec"/></linearGradient></defs><rect width="104" height="104" fill="url(#a4)"/>' +
+      Array.from({ length: 16 }, (_, i) => { const r = Math.floor(i / 4), c = i % 4; return '<rect x="' + (8 + c * 24) + '" y="' + (8 + r * 24) + '" width="18" height="18" fill="' + ((r + c) % 3 === 0 ? '#3a3a37' : '#a7a6a1') + '" opacity="' + ((r + c) % 2 === 0 ? 0.9 : 0.55) + '"/>'; }).join('')
+  };
+  const svg = (art, slice) => '<svg viewBox="0 0 104 104"' + (slice ? ' preserveAspectRatio="xMidYMid slice"' : '') + ' aria-hidden="true" focusable="false">' + ART[art] + '</svg>';
+
+  /* ── build ── */
+  const S = { cat: data.active, layer: null, node: null, open: false, trigger: null, pv: null, tl: null, panelTween: null };
+  const slots = data.gateways.map(g => ({ ...g }));                                  // five fixed positions; each shows the category it leads to
+  $('#rail').innerHTML = '<span class="rail__brand" aria-hidden="true">SK</span><span class="rail__div" aria-hidden="true"></span><ol class="rail__list">' + data.categories.map((c, i) =>
+    '<li><button type="button" class="rail__item" style="--i:' + i + '" data-category="' + c.id + '" title="' + cap(c.name) + '"><span class="rail__lead" aria-hidden="true"></span><span class="rail__num">' + c.n + '</span><span class="rail__name">' + c.name + '</span></button></li>').join('') + '</ol>';
+  const guides = [1, 4, 7, 10].map(n => '<i class="guide" style="grid-column:' + n + '" aria-hidden="true"></i>').join('') + '<i class="guide guide--end" style="grid-column:12" aria-hidden="true"></i>';
+  const gate = (g, i) => '<button type="button" class="gate' + (g.line >= 10 ? ' gate--left' : '') + '" data-slot="' + i + '" style="' + (g.line === 13 ? 'grid-column:12;justify-self:end;margin-right:-22px' : 'grid-column:' + g.line + ';justify-self:start;margin-left:-22px') + ';grid-row:' + g.row + ';--rot:' + g.rot + 'deg">'
+    + '<span class="gate__rip" aria-hidden="true"></span><span class="gate__art"><svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><circle class="g1" cx="24" cy="24" r="17"/><path class="g2" d="M24 13.5 A10.5 10.5 0 1 1 13.5 24"/><path class="g3" d="M24 2 A22 22 0 0 1 46 24"/></svg></span>'
+    + '<span class="gate__txt" aria-hidden="true"><span class="gate__name"></span><span class="gate__desc"></span></span></button>';
+  $('#bg-grid').innerHTML = guides + slots.map(gate).join('');
+  const gates = $$('.gate');
+  const paintGate = i => { const g = gates[i], c = CAT[slots[i].cat]; g.dataset.gateway = c.id; g.setAttribute('aria-label', 'Open the ' + cap(c.name) + ' category: ' + c.desc); $('.gate__name', g).textContent = c.name; $('.gate__desc', g).textContent = c.desc; };
+  gates.forEach((_, i) => paintGate(i));
+
+  const disc = inner => '<span class="node__disc"><svg class="node__ring" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><circle cx="50" cy="50" r="49.4"/><line class="node__tick" x1="50" y1="-8.8" x2="50" y2="4.4"/><line class="node__tick" x1="50" y1="95.6" x2="50" y2="108.8"/></svg>' + inner + '</span>';
+  /* ── THE node component. Every foreground node in every category is produced by this one function: the same button, disc, ring, tick, media image, label and number/name markup,
+        styled by the same classes (.node, .node__disc, .node__img, .node__label …). Only its CONFIG differs: id, label text, media, aria text, grid placement and connector-derived label side.
+        Practice's Foundations is the master; nothing here has a category-specific class, token or animation. ── */
+  const nodeComponent = (cfg, tag = 'div', lead = '', trail = '') =>
+    '<' + tag + ' class="mod"' + (cfg.style ? ' style="' + cfg.style + '"' : '') + ' data-node-id="' + cfg.id + '" data-category="' + cfg.category + '">' + lead + trail
+    + '<button type="button" class="node" data-node="' + cfg.index + '" aria-pressed="false" aria-haspopup="dialog" aria-label="' + cfg.aria + '">'
+    + '<span class="node__rip" aria-hidden="true"></span>' + disc('<span class="node__img" data-asset="placeholder">' + svg(cfg.art) + '</span>') + '</button>'
+    + '<span class="node__label' + (cfg.labelBelow ? ' node__label--b' : '') + '"><span class="node__num">' + cfg.n + '</span><span class="node__name">' + cfg.name + '</span></span></' + tag + '>';
+  $('#tree-grid').innerHTML = '<ol class="axis" id="axis" aria-label="Practice career progression"><span class="bridge bridge--m" aria-hidden="true"></span>' + nodes.map((n, i) => nodeComponent(
+    { id: n.id, category: 'practice', index: i, n: n.n, name: n.name, art: n.art, aria: n.name + ', career node ' + (i + 1) + ' of ' + nodes.length, labelBelow: false },
+    'li', (i === 0 ? '<span class="seg seg--l seg--bridge" aria-hidden="true"></span>' : '<span class="seg seg--l" aria-hidden="true"></span>'), (i < last ? '<span class="seg seg--r" aria-hidden="true"></span>' : ''))).join('') + '</ol>'
+    ;
+  const tree = $('#tree'); S.layer = tree; const axis = $('#axis'), mods = $$('.mod'), nodeEls = $$('.node');
+  const P0 = { nodes, els: nodeEls, mods, host: axis }, netOf = new Map(), curSet = () => netOf.get(S.layer) || P0;   // the active category's nodes, node elements and host layer
+  const tmpLayers = [{ el: $('#tmp-grid'), box: $('#tmp') }, { el: $('#tmp-grid2'), box: $('#tmp2') }];
+  const fillTmp = (box, id) => { box.innerHTML = '<span class="tmp__k">Temporary state · ' + CAT[id].n + ' ' + cap(CAT[id].name) + '</span><p class="tmp__t">Content for this category has not been added yet. It will appear here once it is approved.</p>'; };
+  const portal = $('#portal'), pgk = $('#pgk'), pgu = $('#pgu'), pg = $('#pg');
+
+  const panel = $('#panel');
+  panel.innerHTML = '<div class="pn__head"><span class="pn__idx" id="pn-idx"></span><button type="button" class="pn__close" id="pn-close" aria-label="Close details"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 2l12 12M14 2L2 14"/></svg></button></div>'
+    + '<div class="pn__body" id="pn-body"><div class="pn__media" id="pn-media"></div><p class="pn__cap" id="pn-cap"></p><h2 class="pn__title" id="pn-title" tabindex="-1"></h2><p class="pn__flag" id="pn-flag">Placeholder content</p>'
+    + '<p class="pn__copy" id="pn-copy">Placeholder copy. The verified role, period and projects for this chapter have not been added yet.</p>'
+    + '<dl class="pn__meta" id="pn-meta"><dt>Role</dt><dd>Not yet added</dd><dt>Period</dt><dd>Not yet added</dd><dt>Focus</dt><dd>Not yet added</dd></dl></div>'
+    + '<div class="pn__nav"><button type="button" class="pn__btn" data-dir="prev" id="pn-prev"><small>Previous</small><span></span></button><button type="button" class="pn__btn" data-dir="next" id="pn-next"><small>Next</small><span></span></button></div>';
+  const pn = { flag: $('#pn-flag'), copy: $('#pn-copy'), meta: $('#pn-meta'), metaDefault: '', copyDefault: '', idx: $('#pn-idx'), media: $('#pn-media'), cap: $('#pn-cap'), title: $('#pn-title'), body: $('#pn-body'), prev: $('#pn-prev'), next: $('#pn-next'), close: $('#pn-close') };
+
+  pn.metaDefault = pn.meta.innerHTML; pn.copyDefault = pn.copy.textContent;
+  const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const lnk = x => x && x.u ? '<a href="' + esc(x.u) + '" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:underline">' + esc(x.t) + '</a>' : esc(x), fmt = v => Array.isArray(v) ? v.map(lnk).join('<br>') : lnk(v);
+  /* ── helpers ── */
+  const D = d => rmq.matches ? 0.01 : d;
+  const syncRail = () => $$('.rail__item').forEach(b => b.setAttribute('aria-current', String(b.dataset.category === S.cat)));
+  syncRail();
+
+  /* ── shared media preview. Each category owns ONE grid-aligned preview region (data.previewRegions) that never changes with hover: every node's media enters from the right and exits to the
+        left inside that same region (Codrops-style clipped reveal), contain-fitted to its own aspect ratio and anchored to the region's column line and row line. ── */
+  const pvBox = $('#pv'), pvGrid = $('#pv-grid'); let layers = [], pvImgs = [];
+  const arOf = v => { const [a, b] = String(v).split('/').map(parseFloat); return a / (b || 1); };
+  function buildPv() {
+    const C = curSet(); gsap.killTweensOf([...layers, ...pvImgs]); clearTimeout(pvT);
+    pvBox.innerHTML = C.nodes.map(n => '<div class="pv__layer' + (n.content && n.content.summary ? ' pv__layer--sum' : '') + '" data-ar="' + arOf(n.ar) + '">' + (n.content && n.content.summary ? '<div class="pv__pic">' : '') + '<div class="pv__img">' + svg(n.art, true) + '</div>' + (n.content && n.content.summary ? '</div>' : '') + '<div class="pv__cap"><span><b class="pv__id">' + n.n + '</b> · ' + n.name + '</span><span>Placeholder media · ' + n.arLabel + '</span></div>' + (n.content && n.content.summary ? '<p class="pv__sum">' + esc(n.content.summary) + '</p>' : '') + '</div>').join('');
+    layers = $$('.pv__layer', pvBox); pvImgs = $$('.pv__img', pvBox); S.pv = null;
+  }
+  const regionProbes = {}; Object.entries(data.previewRegions).forEach(([cat, z]) => { const e = document.createElement('i'); e.className = 'pvz'; e.dataset.cat = cat; e.style.cssText = 'grid-column:' + z.column + ' / span ' + z.span + ';grid-row:' + z.row + ' / span ' + z.rows + ';display:block;visibility:hidden;pointer-events:none'; pvGrid.appendChild(e); regionProbes[cat] = e; });
+  function pickZone() {                                                         // (name kept for the test hooks) every layer of the category is placed inside the SAME grid region
+    if (!deskq.matches || !pvBox || S.open || S.op) return;
+    const r = regionProbes[S.cat].getBoundingClientRect(), gp = pvGrid.getBoundingClientRect();
+    S.zone = Object.assign({ cat: S.cat }, data.previewRegions[S.cat], { rect: { l: r.left, t: r.top, w: r.width, h: r.height } });
+    layers.forEach(l => {                                                       // contain-fit the media's own aspect ratio, anchored to the region's column line and row line
+      const ar = +l.dataset.ar; let w = r.width, h = w / ar; if (h > r.height) { h = r.height; w = h * ar; }
+      if (l.classList.contains('pv__layer--sum')) {                           // media + caption + approved summary share the region: the media takes what the text leaves
+        Object.assign(l.style, { left: r.left - gp.left + 'px', top: r.top - gp.top + 'px', width: r.width + 'px', height: r.height + 'px' }); const pic = $('.pv__pic', l); pic.style.height = '0px';
+        const tx = $('.pv__cap', l).offsetHeight + $('.pv__sum', l).offsetHeight, ah = Math.max(60, r.height - tx); let pw = Math.min(r.width, ah * ar); pic.style.width = pw + 'px'; pic.style.height = pw / ar + 'px'; l.classList.remove('is-narrow'); return;
+      }
+      Object.assign(l.style, { left: r.left - gp.left + 'px', top: r.top - gp.top + 'px', width: w + 'px', height: h + 'px' }); l.classList.toggle('is-narrow', w < 300);
+    });
+  }
+  function settled() { buildPv(); pickZone(); }
+
+  /* hover preview: horizontally clipped reveal. Enters from the right, exits to the left. Layers are reused and killed before each re-drive. */
+  const HID = 'inset(0 0 0 100%)', SHOWN = 'inset(0 0 0 0%)', GONE = 'inset(0 100% 0 0)';
+  const pvMod = (i, on) => { const m = curSet().mods[i]; if (m) m.classList.toggle('is-pv', on); };
+  function previewIn(i) {
+    if (S.pv === i || S.open || S.tl || !deskq.matches || !layers[i]) return;
+    const prev = S.pv; S.pv = i;
+    if (prev !== null) previewOut(prev);
+    pvMod(i, true);
+    const l = layers[i], im = pvImgs[i]; gsap.killTweensOf([l, im]);
+    gsap.set(l, { clipPath: HID }); gsap.set(im, { xPercent: 14 });
+    gsap.to(l, { clipPath: SHOWN, duration: D(0.75), ease: 'expo.out' });
+    gsap.to(im, { xPercent: 0, duration: D(0.9), ease: 'expo.out' });
+  }
+  function previewOut(i) {
+    pvMod(i, false); const l = layers[i], im = pvImgs[i]; if (!l) return; gsap.killTweensOf([l, im]);
+    gsap.to(l, { clipPath: GONE, duration: D(0.55), ease: 'power3.inOut', onComplete: () => gsap.set(l, { clipPath: HID }) });
+    gsap.to(im, { xPercent: -14, duration: D(0.6), ease: 'power3.inOut' });
+  }
+  let pvT = 0;
+  const previewHide = () => { clearTimeout(pvT); pvT = setTimeout(() => { if (S.pv !== null) { previewOut(S.pv); S.pv = null; } }, 90); };   // a quick hop to the next node cancels this
+  const previewKill = keep => { clearTimeout(pvT); layers.forEach(l => { if (l === keep) return; gsap.killTweensOf(l); gsap.set(l, { clipPath: HID }); }); $$('.mod.is-pv').forEach(m => m.classList.remove('is-pv')); S.pv = null; };
+
+  /* ── detail panel ── */
+  function fillPanel(i) {
+    const C = curSet(), nodes = C.nodes, nodeEls = C.els, mods = C.mods, axis = C.host, n = nodes[i]; S.node = i;
+    pn.idx.textContent = n.n + ' / 0' + nodes.length; pn.title.textContent = n.name;
+    const ct = n.content;                                                                  // approved content, when a node has it; otherwise the placeholder fields stay as they are
+    pn.flag.hidden = !!ct; const story = ct && ct.story ? ct.story : [], head = ct ? [ct.summary].concat(story).filter(Boolean) : [];
+    pn.copy.hidden = !!ct && !head.length; pn.copy.innerHTML = ct ? head.map(esc).join('<br><br>') : esc(pn.copyDefault);
+    pn.meta.innerHTML = ct && ct.rows ? ct.rows.map(r => '<dt>' + esc(r[0]) + '</dt><dd>' + fmt(r[1]) + '</dd>').join('') : ct ? '<dt>Category</dt><dd>' + esc(ct.category) + '</dd><dt>Descriptor</dt><dd>' + esc(ct.descriptor) + '</dd><dt>Capability</dt><dd>' + esc(ct.signature) + '</dd><dt>Includes</dt><dd>' + esc(ct.intro) + ct.includes.map(x => '<br>' + esc(x)).join('') + '</dd>' : pn.metaDefault;
+    pn.media.style.setProperty('--ar', n.ar); pn.media.style.setProperty('--arn', arOf(n.ar)); pn.media.innerHTML = svg(n.art, true); pn.cap.textContent = 'Placeholder media · ' + n.arLabel;
+    const p = nodes[i - 1], x = nodes[i + 1];
+    pn.prev.disabled = !p; pn.next.disabled = !x; $('span', pn.prev).textContent = p ? p.name : '—'; $('span', pn.next).textContent = x ? x.name : '—';
+    nodeEls.forEach((el, k) => el.setAttribute('aria-pressed', String(k === i))); mods.forEach((m, k) => m.classList.toggle('is-sel', k === i)); axis.dataset.sel = '';
+    live.textContent = n.name + ', details open';
+  }
+  /* ── click choreography: Codrops-style clipped content, NO travelling image. Nothing crosses the canvas. The hovered preview stays in its own region and is clipped shut toward the
+        panel side (the mirror of its entrance) while the panel slides in; the panel's media is revealed from the RIGHT with the same clip + inner drift the hover preview used. The
+        two reveals overlap on ONE GSAP timeline, and the remaining content follows once the panel media is settling. ── */
+  function cleanupOpen() {
+    const o = S.op; if (!o) return; S.op = null; o.tl.kill();
+    const sv = $('svg', pn.media); gsap.killTweensOf([pn.media, ...(sv ? [sv] : []), ...o.rest]); gsap.set(pn.media, { clearProps: 'clipPath' }); if (sv) gsap.set(sv, { clearProps: 'transform' }); gsap.set(o.rest, { clearProps: 'opacity,transform' });
+    if (o.lay) { gsap.killTweensOf([o.lay, o.im]); gsap.set(o.lay, { clipPath: HID }); gsap.set(o.im, { clearProps: 'transform' }); }
+  }
+  function openPanel(i, trigger) {
+    const nodeEls = curSet().els;
+    if (S.open) { previewKill(); swapPanel(i, i > S.node ? 1 : -1); return; }
+    const desk = deskq.matches, lay = desk && !rmq.matches && S.pv === i && layers[i] ? layers[i] : null;
+    previewKill(lay); cleanupOpen();
+    S.open = true; S.trigger = trigger; fillPanel(i);
+    panel.removeAttribute('inert'); panel.dataset.open = ''; if (!deskq.matches) atlas.dataset.sheet = '';
+    gsap.killTweensOf([panel, atlas]);
+    if (!desk || rmq.matches) {                                                  // narrow layout / reduced motion: the panel opens immediately, no choreography
+      gsap.set(panel, desk ? { xPercent: 100, yPercent: 0 } : { yPercent: 100, xPercent: 0 });
+      gsap.to(panel, { xPercent: 0, yPercent: 0, duration: D(0.7), ease: 'expo.out', onComplete: () => pn.title.focus({ preventScroll: true }) });
+      if (desk) gsap.to(atlas, { '--po': 1, duration: D(0.7), ease: 'expo.out' });
+      else setTimeout(() => nodeEls[i].scrollIntoView({ block: 'start', behavior: rmq.matches ? 'auto' : 'smooth' }), 60);
+      return;
+    }
+    const rest = [...$$('.pn__body > :not(.pn__media)', panel), $('.pn__nav', panel)], sv = $('svg', pn.media);
+    gsap.set(panel, { xPercent: 100, yPercent: 0 }); gsap.set(rest, { opacity: 0, y: 14 }); gsap.set(pn.media, { clipPath: HID }); gsap.set(sv, { xPercent: 14 });
+    const tl = gsap.timeline({ onComplete: () => { cleanupOpen(); pn.title.focus({ preventScroll: true }); } });
+    const op = S.op = { tl, rest, lay: null };
+    tl.to(panel, { xPercent: 0, duration: 0.7, ease: 'expo.out' }, 0).to(atlas, { '--po': 1, duration: 0.7, ease: 'expo.out' }, 0);
+    if (lay) { const im = pvImgs[i]; Object.assign(op, { lay, im });             // 1 · the preview clips shut toward the panel (same clip language as its entrance, mirrored)
+      tl.to(lay, { clipPath: HID, duration: 0.5, ease: 'power3.inOut' }, 0).to(im, { xPercent: 14, duration: 0.5, ease: 'power3.inOut' }, 0); }
+    const t0 = lay ? 0.16 : 0.25;                                                 // 2 · the panel media is revealed from the right while the preview is still closing
+    tl.to(pn.media, { clipPath: SHOWN, duration: 0.75, ease: 'expo.out' }, t0).to(sv, { xPercent: 0, duration: 0.9, ease: 'expo.out' }, t0)
+      .to(rest, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out', stagger: 0.05 }, lay ? 0.6 : 0.5);   // 3 · text and controls follow once the media is settling
+  }
+  function swapPanel(i, dir) {
+    if (i === S.node) return;
+    if (S.op) S.op.tl.progress(1, false);                                          // an interrupted opening lands instantly (callbacks run), then the swap starts
+    const b = pn.body; gsap.killTweensOf(b);
+    gsap.to(b, { x: -18 * dir, opacity: 0, duration: D(0.16), ease: 'power2.in', onComplete: () => { fillPanel(i); gsap.fromTo(b, { x: 18 * dir, opacity: 0 }, { x: 0, opacity: 1, duration: D(0.45), ease: 'expo.out', clearProps: 'transform,opacity' }); } });
+  }
+  function closePanel({ restore = true, instant = false } = {}) {
+    if (!S.open) return; S.open = false; const C = curSet(), nodeEls = C.els, mods = C.mods, axis = C.host;
+    cleanupOpen();                                                                  // Escape / Close / category switch during the opening: clipped layers are reset, nothing is reversed
+    nodeEls.forEach(el => el.setAttribute('aria-pressed', 'false')); mods.forEach(m => m.classList.remove('is-sel')); delete axis.dataset.sel; S.node = null;
+    const done = () => { panel.setAttribute('inert', ''); delete panel.dataset.open; delete atlas.dataset.sheet; gsap.set(panel, { clearProps: 'transform' }); if (restore && S.trigger) S.trigger.focus({ preventScroll: true }); S.trigger = null; pickZone(); };
+    gsap.killTweensOf([panel, atlas]);
+    if (instant) { gsap.set(atlas, { '--po': 0 }); done(); return; }
+    gsap.to(panel, deskq.matches ? { xPercent: 100, duration: D(0.5), ease: 'power3.inOut', onComplete: done } : { yPercent: 100, duration: D(0.5), ease: 'power3.inOut', onComplete: done });
+    gsap.to(atlas, { '--po': 0, duration: D(0.5), ease: 'power3.inOut' });
+    live.textContent = 'Details closed';
+  }
+
+  /* ── network layers: every category except Practice is a data-driven node network (data.layouts). Nodes are the same .node/.mod/.node__label parts as Practice,
+        placed on the 12-column grid; connectors are SVG paths redrawn from the nodes' live positions, so an endpoint can never detach from its node. ── */
+  const netPool = [{ el: $('#net-grid') }, { el: $('#net-grid2') }]; netPool.forEach(l => netOf.set(l.el, l));
+  const probe = document.createElement('i'); probe.style.cssText = 'position:absolute;visibility:hidden;pointer-events:none;width:var(--solid);height:0'; atlas.appendChild(probe);
+  const pad2 = n => String(n + 1).padStart(2, '0');
+  function buildNet(L, id) {
+    const lay = data.layouts[id], c = CAT[id];
+    L.el.innerHTML = '<svg class="net__svg" aria-hidden="true"><path class="br"/>' + lay.links.map(() => '<g class="lk"><path class="s"/><path class="d"/><path class="s"/></g>').join('') + '</svg>'
+      + lay.nodes.map((n, i) => nodeComponent({ id: n.id, category: id, index: i, n: pad2(i), name: n.name || 'Node ' + pad2(i), art: n.art, aria: n.name ? n.name + ', ' + cap(c.name) + ' category node ' + (i + 1) + ' of ' + lay.nodes.length : 'Node ' + pad2(i) + ', prototype placeholder, ' + cap(c.name) + ' category',
+          style: 'grid-column:' + n.column + ' / span ' + n.span + ';grid-row:' + n.row,
+          labelBelow: lay.links.some(([a, b, m]) => m === 'v' && ((a === i && lay.nodes[b].row < n.row) || (b === i && lay.nodes[a].row < n.row))) })).join('')
+      + '<p class="net__tag">' + c.n + ' ' + cap(c.name) + ' · prototype structure · ' + (lay.nodes.some(n => n.content) ? (lay.nodes.every(n => n.content) ? 'content added, media placeholders' : lay.nodes.filter(n => n.content).length + ' of ' + lay.nodes.length + ' nodes have content') : 'placeholder nodes, no content') + '</p>';
+    fitLabels(); L.nodes = lay.nodes.map((n, i) => ({ n: pad2(i), name: n.name || 'Node ' + pad2(i), art: n.art, ar: n.ar, arLabel: n.arLabel, content: n.content })); L.mods = $$('.mod', L.el); L.els = $$('.node', L.el); L.host = L.el; L.cat = id; L.br = $('.br', L.el); L.links = lay.links.map(([a, b, m]) => ({ a, b, m, p: { v: 1 } })); L.lk = $$('.lk', L.el).map(g => [...g.children]);
+  }
+  /* path pieces along a polyline between two lengths */
+  function sub(P, s0, e0) {
+    if (e0 <= s0) return ''; let d = '', acc = 0;
+    for (let i = 0; i < P.length - 1; i++) {
+      const [x0, y0] = P[i], [x1, y1] = P[i + 1], l = Math.hypot(x1 - x0, y1 - y0); if (!l) continue;
+      const a = Math.max(s0, acc), b = Math.min(e0, acc + l);
+      if (b > a) { const f = t => [x0 + (x1 - x0) * (t - acc) / l, y0 + (y1 - y0) * (t - acc) / l], pa = f(a), pb = f(b); d += 'M' + pa[0].toFixed(2) + ' ' + pa[1].toFixed(2) + 'L' + pb[0].toFixed(2) + ' ' + pb[1].toFixed(2); }
+      acc += l;
+    }
+    return d;
+  }
+  /* connector language = Practice's: solid at both node ends, dashed between. Endpoints are measured from the nodes' current rects (transforms included). */
+  function drawNet(L) {
+    fitLabels();
+    const gr = L.el.getBoundingClientRect(), S0 = probe.offsetWidth;
+    const c = L.mods.map(m => { const r = $('.node', m).getBoundingClientRect(); return { x: r.left + r.width / 2 - gr.left, y: r.top + r.height / 2 - gr.top, r: r.width / 4 };   /* connectors attach to the resting (50%) circle */ });
+    L.links.forEach((k, i) => {
+      const a = c[k.a], b = c[k.b], sx = Math.sign(b.x - a.x) || 1, sy = Math.sign(b.y - a.y) || 1;
+      const P = k.m === 'h' ? [[a.x + sx * a.r, a.y], [b.x - sx * b.r, b.y]] : [[a.x, a.y + sy * a.r], [b.x, b.y - sy * b.r]];
+      const len = Math.max(0, Math.hypot(P[1][0] - P[0][0], P[1][1] - P[0][1])), vis = k.p.v * len, s0 = Math.min(S0, len / 2), [p1, pd, p2] = L.lk[i];
+      if (i === 0) drawBridge(L);
+      p1.setAttribute('d', sub(P, 0, Math.min(s0, vis))); pd.setAttribute('d', sub(P, s0, Math.min(len - s0, vis))); p2.setAttribute('d', sub(P, len - s0, vis));
+    });
+  }
+  function drawBridge(L) {                                   // rail item → margin line → first node, measured live like the connectors
+    const gr = L.el.getBoundingClientRect(), it = $('.rail__item[data-category=' + L.cat + ']'); if (!it) return;
+    const ir = it.getBoundingClientRect(), nr = $('.node', L.mods[0]).getBoundingClientRect(), a = { x: nr.left + nr.width / 2 - gr.left, y: nr.top + nr.height / 2 - gr.top, r: nr.width / 4 };
+    const y0 = ir.top + ir.height / 2 - gr.top, xm = parseFloat(getComputedStyle(L.el).paddingLeft), P = [[-1, y0], [xm, y0], [xm, a.y], [a.x - a.r, a.y]];
+    const len = P.slice(1).reduce((t, q, i) => t + Math.hypot(q[0] - P[i][0], q[1] - P[i][1]), 0); L.br.setAttribute('d', sub(P, 0, len * L.links[0].p.v));
+  }
+  /* ── shared label fit: each title may use the space from its own circle's left edge to 16px short of the next title (the last one: to the canvas edge). Circles never move. ── */
+  function fitLabels() {
+    [P0, ...netPool.filter(l => l.mods)].forEach(C => {
+      const ms = C.mods, labs = ms.map(m => $('.node__label', m)), hr = C.host.getBoundingClientRect();
+      if (!deskq.matches) { labs.forEach(l => { l.style.width = ''; }); return; }
+      if (!hr.width) return;
+      const ring = $('.node', ms[0]).offsetWidth, xs = ms.map(m => { const r = m.getBoundingClientRect(); return r.left + r.width / 2 - ring / 2; });
+      labs.forEach((l, i) => { const w = (i < ms.length - 1 ? xs[i + 1] - xs[i] : hr.right - xs[i]) - 16; l.style.width = Math.max(48, Math.floor(w)) + 'px'; });
+    });
+  }
+  addEventListener('resize', fitLabels); if (window.ResizeObserver) { const ro = new ResizeObserver(fitLabels); [axis, ...netPool.map(l => l.el)].forEach(e => ro.observe(e)); } if (document.fonts) document.fonts.ready.then(fitLabels);
+  const settleNet = L => { if (!L) return; L.links.forEach(k => { k.p.v = 1; }); drawNet(L); };
+  let rzT = 0; addEventListener('resize', () => { cancelAnimationFrame(rzT); rzT = requestAnimationFrame(() => { const L = netOf.get(S.layer); if (L && !S.tl) settleNet(L); if (!S.tl) pickZone(); }); });
+
+  /* ── category transition controller. ONE entry point for the rail and the gateways: the destination category always forms out of the gateway that leads to it.
+        A  source       the current structure is in front; the five gateways sit faint behind it
+        B  approach     the chosen gateway is redrawn above the layers at its exact position and moves toward the viewer; the source recedes
+        C  formation    the destination's nodes are stacked on that circle (same centre, same diameter), then separate from it and travel to their grid coordinates
+        D  connection   connectors draw outward from the nodes, attached to them; labels resolve; the rail item becomes active
+     Nothing is masked or revealed: the same node elements that end up interactive are the ones that travel. ── */
+  const layerFor = id => {
+    if (id === 'practice') return tree;
+    const pool = deskq.matches ? netPool : tmpLayers, t = pool.find(l => l.el !== S.layer);
+    if (deskq.matches) buildNet(t, id); else fillTmp(t.box, id);
+    return t.el;
+  };
+  const clearFx = el => { el.style.removeProperty('clip-path'); el.style.removeProperty('-webkit-mask-image'); el.style.removeProperty('mask-image'); gsap.set(el, { clearProps: 'transform,opacity,transformOrigin' }); };
+  function goTo(id) {
+    if (id === S.cat) return;
+    if (S.tl) { S.tl.progress(1, false); S.tl = null; }                       // an interrupted transition is completed instantly (its callbacks run), then the next one starts: one timeline, ever
+    previewKill(); closePanel({ restore: false, instant: true });
+    const prev = S.cat, out = S.layer, inn = layerFor(id);
+    const slotI = slots.findIndex(s => s.cat === id), g = gates[slotI], art = $('.gate__art', g);
+    S.cat = id; live.textContent = cap(CAT[id].name) + ' category';
+    const L = netOf.get(inn);
+    const swapState = () => { out.setAttribute('hidden', ''); out.setAttribute('inert', ''); inn.removeAttribute('hidden'); inn.removeAttribute('inert'); S.layer = inn; };
+    const repaint = () => { slots[slotI].cat = prev; paintGate(slotI); };       // the slot now leads back to the category we just left
+    if (rmq.matches) { swapState(); settleNet(L); repaint(); syncRail(); settled(); return; }
+    if (!deskq.matches) {                                                      // narrow layout keeps the previous simple depth cross-fade (out of scope for this revision)
+      gsap.set([out, inn], { transformOrigin: '55% 50%' }); syncRail();
+      const t = S.tl = gsap.timeline({ onComplete: () => { S.tl = null; clearFx(out); clearFx(inn); gsap.set(art, { clearProps: 'transform,opacity' }); } });
+      t.to(out, { scale: 0.95, opacity: 0, duration: 0.42, ease: 'power2.in' }, 0).to(art, { scale: 4.2, opacity: 0, duration: 0.6, ease: 'power2.in' }, 0)
+        .add(() => { swapState(); repaint(); gsap.set(inn, { scale: 1.05, opacity: 0 }); gsap.set(art, { scale: 0.6, opacity: 0 }); }, 0.46)
+        .to(inn, { scale: 1, opacity: 1, duration: 0.65, ease: 'power3.out' }, 0.46).to(art, { scale: 1, opacity: 1, duration: 0.7, ease: 'power2.out' }, 0.5);
+      return;
+    }
+
+    /* — geometry: everything is measured BEFORE any transform is applied, with the portal and destination laid out — */
+    inn.removeAttribute('hidden'); inn.setAttribute('inert', ''); out.setAttribute('inert', ''); portal.removeAttribute('hidden');
+    const mods = L ? L.mods : $$('.mod', tree), nds = mods.map(m => $('.node', m)), labs = mods.map(m => $('.node__label', m));
+    if (L) labs.push($('.net__tag', inn));
+    const inner = nds.flatMap(n => $$('.node__img, .node__tick', n));
+    const segR = L ? [] : $$('.seg--r', tree), segL = L ? [] : $$('.seg--l:not(.seg--bridge)', tree), segB = L ? [] : $$('.seg--bridge', tree);
+    const rise = $('.bridge--rise', tree), stub = $('.bridge--stub', tree);
+    const rc = nds.map(n => n.getBoundingClientRect()), Dr = $('.node__disc', nds[0]).getBoundingClientRect().width;   // resting circle diameter
+    const gs = parseFloat(getComputedStyle($('svg', art)).width), u = gs / 48, R0 = 17 * u;
+    const ar = art.getBoundingClientRect(), sx = ar.left + ar.width / 2, sy = ar.top + ar.height / 2;
+    const pr = portal.getBoundingClientRect(), or = out.getBoundingClientRect();
+    const px = sx - pr.left, py = sy - pr.top, ox = sx - or.left, oy = sy - or.top;
+    const s0 = 0.8, K1 = s0 * Dr / (2 * R0);                // the stacked nodes start exactly the size of the gateway circle at K1
+
+    /* the twin: the real gateway's own strokes, redrawn above the layers, hand-over without a jump */
+    const gl = ['g1', 'g2', 'g3'].map(c => $('.' + c, portal)), artOp = parseFloat(getComputedStyle(art).opacity);
+    const real = ['g1', 'g2', 'g3'].map(c => { const cs = getComputedStyle($('.' + c, art)); return { op: parseFloat(cs.opacity) * artOp, st: cs.stroke }; }), tgt = [0.6, 0.32, 0.26];
+    gl.forEach((e, i) => { e.style.stroke = real[i].st; e.style.opacity = real[i].op; });
+    pg.setAttribute('transform', 'translate(' + px + ' ' + py + ')'); pgu.setAttribute('transform', 'scale(' + u + ') translate(-24 -24) rotate(' + slots[slotI].rot + ' 24 24)'); pgk.setAttribute('transform', 'scale(1)');
+    atlas.classList.add('is-transit'); g.classList.add('is-origin'); art.style.transition = 'none'; art.style.opacity = '0';
+    gsap.set(out, { transformOrigin: ox + 'px ' + oy + 'px' });
+
+    /* the destination, stacked on the gateway circle: same centre, node ring = gateway circle diameter */
+    mods.forEach((m, i) => { gsap.set(m, { x: sx - (rc[i].left + rc[i].width / 2), y: sy - (rc[i].top + rc[i].height / 2), scale: s0, transformOrigin: '50% 0%' }); });
+    gsap.set([...nds, ...labs, ...inner], { opacity: 0 });
+    gsap.set(segR, { clipPath: 'inset(0 100% 0 0)' }); gsap.set([...segL, ...segB], { clipPath: 'inset(0 0 0 100%)' });
+    if (!L) { gsap.set(rise, { clipPath: 'inset(100% 0 0 0)' }); gsap.set(stub, { clipPath: 'inset(0 0 0 100%)' }); }
+    if (L) L.links.forEach(k => { k.p.v = 0; });
+
+    const P = { k: 1, o: 1, d: 0 };
+    const frame = () => {
+      pgk.setAttribute('transform', 'scale(' + P.k + ')'); pgk.style.opacity = P.o;
+      gl.forEach((e, i) => { e.style.opacity = real[i].op + (tgt[i] - real[i].op) * P.d; });
+      if (L) drawNet(L);
+    };
+    const tl = S.tl = gsap.timeline({ onUpdate: frame, onComplete: () => {
+      S.tl = null; swapState();
+      gsap.set([...mods], { clearProps: 'transform,transformOrigin' }); gsap.set([...nds, ...labs, ...inner, ...segR, ...segL, ...segB, rise, stub], { clearProps: 'opacity,clipPath' });
+      clearFx(out); settleNet(L); repaint(); syncRail(); settled();
+      portal.setAttribute('hidden', ''); pgk.removeAttribute('style'); gl.forEach(e => { e.style.removeProperty('stroke'); e.style.removeProperty('opacity'); });
+      atlas.classList.remove('is-transit'); g.classList.remove('is-origin'); art.style.removeProperty('opacity'); art.style.removeProperty('transition');
+    } });
+    frame();
+    tl.to(P, { k: K1, d: 1, duration: 0.42, ease: 'power2.out' }, 0)                                          // B · the gateway moves toward the viewer
+      .to(out, { scale: 0.95, opacity: 0, duration: 0.62, ease: 'power2.in' }, 0.06)                           //   the source structure recedes
+      .to(nds, { opacity: 1, duration: 0.08, ease: 'none' }, 0.4)                                              // C · node circles appear exactly on the gateway circle
+      .to(P, { k: K1 * 1.9, duration: 0.7, ease: 'power1.in' }, 0.42)                                          //   the gateway keeps advancing past them and dissolves
+      .to(P, { o: 0, duration: 0.36, ease: 'power1.in' }, 0.46);
+    mods.forEach((m, i) => tl.to(m, { x: 0, y: 0, scale: 1, duration: 0.8, ease: 'power3.inOut' }, 0.42 + 0.05 * i));   //   …and the nodes separate and travel to their grid coordinates
+    tl.to(inner, { opacity: 1, duration: 0.4, ease: 'power1.out' }, 0.85);                                      //   the disc content resolves once they are nearly home
+    if (L) L.links.forEach((k, i) => tl.to(k.p, { v: 1, duration: 0.55, ease: 'power2.inOut' }, 0.8 + 0.07 * i));      // D · connectors draw from node to node, redrawn from live positions
+    else {
+      segR.forEach((e, i) => tl.to(e, { clipPath: 'inset(0 0% 0 0)', duration: 0.55, ease: 'power2.inOut' }, 0.85 + 0.07 * i));
+      segL.forEach((e, i) => tl.to(e, { clipPath: 'inset(0 0 0 0%)', duration: 0.55, ease: 'power2.inOut' }, 0.92 + 0.07 * i));
+      segB.forEach(e => tl.to(e, { clipPath: 'inset(0 0 0 0%)', duration: 0.3, ease: 'power2.out' }, 0.95));         // Foundations → bridge, from the node outward
+      tl.to(rise, { clipPath: 'inset(0% 0 0 0)', duration: 0.32, ease: 'power2.inOut' }, 1.22).to(stub, { clipPath: 'inset(0 0 0 0%)', duration: 0.22, ease: 'power2.out' }, 1.5);
+    }
+    tl.to(labs, { opacity: 1, duration: 0.4, ease: 'power1.out', stagger: 0.05 }, 1.15).add(syncRail, 1.1);       // arrival: labels readable, rail item active
+  }
+
+  /* ── gateway ripple: one pooled ring per gateway, re-driven (never stacked) ── */
+  function ripple(g) {
+    if (rmq.matches) return; const r = $('.gate__rip, .node__rip', g); gsap.killTweensOf(r);
+    gsap.fromTo(r, { scale: 0.7, opacity: 0.55 }, { scale: 2.9, opacity: 0, duration: 1, ease: 'power2.out' });
+  }
+
+  /* ── events (delegated, attached once) ── */
+  atlas.addEventListener('click', e => {
+    const nb = e.target.closest('.node'), gb = e.target.closest('.gate'), rb = e.target.closest('.rail__item');
+    if (nb) { const i = +nb.dataset.node; if (S.open && S.node === i) closePanel(); else openPanel(i, nb); }
+    else if (gb) goTo(slots[+gb.dataset.slot].cat);
+    else if (rb) goTo(rb.dataset.category);
+  });
+  atlas.addEventListener('pointerover', e => {
+    if (e.pointerType !== 'mouse') return;
+    const nb = e.target.closest('.node'), gb = e.target.closest('.gate');
+    if (nb) { clearTimeout(pvT); previewIn(+nb.dataset.node); if (!nb.contains(e.relatedTarget)) ripple(nb); }
+    if (gb && !gb.contains(e.relatedTarget)) ripple(gb);
+  });
+  atlas.addEventListener('pointerout', e => { if (e.pointerType === 'mouse' && e.target.closest('.node') && !(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('.node'))) previewHide(); });
+  atlas.addEventListener('focusin', e => { const nb = e.target.closest('.node'), gb = e.target.closest('.gate'); if (nb && e.target.matches(':focus-visible')) { clearTimeout(pvT); previewIn(+nb.dataset.node); ripple(nb); } if (gb && e.target.matches(':focus-visible')) ripple(gb); });
+  atlas.addEventListener('focusout', e => { if (e.target.closest('.node')) previewHide(); });
+  panel.addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b === pn.close) closePanel(); else if (b.dataset.dir === 'prev' && S.node > 0) swapPanel(S.node - 1, -1); else if (b.dataset.dir === 'next' && S.node < curSet().nodes.length - 1) swapPanel(S.node + 1, 1);
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && S.open) { e.preventDefault(); closePanel(); } });
+
+  buildPv(); pickZone(); if (document.fonts) document.fonts.ready.then(() => { if (!S.tl) pickZone(); });
+  window.ATLAS = { op: () => S.op, zone: () => S.zone, curSet, pickZone, tl: () => S.tl, state: S, goTo, openPanel, closePanel, previewIn, previewHide, slots, tweens: () => gsap.globalTimeline.getChildren(true, true, true).length };   // test hooks
+})();
+</script>
+</body>
+</html>
