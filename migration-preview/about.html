@@ -452,6 +452,13 @@
     .pn__media { max-height:30svh; }
   }
 
+  /* Mobile Atlas: use the existing vertical Practice progression for every category. */
+  @media (max-width:1023px) {
+    .grid--tmp .tmp { width:100%; padding-top:0; }
+    .grid--tmp .axis { margin:0; list-style:none; }
+    .grid--tmp .mod { position:relative; }
+    .grid--tmp .node__name { white-space:normal; }
+  }
   main#top { padding-top:var(--header-h); }                                  /* the site header is fixed; the Atlas canvas starts directly beneath it */
 
 </style>
@@ -1694,7 +1701,23 @@ if (document.readyState === 'complete') initFooter(); else addEventListener('loa
   const tree = $('#tree'); S.layer = tree; const axis = $('#axis'), mods = $$('.mod'), nodeEls = $$('.node');
   const P0 = { nodes, els: nodeEls, mods, host: axis }, netOf = new Map(), curSet = () => netOf.get(S.layer) || P0;   // the active category's nodes, node elements and host layer
   const tmpLayers = [{ el: $('#tmp-grid'), box: $('#tmp') }, { el: $('#tmp-grid2'), box: $('#tmp2') }];
-  const fillTmp = (box, id) => { box.innerHTML = '<span class="tmp__k">Temporary state · ' + CAT[id].n + ' ' + cap(CAT[id].name) + '</span><p class="tmp__t">Content for this category has not been added yet. It will appear here once it is approved.</p>'; };
+  /* Mobile: render the actual approved nodes using the same node markup and detail panel as Practice. */
+  const fillTmp = (L, id) => {
+    const source = data.layouts[id].nodes;
+    L.box.innerHTML = '<ol class="axis" aria-label="' + cap(CAT[id].name) + ' nodes">'
+      + source.map((n, i) => nodeComponent({
+        id: n.id, category: id, index: i, n: String(i + 1).padStart(2, '0'),
+        name: n.name, art: n.art,
+        aria: n.name + ', ' + cap(CAT[id].name) + ' node ' + (i + 1) + ' of ' + source.length
+      }, 'li')).join('') + '</ol>';
+    L.nodes = source.map((n, i) => ({
+      n: String(i + 1).padStart(2, '0'), name: n.name,
+      art: n.art, ar: n.ar, arLabel: n.arLabel, content: n.content
+    }));
+    L.mods = $('.mod', L.box); L.els = $('.node', L.box);
+    L.host = L.box; L.cat = id; L.links = [];
+    netOf.set(L.el, L);
+  };
   const portal = $('#portal'), pgk = $('#pgk'), pgu = $('#pgu'), pg = $('#pg');
 
   const panel = $('#panel');
@@ -1893,7 +1916,7 @@ if (document.readyState === 'complete') initFooter(); else addEventListener('loa
   const layerFor = id => {
     if (id === 'practice') return tree;
     const pool = deskq.matches ? netPool : tmpLayers, t = pool.find(l => l.el !== S.layer);
-    if (deskq.matches) buildNet(t, id); else fillTmp(t.box, id);
+    if (deskq.matches) buildNet(t, id); else fillTmp(t, id);
     return t.el;
   };
   const clearFx = el => { el.style.removeProperty('clip-path'); el.style.removeProperty('-webkit-mask-image'); el.style.removeProperty('mask-image'); gsap.set(el, { clearProps: 'transform,opacity,transformOrigin' }); };
