@@ -577,6 +577,164 @@
       }
     }
 
+    /* ─── SECTION 02: THE RESEARCH — stacked editorial figures (§26 / SK-CASE-MEDIA-001) ─── */
+    /* PROVISIONAL elements: .research-section heading, "Two lenses" label, "The Research" label */
+    /* Images: temporary slots — not approved for production */
+    .research-section {
+      margin-top: var(--sp-20); /* 80px — matches section rhythm */
+    }
+    .research-figures {
+      margin-top: var(--sp-8); /* 32px gap after header row */
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-10); /* 40px inter-figure gap */
+    }
+    .research-figure {
+      background: var(--bg);          /* eliminates grey letterbox */
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      cursor: zoom-in;
+      position: relative;
+      box-shadow: 0 0 0 1px var(--rule);
+    }
+    .research-figure-window {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      padding: 24px 24px 0;
+    }
+    .research-figure-window--tall { height: 460px; }
+    .research-figure-window--mid  { height: 400px; }
+    .research-figure-window img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: center top;    /* top-anchor: most diagnostic content is in upper half */
+      transition: transform var(--t-mid) var(--ease-out);
+    }
+    @media (hover: hover) {
+      .research-figure:hover .research-figure-window img {
+        transform: scale(1.015);
+      }
+    }
+    .research-figure-caption {
+      background: var(--surface);
+      padding: 14px 20px 16px;
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      border-top: 1px solid var(--rule);
+    }
+    .research-figure-index {
+      flex-shrink: 0;
+      font-family: var(--font-sans);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      color: var(--ink-3);
+      font-variant-numeric: tabular-nums;
+      min-width: 24px;
+    }
+    .research-figure-caption-text {
+      font-family: var(--font-sans);
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--ink-3);
+    }
+
+    /* Research lightbox */
+    .research-lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9000;
+      background: rgba(17,17,16,0.88);
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .research-lightbox.is-open {
+      display: flex;
+    }
+    .research-lightbox-panel {
+      position: relative;
+      background: var(--bg);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      max-width: min(1080px, 92vw);
+      max-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 24px 64px rgba(17,17,16,0.40);
+    }
+    .research-lightbox-img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: calc(88vh - 60px); /* leave room for caption */
+      object-fit: contain;
+      object-position: center top;
+      flex-shrink: 1;
+    }
+    .research-lightbox-caption {
+      flex-shrink: 0;
+      background: var(--surface);
+      padding: 12px 20px 14px;
+      font-family: var(--font-sans);
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--ink-3);
+      border-top: 1px solid var(--rule);
+    }
+    .research-lightbox-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(245,244,240,0.92);
+      border: none;
+      border-radius: var(--r-sm);
+      padding: 6px 10px;
+      font-family: var(--font-sans);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.03em;
+      color: var(--ink-2);
+      cursor: pointer;
+      z-index: 1;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      transition: background var(--t-fast) var(--ease-out),
+                  color var(--t-fast) var(--ease-out);
+    }
+    .research-lightbox-close:hover {
+      background: var(--bg);
+      color: var(--ink);
+    }
+    .research-lightbox-close:focus-visible {
+      outline: 2px solid var(--sun);
+      outline-offset: 2px;
+    }
+
+    /* Reduced motion overrides */
+    @media (prefers-reduced-motion: reduce) {
+      .research-figure-window img { transition: none; }
+      .research-lightbox { transition: none; }
+    }
+
+    @media (max-width: 640px) {
+      .research-figure-window { padding: 16px 16px 0; }
+      .research-figure-window--tall { height: 260px; }
+      .research-figure-window--mid  { height: 220px; }
+      .research-lightbox { padding: 12px; }
+      .research-lightbox-panel { max-height: 90vh; max-width: 100%; }
+      .research-lightbox-img { max-height: calc(90vh - 56px); }
+    }
+
     /* CASE STUDY TYPOGRAPHY */
     .cs-label {
       display: inline-block;
@@ -1068,31 +1226,88 @@
     </figure>
 
     <!-- ─── THE RESEARCH ─── -->
-    <div id="cs-research" style="scroll-margin-top:80px; margin-top:80px;"></div>
-    <p class="chapter-heading" style="margin-bottom:16px;">The Research</p>
-    <div class="cs-bento cs-bento--2 anim-block">
-      <div class="cs-bento-cell">
-        <img src="/public/images/centronic-research-matrix.jpg" alt="Start-Stop-Continue retrospective: sticky notes on an importance vs frequency matrix">
-        <div class="cs-bento-overlay"></div>
-        <div class="cs-bento-caption">Start–Stop–Continue matrix — mapping what cabin controls passengers actually use, and how often</div>
-        <div class="cs-bento-expand">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M1 1h4M1 1v4M13 1h-4M13 1v4M1 13h4M1 13v-4M13 13h-4M13 13v-4" stroke="#111110" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
+    <!-- SECTION 02 — stacked editorial figures (approved 2026-10-26) -->
+    <!-- PROVISIONAL: heading "What people reach for, and what they ignore.", labels "The Research" and "Two lenses" — not yet approved by user -->
+    <!-- PROVISIONAL: both figure images are TEMPORARY SLOTS — not approved for production -->
+    <section id="cs-research" class="research-section" style="scroll-margin-top:80px;" aria-labelledby="cs-research-heading">
+      <!-- Header row — 140px marginal label + 1fr editorial heading (matches Section 01 .cs-context-layout) -->
+      <div class="cs-context-layout anim-block">
+        <div class="cs-context-margin">
+          <!-- PROVISIONAL labels — not approved copy -->
+          <p class="cs-label">The Research</p>
+          <p class="cs-label">Two lenses</p>
+        </div>
+        <div class="cs-context-main">
+          <!-- PROVISIONAL heading — not approved copy -->
+          <h3 class="cs-h3" id="cs-research-heading">What people reach for, and what they ignore.</h3>
         </div>
       </div>
-      <div class="cs-bento-cell">
-        <img src="/public/images/centronic-ia.jpg" alt="Competitive IA comparison across BMW, Mercedes, Audi, GM, Tesla dashboard architectures">
-        <div class="cs-bento-overlay"></div>
-        <div class="cs-bento-caption">Competitive IA audit — how five OEMs structure dashboard information: BMW · Mercedes · Audi · GM · Tesla</div>
-        <div class="cs-bento-expand">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M1 1h4M1 1v4M13 1h-4M13 1v4M1 13h4M1 13v-4M13 13h-4M13 13v-4" stroke="#111110" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
-        </div>
+
+      <!-- Stacked full-width evidence figures -->
+      <div class="research-figures">
+
+        <!-- Figure 01 — frequency-vs-importance matrix -->
+        <!-- PROVISIONAL image: /public/images/centronic-research-matrix.jpg — temporary slot -->
+        <figure class="research-figure anim-block"
+                role="button"
+                tabindex="0"
+                aria-label="Open figure 01 — Start–Stop–Continue matrix in fullscreen"
+                data-research-fig="1">
+          <div class="research-figure-window research-figure-window--tall">
+            <img src="/public/images/centronic-research-matrix.jpg"
+                 alt="Start-Stop-Continue retrospective: sticky notes arranged on a frequency-versus-importance matrix, mapping which cabin controls passengers actually use and how often">
+          </div>
+          <figcaption class="research-figure-caption">
+            <span class="research-figure-index" aria-hidden="true">01</span>
+            <span class="research-figure-caption-text">Start–Stop–Continue matrix — mapping what cabin controls passengers actually use, and how often</span>
+          </figcaption>
+        </figure>
+
+        <!-- Figure 02 — competitive IA audit -->
+        <!-- PROVISIONAL image: /public/images/centronic-ia.jpg — temporary slot -->
+        <figure class="research-figure anim-block"
+                role="button"
+                tabindex="0"
+                aria-label="Open figure 02 — Competitive IA audit in fullscreen"
+                data-research-fig="2">
+          <div class="research-figure-window research-figure-window--mid">
+            <img src="/public/images/centronic-ia.jpg"
+                 alt="Competitive information architecture audit comparing dashboard navigation patterns across five OEM platforms">
+          </div>
+          <figcaption class="research-figure-caption">
+            <span class="research-figure-index" aria-hidden="true">02</span>
+            <span class="research-figure-caption-text">Competitive IA audit — how five OEMs structure dashboard information architecture: BMW · Mercedes · Audi · GM · Tesla</span>
+          </figcaption>
+        </figure>
+
+      </div>
+
+      <!-- Body copy — verbatim from research brief -->
+      <p class="cs-body anim-block" style="margin-top:var(--sp-8); max-width:640px;">Two lenses shaped the design: a frequency-vs-importance matrix of existing cabin interactions (what people reach for, how often, and what they skip), and a competitive audit of how five OEMs structure their dashboard information architecture. The pattern was consistent — music, climate, and navigation were the three functions passengers wanted most, but the existing interfaces all required visual attention to operate.</p>
+
+    </section>
+
+    <!-- ─── RESEARCH LIGHTBOX (shared, appended once) ─── -->
+    <div class="research-lightbox"
+         id="research-lightbox"
+         role="dialog"
+         aria-modal="true"
+         aria-label="Research figure enlarged"
+         tabindex="-1">
+      <div class="research-lightbox-panel" id="research-lightbox-panel">
+        <button class="research-lightbox-close"
+                id="research-lightbox-close"
+                type="button"
+                aria-label="Close enlarged figure">
+          Close <kbd>Esc</kbd>
+        </button>
+        <img class="research-lightbox-img"
+             id="research-lightbox-img"
+             src=""
+             alt="">
+        <p class="research-lightbox-caption" id="research-lightbox-caption"></p>
       </div>
     </div>
-    <p class="cs-body anim-block" style="margin-top:24px; max-width:640px;">Two lenses shaped the design: a frequency-vs-importance matrix of existing cabin interactions (what people reach for, how often, and what they skip), and a competitive audit of how five OEMs structure their dashboard information architecture. The pattern was consistent — music, climate, and navigation were the three functions passengers wanted most, but the existing interfaces all required visual attention to operate.</p>
 
     <!-- ─── THE SCENARIO ─── -->
     <div id="cs-scenario" style="scroll-margin-top:80px; margin-top:80px;"></div>
@@ -1964,5 +2179,135 @@
 <!-- SK-CASE-NAV-001 — project registry + nav renderer -->
 <script src="/public/sk-projects.js"></script>
 <script src="/public/cs-nav.js"></script>
+
+<!-- ─── SECTION 02: RESEARCH LIGHTBOX ─── -->
+<!-- Accessible lightbox: click / Enter / Space to open, Esc / close button / backdrop to dismiss -->
+<!-- Body scroll lock on open; focus trap while open; focus restoration on close -->
+<!-- Respects prefers-reduced-motion -->
+<script>
+(function () {
+  'use strict';
+
+  var lightbox    = document.getElementById('research-lightbox');
+  var panel       = document.getElementById('research-lightbox-panel');
+  var closeBtn    = document.getElementById('research-lightbox-close');
+  var img         = document.getElementById('research-lightbox-img');
+  var caption     = document.getElementById('research-lightbox-caption');
+  var lastFocused = null;
+  var scrollY     = 0;
+
+  if (!lightbox || !panel || !closeBtn || !img || !caption) return;
+
+  /* ── Reduced-motion preference ── */
+  var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ── Open ── */
+  function openLightbox(trigger) {
+    var src     = trigger.querySelector('img').src;
+    var altText = trigger.querySelector('img').alt;
+    var capText = trigger.querySelector('.research-figure-caption-text').textContent;
+
+    img.src     = src;
+    img.alt     = altText;
+    caption.textContent = capText;
+
+    lastFocused = trigger;
+
+    /* Lock body scroll */
+    scrollY = window.scrollY;
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.top      = '-' + scrollY + 'px';
+    document.body.style.width    = '100%';
+
+    lightbox.classList.add('is-open');
+    lightbox.setAttribute('aria-hidden', 'false');
+
+    /* Focus the close button so keyboard users can immediately dismiss */
+    closeBtn.focus();
+  }
+
+  /* ── Close ── */
+  function closeLightbox() {
+    lightbox.classList.remove('is-open');
+    lightbox.setAttribute('aria-hidden', 'true');
+
+    /* Restore body scroll */
+    document.body.style.overflow = '';
+    document.body.style.position = '';
+    document.body.style.top      = '';
+    document.body.style.width    = '';
+    window.scrollTo(0, scrollY);
+
+    /* Restore trigger focus */
+    if (lastFocused) {
+      lastFocused.focus();
+      lastFocused = null;
+    }
+
+    /* Reset image src slightly after transition so the old image doesn't flash */
+    setTimeout(function () { img.src = ''; }, 200);
+  }
+
+  /* ── Focus trap ── */
+  function trapFocus(e) {
+    if (!lightbox.classList.contains('is-open')) return;
+    /* Only the close button is focusable in the lightbox panel */
+    var focusable = panel.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    if (!focusable.length) { e.preventDefault(); return; }
+    var first = focusable[0];
+    var last  = focusable[focusable.length - 1];
+    if (e.key === 'Tab') {
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    }
+  }
+
+  /* ── Wire figure triggers ── */
+  document.querySelectorAll('[data-research-fig]').forEach(function (fig) {
+    fig.addEventListener('click', function () { openLightbox(fig); });
+    fig.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openLightbox(fig);
+      }
+    });
+  });
+
+  /* ── Close button ── */
+  closeBtn.addEventListener('click', closeLightbox);
+
+  /* ── Backdrop click (click outside the panel) ── */
+  lightbox.addEventListener('click', function (e) {
+    if (e.target === lightbox) closeLightbox();
+  });
+
+  /* ── Esc key ── */
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && lightbox.classList.contains('is-open')) {
+      e.stopPropagation();
+      closeLightbox();
+    }
+  });
+
+  /* ── Focus trap on Tab ── */
+  lightbox.addEventListener('keydown', trapFocus);
+
+  /* ── Initial aria state ── */
+  lightbox.setAttribute('aria-hidden', 'true');
+
+})();
+</script>
 </body>
 </html>
