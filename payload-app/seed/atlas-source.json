@@ -1,0 +1,1056 @@
+{
+  "active": "practice",
+  "categories": [
+    {
+      "id": "practice",
+      "n": "01",
+      "name": "PRACTICE",
+      "desc": "Career"
+    },
+    {
+      "id": "teach",
+      "n": "02",
+      "name": "TEACH",
+      "desc": "Sharing what I learn"
+    },
+    {
+      "id": "play",
+      "n": "03",
+      "name": "PLAY",
+      "desc": "Music, games, side explorations"
+    },
+    {
+      "id": "explore",
+      "n": "04",
+      "name": "EXPLORE",
+      "desc": "Space and curiosity"
+    },
+    {
+      "id": "recognition",
+      "n": "05",
+      "name": "RECOGNITION",
+      "desc": "Awards and patents"
+    },
+    {
+      "id": "freelance",
+      "n": "06",
+      "name": "FREELANCE",
+      "desc": "Independent work"
+    }
+  ],
+  "practice": {
+    "nodes": [
+      {
+        "id": "foundations",
+        "n": "01",
+        "name": "Foundations",
+        "art": "shards",
+        "ar": "4 / 3",
+        "arLabel": "4:3",
+        "column": 2,
+        "span": 1,
+        "row": 7,
+        "content": {
+          "category": "Practice",
+          "descriptor": "Industrial Design · Product Design · R&D",
+          "summary": "Built my foundation through tangible product design, healthcare R&D, industrial design, visualization, and early UX work before moving deeper into connected products and digital systems.",
+          "signature": "Industrial Design · Product Design · UX · Visualization · R&D",
+          "intro": "This chapter groups the earlier professional experiences:",
+          "includes": [
+            "Skanray",
+            "ADES / Advandes",
+            "Desmania",
+            "Earlier engineering / R&D work"
+          ]
+        }
+      },
+      {
+        "id": "zf-group",
+        "n": "02",
+        "name": "ZF Group",
+        "art": "towers",
+        "ar": "16 / 9",
+        "arLabel": "16:9",
+        "column": 5,
+        "span": 1,
+        "row": 7,
+        "content": {
+          "summary": "Evolved across industrial design, automotive HMI and enterprise UX, working on physical products, autonomous-vehicle interfaces, SAP applications, data visualization, and design-system guidelines.",
+          "rows": [
+            [
+              "Category",
+              "Practice"
+            ],
+            [
+              "Descriptor",
+              [
+                "UX Specialist · Global UX Team",
+                "Previously Senior Industrial Designer"
+              ]
+            ],
+            [
+              "Capability",
+              "Industrial Design · HMI · UX · Data Visualization · Design Systems"
+            ],
+            [
+              "Known work",
+              [
+                "Industrial design",
+                "Automotive HMI",
+                "SAE Level 3/4 autonomous-vehicle demonstrators",
+                "EV interface concepts",
+                "Product styling, CMF and prototyping",
+                "SAP / Fiori applications",
+                "Enterprise UX",
+                "Data visualization guidelines",
+                "Icon and interface guidelines",
+                "Internal products and platforms",
+                "Branding",
+                "Design-system work"
+              ]
+            ],
+            [
+              "Career phases",
+              [
+                "Senior Industrial Designer, approximately 2019–2021",
+                "UX Specialist, IT Innovation / Global UX Team, approximately 2021–2022"
+              ]
+            ]
+          ]
+        }
+      },
+      {
+        "id": "tvs-motor",
+        "n": "03",
+        "name": "TVS Motor",
+        "art": "form",
+        "ar": "1 / 1",
+        "arLabel": "1:1",
+        "column": 8,
+        "span": 1,
+        "row": 7,
+        "content": {
+          "summary": "Led EV and connected-mobility experience design across TVS X, TVS Connect and TALES, while managing a 16-person extended design team, planning priorities, shaping briefs, and pitching features to senior stakeholders.",
+          "story": [
+            "At TVS, I led UX for electric and connected mobility across the vehicle, app, and supporting digital ecosystem. My role went beyond interface design into team management, prioritization, briefs, feature definition, stakeholder pitching, and delivery planning.",
+            "I managed an extended team of around 16 consultancy designers, along with interns, while also shaping major initiatives including the TVS X HMI, TVS Connect, and TALES, the design system created to bring consistency across connected experiences.",
+            "The work also led into broader innovation areas including sonic branding, research and validation, and multiple patented interaction concepts."
+          ],
+          "rows": [
+            [
+              "Category",
+              "Practice"
+            ],
+            [
+              "Descriptor",
+              "UX Manager · Electric Vehicle"
+            ],
+            [
+              "Capability",
+              "Product Design · Industrial Design · HMI · UX · Design Systems · Connected Mobility"
+            ],
+            [
+              "Supporting work",
+              [
+                "TVS X HMI",
+                "TALES Design System",
+                "TVS Connect",
+                "560+ HMI screens",
+                "Connected mobility ecosystem",
+                "Sonic branding",
+                "Research and usability validation",
+                "SUS / CSAT / NPS",
+                "Four published international patents"
+              ]
+            ],
+            [
+              "Cross-references",
+              [
+                "iF Design Award",
+                "Four published international patents"
+              ]
+            ]
+          ]
+        }
+      },
+      {
+        "id": "bounteous",
+        "n": "04",
+        "name": "Bounteous",
+        "art": "facade",
+        "ar": "3 / 4",
+        "arLabel": "3:4",
+        "column": 11,
+        "span": 1,
+        "row": 7,
+        "content": {
+          "summary": "Leading enterprise UX strategy for Verizon Business across upgrades, shopping, AI-assisted tools and digital transformation, while driving prioritization, implementation planning, tech-debt decisions, documentation, and stakeholder alignment.",
+          "rows": [
+            [
+              "Category",
+              "Practice"
+            ],
+            [
+              "Client context",
+              "Verizon Business"
+            ],
+            [
+              "Employment",
+              [
+                "User Experience Lead, Accolite",
+                "July 2024 – February 2025",
+                "Lead Specialist, Bounteous India",
+                "February 2025 – Present"
+              ]
+            ],
+            [
+              "Responsibilities",
+              [
+                "UX strategy",
+                "Implementation planning",
+                "Prioritization",
+                "Tech-debt decisions",
+                "Documentation",
+                "Briefs and first cuts",
+                "Feature pitching to senior stakeholders",
+                "Delivery coordination",
+                "Stakeholder alignment"
+              ]
+            ],
+            [
+              "AI-assisted work",
+              [
+                "AI-assisted tools and digital transformation",
+                "Content creation",
+                "Document review",
+                "Contextual productivity support"
+              ]
+            ],
+            [
+              "Impact Champion",
+              [
+                "Bounteous IGNITE Spotlight Award",
+                "04 November 2025",
+                "Recognition for significant impact through innovation."
+              ]
+            ],
+            [
+              "Emerging Icon Award",
+              [
+                "Bounteous IGNITE ACE Award",
+                "09 March 2026",
+                "Recognition for outstanding service, tireless effort and support to the company."
+              ]
+            ]
+          ]
+        }
+      }
+    ]
+  },
+  "layouts": {
+    "_note": "PROTOTYPE PLACEHOLDERS ONLY. Every category copies Practice exactly: four nodes on columns 2, 5, 8 and 11 of row 7, joined by horizontal connectors, with the bridge from the active rail item to the first node. art/ar = placeholder media and its aspect ratio. links = [from, to, h]. Titles are placeholders.",
+    "teach": {
+      "nodes": [
+        {
+          "id": "node-01",
+          "column": 2,
+          "span": 1,
+          "row": 7,
+          "art": "shards",
+          "ar": "16 / 9",
+          "arLabel": "16:9",
+          "name": "CARE College",
+          "content": {
+            "summary": "Teaching and mentoring aspiring designers through classroom programs, independent sessions, and design academies, with a focus on helping students build practical skills, confidence, and career direction.",
+            "story": [
+              "Teaching has become an important part of how I practice design. I currently teach UX at CARE College, and have also mentored independently through Topmate and taught through Launchpad Academy.",
+              "What matters to me is not just explaining methods or tools, but helping students understand how to think through problems, present their work, and build enough confidence to move into the industry. Some of the students I have worked with have gone on to secure strong roles, including opportunities abroad."
+            ],
+            "rows": [
+              [
+                "Category",
+                "Teach"
+              ],
+              [
+                "Descriptor",
+                "UX Educator · Mentor"
+              ],
+              [
+                "Status",
+                "Active"
+              ],
+              [
+                "Capability",
+                "Teaching · Mentorship · UX Foundations · Portfolio Guidance · Career Development"
+              ],
+              [
+                "Supporting contexts",
+                [
+                  "CARE College, Tiruchirappalli",
+                  "Topmate",
+                  "Launchpad Academy, Bengaluru"
+                ]
+              ]
+            ]
+          }
+        },
+        {
+          "id": "node-02",
+          "column": 5,
+          "span": 1,
+          "row": 7,
+          "art": "towers",
+          "ar": "4 / 3",
+          "arLabel": "4:3",
+          "name": "Topmate: Independent Mentorship"
+        },
+        {
+          "id": "node-03",
+          "column": 8,
+          "span": 1,
+          "row": 7,
+          "art": "form",
+          "ar": "1 / 1",
+          "arLabel": "1:1",
+          "name": "Launchpad Academy"
+        },
+        {
+          "id": "node-04",
+          "column": 11,
+          "span": 1,
+          "row": 7,
+          "art": "facade",
+          "ar": "3 / 4",
+          "arLabel": "3:4",
+          "name": "Design Thinking Workshops"
+        }
+      ],
+      "links": [
+        [
+          0,
+          1,
+          "h"
+        ],
+        [
+          1,
+          2,
+          "h"
+        ],
+        [
+          2,
+          3,
+          "h"
+        ]
+      ]
+    },
+    "play": {
+      "nodes": [
+        {
+          "id": "node-01",
+          "column": 2,
+          "span": 1,
+          "row": 7,
+          "art": "shards",
+          "ar": "16 / 9",
+          "arLabel": "16:9",
+          "name": "Gaming + F1",
+          "content": {
+            "summary": "Gaming became my bridge between curiosity, design, storytelling, and UX, long before I had words for any of them.",
+            "story": [
+              "I started gaming when I was around 10 years old. I remember standing outside internet cafés, waiting for them to open at 8 in the morning. Once they opened, I would rush inside and spend almost the entire day playing, stepping out only for lunch and returning until around 8 at night.",
+              "Those were the days of the original GTA, Claw, Virtua Cop (V-Cop), the early Prince of Persia games, Age of Empires, and several others whose names I can barely remember now. Over time, I moved towards racing games like Need for Speed, Forza and The Crew. But Assassin's Creed has always been my favourite franchise. I've played every instalment in the series.",
+              "Formula 1 was a separate interest that began with the sport itself. The racing, engineering and strategy fascinated me long before I started playing F1 on my PS5.",
+              "Looking back, gaming introduced me to interactive experiences before I even knew what UX was. I wasn't analysing interfaces or studying game mechanics. I was simply fascinated by these worlds, their stories and the freedom to explore them. That curiosity has stayed with me, even as the games and platforms have changed."
+            ],
+            "rows": [
+              [
+                "Category",
+                "Play"
+              ],
+              [
+                "Descriptor",
+                "Interactive Worlds · Racing · Storytelling"
+              ],
+              [
+                "Status",
+                "Active / Long-term Passion"
+              ]
+            ]
+          }
+        },
+        {
+          "id": "node-02",
+          "column": 5,
+          "span": 1,
+          "row": 7,
+          "art": "towers",
+          "ar": "4 / 3",
+          "arLabel": "4:3",
+          "name": "Lyrics / Music Experiments",
+          "content": {
+            "summary": "I enjoy writing lyrics and experimenting with how words, rhythm, and AI-assisted music tools can turn an idea into a song.",
+            "story": [
+              "It started with poetry. I enjoyed putting thoughts into words, sometimes playing with rhymes, sometimes just writing whatever came to mind. Over time, some of those poems began taking the shape of lyrics, and eventually, I wanted to hear what they would sound like as actual songs.",
+              "Rap became one of the ways I experimented with storytelling, rhythm, and wordplay. I write the lyrics myself and use AI tools like Suno to explore different tunes and musical arrangements. I'm neither a trained singer nor a music producer, but that hasn't stopped me from experimenting.",
+              "What began as poetry has gradually evolved into lyrics, songs, and a few creative experiments, including a rap video and recordings on SoundCloud. It's still something I do out of curiosity and the simple pleasure of turning words into something I can listen to."
+            ],
+            "rows": [
+              [
+                "Category",
+                "Play"
+              ],
+              [
+                "Descriptor",
+                "Songwriting · Rap · Creative Experimentation"
+              ],
+              [
+                "Status",
+                "Active / Personal Exploration"
+              ],
+              [
+                "Progression",
+                "Poetry → Lyrics → Songs / Tunes"
+              ]
+            ],
+            "media": {
+              "rapVideo": null,
+              "soundcloud": null
+            }
+          }
+        }
+      ],
+      "links": [
+        [
+          0,
+          1,
+          "h"
+        ]
+      ]
+    },
+    "explore": {
+      "nodes": [
+        {
+          "id": "node-01",
+          "column": 1,
+          "span": 2,
+          "row": 7,
+          "art": "shards",
+          "ar": "16 / 9",
+          "arLabel": "16:9",
+          "name": "Black Holes / Space",
+          "content": {
+            "summary": "My fascination with black holes led me to study astrophysics beyond my design profession, exploring questions about spacetime, gravity, and the limits of our understanding of the universe.",
+            "story": [
+              "I've always been fascinated by space, particularly black holes. There is something intriguing about objects that push our understanding of physics to its limits. The more I read about them, the more questions I seem to have.",
+              "That curiosity eventually led me to take Astro 101: Black Holes from the University of Alberta. What started as an interest turned into hours of studying concepts like general relativity, spacetime, event horizons, and the unanswered questions surrounding quantum gravity. I filled pages with handwritten notes, diagrams, and questions as I tried to make sense of ideas that are difficult to imagine, let alone fully understand.",
+              "I'm not a physicist, and I don't pretend to be one. But I enjoy learning about things that have little to do with my profession. Sometimes, exploring an unfamiliar subject makes me question assumptions I wouldn't otherwise think to challenge.",
+              "I still have those notebooks, and my curiosity about the universe is far from over."
+            ],
+            "rows": [
+              [
+                "Category",
+                "Explore"
+              ],
+              [
+                "Descriptor",
+                "Astrophysics · Curiosity · Independent Learning"
+              ],
+              [
+                "Status",
+                "Active / Ongoing Exploration"
+              ]
+            ]
+          }
+        },
+        {
+          "id": "node-02",
+          "column": 3,
+          "span": 2,
+          "row": 7,
+          "art": "towers",
+          "ar": "4 / 3",
+          "arLabel": "4:3",
+          "name": "Generative AI Foundations",
+          "content": {
+            "rows": [
+              [
+                "Category",
+                "Explore"
+              ],
+              [
+                "Credential",
+                "Generative AI Foundations, UpGrad × Microsoft"
+              ]
+            ]
+          }
+        },
+        {
+          "id": "node-03",
+          "column": 5,
+          "span": 2,
+          "row": 7,
+          "art": "form",
+          "ar": "1 / 1",
+          "arLabel": "1:1",
+          "name": "Google Project Management",
+          "content": {
+            "rows": [
+              [
+                "Category",
+                "Explore"
+              ],
+              [
+                "Credential",
+                "Google Project Management certifications"
+              ]
+            ]
+          }
+        },
+        {
+          "id": "node-04",
+          "column": 7,
+          "span": 2,
+          "row": 7,
+          "art": "facade",
+          "ar": "3 / 4",
+          "arLabel": "3:4",
+          "name": "UX DesignOps",
+          "content": {
+            "rows": [
+              [
+                "Category",
+                "Explore"
+              ],
+              [
+                "Credential",
+                "UX DesignOps"
+              ]
+            ]
+          }
+        },
+        {
+          "id": "node-05",
+          "column": 9,
+          "span": 2,
+          "row": 7,
+          "art": "shards",
+          "ar": "9 / 16",
+          "arLabel": "9:16",
+          "name": "Leadership Competencies",
+          "content": {
+            "rows": [
+              [
+                "Category",
+                "Explore"
+              ],
+              [
+                "Credential",
+                "Leadership Competencies"
+              ]
+            ]
+          }
+        },
+        {
+          "id": "node-06",
+          "column": 11,
+          "span": 2,
+          "row": 7,
+          "art": "towers",
+          "ar": "16 / 9",
+          "arLabel": "16:9",
+          "name": "Python for Data Science",
+          "content": {
+            "rows": [
+              [
+                "Category",
+                "Explore"
+              ],
+              [
+                "Credential",
+                "Python for Data Science"
+              ]
+            ]
+          }
+        }
+      ],
+      "links": [
+        [
+          0,
+          1,
+          "h"
+        ],
+        [
+          1,
+          2,
+          "h"
+        ],
+        [
+          2,
+          3,
+          "h"
+        ],
+        [
+          3,
+          4,
+          "h"
+        ],
+        [
+          4,
+          5,
+          "h"
+        ]
+      ]
+    },
+    "recognition": {
+      "nodes": [
+        {
+          "id": "node-01",
+          "column": 1,
+          "span": 2,
+          "row": 7,
+          "art": "shards",
+          "ar": "16 / 9",
+          "arLabel": "16:9",
+          "name": "International Bicycle Design Competition",
+          "content": {
+            "summary": "2nd Prize · Taiwan · 2026",
+            "caseStudy": null,
+            "rows": [
+              [
+                "Category",
+                "Recognition"
+              ],
+              [
+                "Competition",
+                "International Bicycle Design Competition"
+              ],
+              [
+                "Location",
+                "Taiwan"
+              ],
+              [
+                "Year",
+                "2026"
+              ],
+              [
+                "Result",
+                "2nd Prize"
+              ],
+              [
+                "Travel",
+                "Travelled to Taiwan to receive the prize in March 2026."
+              ],
+              [
+                "Project context",
+                "Bicycle design, industrial design, digital experience and motivation for children to cycle."
+              ],
+              [
+                "Concept",
+                [
+                  "A bicycle with a speedometer",
+                  "A companion experience for parents",
+                  "Parent-created tasks",
+                  "Points and motivational leaderboards for children in schools or residential communities"
+                ]
+              ]
+            ]
+          }
+        },
+        {
+          "id": "node-02",
+          "column": 3,
+          "span": 2,
+          "row": 7,
+          "art": "towers",
+          "ar": "4 / 3",
+          "arLabel": "4:3",
+          "name": "iF Design Award",
+          "content": {
+            "summary": "Award-winning TVS Motor work",
+            "rows": [
+              [
+                "Category",
+                "Recognition"
+              ],
+              [
+                "Award",
+                "iF Design Award"
+              ],
+              [
+                "Cross-reference",
+                "TVS Motor"
+              ]
+            ]
+          }
+        },
+        {
+          "id": "node-03",
+          "column": 5,
+          "span": 2,
+          "row": 7,
+          "art": "form",
+          "ar": "1 / 1",
+          "arLabel": "1:1",
+          "name": "Michelin Design Challenge",
+          "content": {
+            "summary": "2018 · 3rd Prize · International",
+            "projectFile": null,
+            "video": null,
+            "rows": [
+              [
+                "Category",
+                "Recognition"
+              ],
+              [
+                "Competition",
+                "Michelin Design Challenge"
+              ],
+              [
+                "Year",
+                "2018"
+              ],
+              [
+                "Result",
+                "3rd Prize"
+              ],
+              [
+                "Level",
+                "International"
+              ],
+              [
+                "Evidence",
+                [
+                  {
+                    "t": "michelinmedia.com gallery",
+                    "u": "https://michelinmedia.com/pages/galleries/detail/6/126/"
+                  }
+                ]
+              ]
+            ]
+          }
+        },
+        {
+          "id": "node-04",
+          "column": 7,
+          "span": 2,
+          "row": 7,
+          "art": "facade",
+          "ar": "3 / 4",
+          "arLabel": "3:4",
+          "name": "Dell Designathon",
+          "content": {
+            "summary": "2017 — 2nd Prize, National · 2019 — 2nd Prize, National",
+            "rows": [
+              [
+                "Category",
+                "Recognition"
+              ],
+              [
+                "Competition",
+                "Dell Designathon"
+              ],
+              [
+                "Results",
+                [
+                  "2017 — 2nd Prize, National",
+                  "2019 — 2nd Prize, National"
+                ]
+              ]
+            ]
+          }
+        },
+        {
+          "id": "node-05",
+          "column": 9,
+          "span": 2,
+          "row": 7,
+          "art": "shards",
+          "ar": "9 / 16",
+          "arLabel": "9:16",
+          "name": "Four Published International Patents",
+          "content": {
+            "summary": "Four published international patents · TVS Motor",
+            "rows": [
+              [
+                "Category",
+                "Recognition"
+              ],
+              [
+                "Patents",
+                "Four published international patents"
+              ],
+              [
+                "Cross-reference",
+                "TVS Motor"
+              ]
+            ]
+          }
+        },
+        {
+          "id": "node-06",
+          "column": 11,
+          "span": 2,
+          "row": 7,
+          "art": "towers",
+          "ar": "16 / 9",
+          "arLabel": "16:9",
+          "name": "IIT Kharagpur B-Plan / Hope Box",
+          "content": {
+            "summary": "IIT Kharagpur B-Plan · 2017 · 3rd Prize",
+            "rows": [
+              [
+                "Category",
+                "Recognition"
+              ],
+              [
+                "Competition",
+                "IIT Kharagpur B-Plan"
+              ],
+              [
+                "Year",
+                "2017"
+              ],
+              [
+                "Result",
+                "3rd Prize"
+              ],
+              [
+                "Contribution",
+                "Brand identity and co-development of industrial design"
+              ],
+              [
+                "Project reference",
+                [
+                  {
+                    "t": "Hopebox on Behance",
+                    "u": "https://www.behance.net/gallery/30786191/Hopebox-_-Logo-design"
+                  }
+                ]
+              ]
+            ]
+          }
+        }
+      ],
+      "links": [
+        [
+          0,
+          1,
+          "h"
+        ],
+        [
+          1,
+          2,
+          "h"
+        ],
+        [
+          2,
+          3,
+          "h"
+        ],
+        [
+          3,
+          4,
+          "h"
+        ],
+        [
+          4,
+          5,
+          "h"
+        ]
+      ]
+    },
+    "freelance": {
+      "nodes": [
+        {
+          "id": "node-01",
+          "column": 1,
+          "span": 2,
+          "row": 7,
+          "art": "shards",
+          "ar": "16 / 9",
+          "arLabel": "16:9",
+          "name": "Amar Chitra Katha / Supandi",
+          "content": {
+            "summary": "Character-related NFT / digital commerce experience.",
+            "prototypeLink": null,
+            "rows": [
+              [
+                "Category",
+                "Freelance"
+              ]
+            ]
+          }
+        },
+        {
+          "id": "node-02",
+          "column": 3,
+          "span": 3,
+          "row": 7,
+          "art": "towers",
+          "ar": "4 / 3",
+          "arLabel": "4:3",
+          "name": "Xpertiz",
+          "content": {
+            "summary": "Independent client.",
+            "rows": [
+              [
+                "Category",
+                "Freelance"
+              ]
+            ]
+          }
+        },
+        {
+          "id": "node-03",
+          "column": 6,
+          "span": 2,
+          "row": 7,
+          "art": "form",
+          "ar": "1 / 1",
+          "arLabel": "1:1",
+          "name": "Celestial",
+          "content": {
+            "summary": "Design-related project associated with later Murugappa Group acquisition context.",
+            "rows": [
+              [
+                "Category",
+                "Freelance"
+              ]
+            ]
+          }
+        },
+        {
+          "id": "node-04",
+          "column": 8,
+          "span": 3,
+          "row": 7,
+          "art": "facade",
+          "ar": "3 / 4",
+          "arLabel": "3:4",
+          "name": "Techno Sport",
+          "content": {
+            "summary": "UI and UX design for mobile and web experiences.",
+            "rows": [
+              [
+                "Category",
+                "Freelance"
+              ]
+            ]
+          }
+        },
+        {
+          "id": "node-05",
+          "column": 11,
+          "span": 2,
+          "row": 7,
+          "art": "shards",
+          "ar": "9 / 16",
+          "arLabel": "9:16",
+          "name": "Independent Client Work",
+          "content": {
+            "summary": "Various independent client engagements.",
+            "rows": [
+              [
+                "Category",
+                "Freelance"
+              ]
+            ]
+          }
+        }
+      ],
+      "links": [
+        [
+          0,
+          1,
+          "h"
+        ],
+        [
+          1,
+          2,
+          "h"
+        ],
+        [
+          2,
+          3,
+          "h"
+        ],
+        [
+          3,
+          4,
+          "h"
+        ]
+      ]
+    }
+  },
+  "gateways": [
+    {
+      "cat": "teach",
+      "row": 3,
+      "rot": -100,
+      "line": 4
+    },
+    {
+      "cat": "explore",
+      "row": 4,
+      "rot": 30,
+      "line": 10
+    },
+    {
+      "cat": "play",
+      "row": 10,
+      "rot": 80,
+      "line": 4
+    },
+    {
+      "cat": "freelance",
+      "row": 11,
+      "rot": 200,
+      "line": 7
+    },
+    {
+      "cat": "recognition",
+      "row": 10,
+      "rot": -30,
+      "line": 13
+    }
+  ],
+  "_grid": "SHARED 12 x 12 EDITORIAL GRID. Every node is declared logically as {id, column, span, row}; screen positions are resolved from the grid tracks (column track centres x row track centres), never from pixels. previewRegions = ONE grid-aligned preview region per category (column, span, row, rows).",
+  "previewRegions": {
+    "practice": {
+      "column": 5,
+      "span": 4,
+      "row": 2,
+      "rows": 3
+    },
+    "teach": {
+      "column": 5,
+      "span": 4,
+      "row": 2,
+      "rows": 3
+    },
+    "play": {
+      "column": 5,
+      "span": 4,
+      "row": 2,
+      "rows": 3
+    },
+    "explore": {
+      "column": 5,
+      "span": 4,
+      "row": 2,
+      "rows": 3
+    },
+    "recognition": {
+      "column": 5,
+      "span": 4,
+      "row": 2,
+      "rows": 3
+    },
+    "freelance": {
+      "column": 5,
+      "span": 4,
+      "row": 2,
+      "rows": 3
+    }
+  }
+}
