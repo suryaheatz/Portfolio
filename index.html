@@ -190,30 +190,32 @@
     }
 
     /* ══════════════════════════════════════════════════
-       SECTION TRANSITION CARDS — CSS sticky stack
-       Each card sticks at top:0 while the next slides
-       over it. No GSAP pin — CSS sticky is the correct
-       tool here (GSAP pin breaks the full-bleed trick).
+       SECTION TRANSITION CARDS — GSAP pin-over-pin
+       Each [data-st-01="pin"] element is pinned by
+       sectionTransition01() while its next sibling
+       scrolls over it. Cards are position:relative +
+       full-bleed; GSAP handles the sticky behaviour.
+       Full-bleed uses left:50%/margin-left:-50vw so
+       the card goes edge-to-edge inside the container.
     ══════════════════════════════════════════════════ */
     .st-card {
-      position: sticky;
-      top: 0;
-      width: 100%;
+      position: relative;
+      width: 100vw;
+      left: 50%;
+      margin-left: -50vw;
       min-height: 100vh;
     }
 
-    /* Brief: z-index 2 — stacks above hero image */
+    /* Brief: light card, covers hero image */
     .st-brief {
       background: var(--bg);
       border-radius: var(--r-lg) var(--r-lg) 0 0;
-      z-index: 2;
     }
 
-    /* Scope: z-index 3 — stacks above brief */
+    /* Scope: dark card, covers brief */
     .st-scope {
       background: var(--ink-dark);
       border-radius: var(--r-lg) var(--r-lg) 0 0;
-      z-index: 3;
     }
 
     /* Sketch image below scope strip */
@@ -1697,12 +1699,25 @@
   });
 
   /* ─────────────────────────────────────────
-     sectionTransition01 — handled by CSS sticky
-     .st-brief (z:2) and .st-scope (z:3) use
-     position:sticky; top:0 so each card stays
-     visible while the next slides over it.
-     No GSAP pin needed — CSS sticky is correct.
+     sectionTransition01 — GSAP pin-over-pin
+     Each [data-st-01="pin"] element is pinned
+     while its next sibling scrolls over it.
+     pinSpacing:false avoids blank scroll gaps.
   ───────────────────────────────────────── */
+  (function sectionTransition01() {
+    const pinEls = document.querySelectorAll('[data-st-01="pin"]');
+    pinEls.forEach(function(section) {
+      const nextSection = section.nextElementSibling;
+      if (!nextSection) return;
+      ScrollTrigger.create({
+        trigger: nextSection,
+        start: 'top bottom',
+        end: 'top top',
+        pin: section,
+        pinSpacing: false,
+      });
+    });
+  })();
 
   /* ─────────────────────────────────────────
      6. PULL QUOTE — simple scroll-in, no pin
