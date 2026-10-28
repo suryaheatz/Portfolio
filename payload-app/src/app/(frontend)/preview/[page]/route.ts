@@ -39,7 +39,7 @@ export async function GET(_req: Request, context: { params: Promise<{ page: stri
     const brand = (mode === 'logo' || mode === 'both') && logoURL
       ? `<img src="${escapeHTML(logoURL)}" alt="${brandName}" style="display:block;max-height:40px;width:auto" />${mode === 'both' ? '<span>' + brandName + '</span>' : ''}`
       : brandName
-    const links = header.navigation.map((item) => {
+    const links = header.navigation.map((item: { label: string; url: string }) => {
       const href = toPreviewURL(item.url || '#')
       const currentAttr = href === current ? ' aria-current="page"' : ''
       return `<a href="${escapeHTML(href)}"${currentAttr}>${escapeHTML(item.label)}</a>`
@@ -58,7 +58,7 @@ export async function GET(_req: Request, context: { params: Promise<{ page: stri
       if (footer?.contactEmail) data.email.value = footer.contactEmail
       if (footer?.footerText) data.legal = footer.footerText
       if (footer?.socialLinks?.length) {
-        data.footerLinks = footer.socialLinks.map((item) => ({
+        data.footerLinks = footer.socialLinks.map((item: { label: string; url: string }) => ({
           label: item.label,
           href: item.url,
           external: /^https?:\/\//.test(item.url || ''),
