@@ -6,14 +6,18 @@ import { Users } from './src/collections/users'
 import { Media, Pages } from './src/collections'
 import { SiteHeader, SiteFooter } from './src/globals/site'
 import { AtlasContent } from './src/globals/atlas'
+import { migrations } from './src/migrations'
 
 export default buildConfig({
   secret: process.env.PAYLOAD_SECRET || '',
   db: postgresAdapter({
-    // Preview-only schema synchronization for the initial empty Neon database.
-    // Production requires reviewed migrations; never auto-push its schema.
-    push: process.env.VERCEL_ENV === 'preview',
+    // Schema is managed by migrations (generated with `payload migrate:create`).
+    // `payload migrate` runs before `next build` in the build script and applies
+    // any pending migration files. Never use `push: true` in production.
+    push: false,
     pool: { connectionString: process.env.DATABASE_URL || '' },
+    migrationDir: './src/migrations',
+    migrations,
   }),
   editor: lexicalEditor(),
   sharp,
