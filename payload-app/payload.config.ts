@@ -9,7 +9,12 @@ import { AtlasContent } from './src/globals/atlas'
 
 export default buildConfig({
   secret: process.env.PAYLOAD_SECRET || '',
-  db: postgresAdapter({ pool: { connectionString: process.env.DATABASE_URL || '' } }),
+  db: postgresAdapter({
+    // Preview-only schema synchronization for the initial empty Neon database.
+    // Production requires reviewed migrations; never auto-push its schema.
+    push: process.env.VERCEL_ENV === 'preview',
+    pool: { connectionString: process.env.DATABASE_URL || '' },
+  }),
   editor: lexicalEditor(),
   sharp,
   admin: { user: 'users' },
