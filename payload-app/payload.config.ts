@@ -1,6 +1,6 @@
 import { buildConfig } from 'payload'
 import { postgresAdapter } from '@payloadcms/db-postgres'
-import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
+import { s3Storage } from '@payloadcms/storage-s3'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import sharp from 'sharp'
 import { Users } from './src/collections/users'
@@ -24,10 +24,20 @@ export default buildConfig({
   collections: [Users, Media, Pages],
   globals: [SiteHeader, SiteFooter, AtlasContent],
   plugins: [
-    vercelBlobStorage({
+    s3Storage({
       collections: { media: true },
-      token: process.env.BLOB_READ_WRITE_TOKEN,
-      clientUploads: true,
+      bucket: process.env.R2_BUCKET || '',
+      config: {
+        endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+        region: 'auto',
+        credentials: {
+          accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
+          secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
+        },
+      },
+      // Cloudflare R2 requires path-style URLs and a public delivery URL.
+      forcePathStyle: true,
+      generateFileURL: ({ filename }) => `${(process.env.R2_PUBLIC_URL || '').replace(/\/$/, '')}/${encodeURIComponent(filename)}`,
     }),
   ],
 })
