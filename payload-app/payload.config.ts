@@ -25,19 +25,25 @@ export default buildConfig({
   globals: [SiteHeader, SiteFooter, AtlasContent],
   plugins: [
     s3Storage({
-      collections: { media: true },
+      collections: {
+        media: {
+          disablePayloadAccessControl: true,
+          generateFileURL: ({ filename, prefix }) => {
+            const key = [prefix, filename].filter(Boolean).join('/')
+            return `${(process.env.R2_PUBLIC_URL || '').replace(/\/$/, '')}/${key}`
+          },
+        },
+      },
       bucket: process.env.R2_BUCKET || '',
       config: {
         endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+        forcePathStyle: true,
         region: 'auto',
         credentials: {
           accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
           secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
         },
       },
-      // Cloudflare R2 requires path-style URLs and a public delivery URL.
-      forcePathStyle: true,
-      generateFileURL: ({ filename }) => `${(process.env.R2_PUBLIC_URL || '').replace(/\/$/, '')}/${encodeURIComponent(filename)}`,
     }),
   ],
 })
