@@ -65,4 +65,16 @@ export const FullWidthFigure: Block = {
     ] },
   ],
 }
-export const caseStudyBlocks: Block[] = [CaseStudyHero, CaseStudyBrief, CaseStudyScope, CaseStudyEditorial, FullWidthFigure]
+export const CaseStudyMediaGroup: Block = { slug: 'caseStudyMediaGroup', labels: {singular:'Case study image group',plural:'Case study image groups'}, fields: [
+ {name:'sectionHeading',type:'text',required:true},
+ {name:'sectionKey',type:'text',admin:{description:'Source section or chapter identity'}},
+ {name:'layoutStyle',type:'select',defaultValue:'evidence',options:[{label:'Evidence gallery',value:'evidence'},{label:'Grid',value:'grid'}]},
+ {name:'images',type:'array',minRows:1,fields:[
+ {name:'sourcePath',type:'text',required:true,admin:{description:'Original GitHub repository image path'}},
+ {name:'sourceUrl',type:'text',required:true,admin:{description:'Temporary GitHub-backed image URL; replace with Media upload after validation'}},
+ {name:'alt',type:'textarea'},
+ {name:'caption',type:'text'},
+ {name:'media',type:'upload',relationTo:'media'},
+ ]}
+] }
+export const caseStudyBlocks: Block[] = [CaseStudyHero, CaseStudyBrief, CaseStudyScope, CaseStudyEditorial, FullWidthFigure, CaseStudyMediaGroup]
