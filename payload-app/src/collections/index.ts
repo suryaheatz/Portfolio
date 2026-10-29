@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { homeBlocks } from '../blocks/home'
+import { caseStudyBlocks } from '../blocks/case-study'
 
 export const Media: CollectionConfig = {
   slug: 'media',
@@ -14,6 +15,6 @@ export const Pages: CollectionConfig = {
   fields: [
     { name: 'title', type: 'text', required: true },
     { name: 'slug', type: 'text', required: true, unique: true },
-    { name: 'layout', type: 'blocks', blocks: homeBlocks },
+    { name: 'layout', type: 'blocks', blocks: [...homeBlocks, ...caseStudyBlocks] },
   ],
 }
