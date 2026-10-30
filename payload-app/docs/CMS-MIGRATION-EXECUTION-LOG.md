@@ -234,15 +234,15 @@ Run after `pnpm payload migrate` succeeds. All 13 gates must pass.
 |------|------|----------|--------|
 | G1 | All 13 SQL statements complete without error | no error | ✅ PASS — 13/13, 107ms |
 | G2 | `SELECT conname FROM pg_constraint WHERE conname LIKE 'fk_%'` returns 4 rows | 4 FK rows | ✅ PASS — "SELECT 4" confirmed in Neon output |
-| G3 | Admin editor: open page id=1 (Centronic), edit any chip label, click Save | no ValidationError | ⏳ needs admin editor test |
-| G4 | Reload page id=1 in admin — chip label persists with new value | data written correctly | ⏳ needs admin editor test |
+| G3 | Admin editor: open page id=1 (Centronic), edit any chip label, click Save | no ValidationError | ✅ PASS — "Updated successfully" confirmed |
+| G4 | Reload page id=1 in admin — chip label persists with new value | data written correctly | ✅ PASS — edited label and timestamp visible after reload |
 | G5 | `SELECT COUNT(*) FROM media` returns 57 | R2 assets untouched | ✅ PASS — 58 rows (57 original + 1 staging asset; no media lost) |
 | G6 | `SELECT COUNT(*) FROM pages WHERE id IN (1,2)` returns 2 | canonical pages exist | ✅ PASS — 2 confirmed |
-| G7 | Admin editor: open page id=2 (Haptix), Save without edits | no error | ⏳ needs admin editor test |
+| G7 | Admin editor: open page id=2 (Haptix), Save without edits | no error | ✅ PASS — "Updated successfully" confirmed |
 | G8 | `SELECT title FROM pages WHERE id=1` returns canonical Centronic title | user-authored prose intact | ✅ PASS — title confirmed |
 | G9 | `SELECT COUNT(*) FROM _rollback_hero_chips` > 0 | rollback available | ✅ PASS — rows present |
 | G10 | `SELECT COUNT(*) FROM pages_blocks_case_study_hero_chips WHERE _parent_id NOT IN (SELECT id FROM pages_blocks_case_study_hero)` returns 0 | no orphans remain | ✅ PASS — 0 orphans |
-| G11 | Admin editor: draft save (Save Draft) on any page — returns without error | draft path unaffected | ⏳ needs admin editor test |
+| G11 | Admin editor: draft save (Save Draft) on any page — returns without error | draft path unaffected | ✅ PASS — "Draft saved successfully" confirmed (button enables on change, correct behaviour) |
 | G12 | Vercel build passes (if branch auto-deploys) | N/A — branch not wired to Vercel | N/A |
 | G13 | `pnpm payload migrate:down` on fresh Neon branch → constraints dropped | rollback functional | ⏳ deferred — rollback tables present |
 
