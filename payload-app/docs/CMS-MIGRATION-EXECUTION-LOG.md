@@ -72,7 +72,7 @@ flowchart TD
 ## Next attempt register
 | New attempt | Hypothesis | Code/data change | Test and observation | Outcome | Commit/rollback |
 |---|---|---|---|---|---|
-| N01 | Not attempted | Not attempted | Not attempted | PENDING | |
+| N01 | Determine whether Payload update fails on newly created page, with exact validation details | Added read-only diagnostic plus controlled update on staging id 4 | Await build logs | RUNNING | diagnostic commit |
 | N02 | Not attempted | Not attempted | Not attempted | PENDING | |
 | N03 | Not attempted | Not attempted | Not attempted | PENDING | |
 | N04 | Not attempted | Not attempted | Not attempted | PENDING | |
