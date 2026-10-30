@@ -260,3 +260,10 @@ Read this file **before** attempting another CMS repair. Inspect the latest bran
 ### H13: Published-write gate precheck adjustment
 - Initial hard-gated deployment `73df4f0` failed **before a save** because the temporary diagnostic page id 4 has only 1 live block and a draft version, following prior draft-mode experiments. It is not equivalent to canonical case-study data.
 - Re-run the published-update gate against intact canonical Centronic id 1 (9 blocks/20 linked images) and Haptix id 2 (13 blocks/55 linked images); staging id 4 is excluded and preserved for diagnostics. Do not call this a regression in the cascade fix.
+
+### H14: Payload full-layout published-save gate (queued)
+- H13 precheck failure excluded staging page id4 because previous draft-only experiments reduced its live state to one block; it did **not** test Claude's FK fix.
+- First published test of canonical Centronic with a **title-only payload.update** did not throw a duplicate-ID error after cascade migration, but it deleted its 9 live blocks and 20 image placements. The original version id1 and rollback snapshots preserved those records. This is a separate critical issue: partial published updates are **not content-safe in this adapter state**.
+- Restored canonical Centronic's 9 live blocks and 20 linked image placements from version id1 and pre-migration snapshots via insert-only transaction. Verified Haptix 13/55 and Centronic 9/20 plus 57 R2 case-study media records afterward.
+- Next test passes full `data.layout` explicitly to Payload on staging id4 first (from Centronic), then canonical ids1/2 only after staging passes. Compare source paths in addition to counts; stop on any mismatch.
+- Do **not** claim ordinary partial-field updates are safe unless independently proven. Treat published writes without `layout` as unsafe until fixed.
