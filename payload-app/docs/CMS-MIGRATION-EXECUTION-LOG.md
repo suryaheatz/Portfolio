@@ -75,8 +75,8 @@ flowchart TD
 | N01 | Determine whether Payload update fails on newly created page, with exact validation details | Controlled update staging id 4 | Duplicate id unique constraint on pages; fails even without layout edits | FAILED | 805aa8a |
 | N02 | Diagnose sequence and existing IDs vs update conflict | Read database rows and id sequence after failed update | Staging id 4 exists, sequence last_value 4; duplicate-id update remains | FAILED | a009c0b |
 | N03 | Test transaction option and separate Media collection update to isolate scope | Staging page update with disableTransaction and Media id 2 update | Page fails same duplicate id; Media update passes. Issue scoped to Pages/versions/blocks | FAILED | 9bea557 |
-| N04 | Test draft-mode page update to distinguish live page upsert vs version update | Staging id 4 draft and published write comparison | Await logs | RUNNING | |
-| N05 | Not attempted | Not attempted | Not attempted | PENDING | |
+| N04 | Test draft-mode page update to distinguish live page upsert vs version update | Staging id 4 draft update passes, published update fails same duplicate id | Draft/version-only writes work, live page updates fail | FAILED (partial draft pass) | 1f24300 |
+| N05 | Test explicit published status with draft=true per Payload documented publishing behavior | Update staging id 4 with draft:true and _status:published, then live reread | Await logs | RUNNING | |
 
 ## Rules for all agents
 Read this file **before** attempting another CMS repair. Inspect the latest branch and Neon preview state, not just this historical snapshot. A green build is not a green CMS. Keep the user's original prose and SK interaction/design direction; never substitute unrelated templates. Existing R2 assets are the source of truth for media. Never overwrite actual user edits during a repair.
