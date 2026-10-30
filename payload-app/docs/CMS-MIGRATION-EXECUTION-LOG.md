@@ -81,5 +81,148 @@ flowchart TD
 ## Five-attempt stopping checkpoint (2026-10-30)
 Five distinct repair diagnostics N01-N05 failed to validate a published page update. N04 draft-only update succeeded, but published update failed. Media collection updates succeeded. Failure is scoped to live updates of the versioned Pages collection in the current adapter/schema. STOP according to the user's five-attempt rule. Do not claim readiness or deploy additional speculative fixes without a targeted diagnosis/review. See commits 805aa8a, a009c0b, 9bea557, 1f24300, 5d6127e. Follow up by tracing PostgreSQL query/cause in @payloadcms/drizzle upsertRow, compare adapter expected schema with manual migrations, and inspect upstream reported issue patterns. Original canonical pages and all 57 media assets are preserved; staging page id 4 remains. Test a published update and editor save/reload before resuming visual work.
 
+---
+
+## Phase 2 — Root-cause analysis and corrective proposal (2026-10-30)
+
+> Required by the brief: document root cause + evidence + corrective change + expected behaviour + effect on existing data + rollback BEFORE writing code.
+
+### Root cause
+
+`@payloadcms/drizzle` `upsertRow()` (dist/upsertRow/index.js) correctly issues `DELETE WHERE _parent_id = $page_id` for **top-level block tables** in its `blocksToDelete` loop (lines ~537–542), but the subsequent `insertArrays()` call for **nested array fields within blocks** (chips, facts, images, annotations) is issued with **no preceding DELETE** (line ~580). On `draft: false` publish, the adapter reconstructs the nested rows using the same UUIDs preserved in the draft version's `_uuid` columns, then issues a plain `INSERT` into tables that still hold the original rows from the prior write. The `INSERT` fails with PostgreSQL error `23505` (duplicate primary key). The outer catch block at line 642 of `upsertRow` intercepts the error and calls `handleUpsertError({ tableName })` where `tableName` is the **outer collection name `'pages'`**, not the physical table. `handleUpsertError` parses `Key (id)=(X)` from `error.detail` and sets `path: 'id'`. The end result is the observed `ValidationError: { message: 'Value must be unique', path: 'id', tableName: 'pages' }` — which conceals the real table.
+
+### Supporting evidence
+
+| Evidence | Significance |
+|---|---|
+| `insertArrays.js` confirmed: plain `adapter.insert()`, no DELETE | Direct code proof — nested arrays are never cleaned before re-insert |
+| Top-level array path in `upsertRow` calls `deleteExistingArrayRows` first | By contrast, proves the omission for block-nested arrays is not intentional |
+| N04 `draft: true` PASSES | Version table `_pages_v_blocks_*` uses SERIAL ids; no UUID reuse; never hits the bug |
+| N01/N03/N05 `draft: false` FAILS | Live publish path re-inserts nested rows with preserved UUIDs → 23505 |
+| N03 `disableTransaction: true` still fails | Rules out Neon transaction nesting as root cause; confirms the INSERT-after-no-DELETE is the issue |
+| N05: fresh draft with NEW block UUIDs, publish still fails | N05's draft updated block-parent UUIDs but read from the same underlying draft that preserved chip/fact/image `_uuid` values; same orphaned sub-rows remained; publish hit the same conflict |
+| Media collection update passes | Media has no nested block-array tables; confirms the bug is block-array-specific |
+| No CASCADE DELETE on any FK-like column (grep returned empty) | Confirms database has no automatic cleanup of orphaned nested rows |
+
+### Exact tables involved
+
+Four **nested block array tables** carry `id varchar PRIMARY KEY` and `_parent_id varchar` but have **no FK constraint** on `_parent_id`:
+
+```
+pages_blocks_case_study_hero_chips           (_parent_id → pages_blocks_case_study_hero.id)
+pages_blocks_case_study_scope_facts          (_parent_id → pages_blocks_case_study_scope.id)
+pages_blocks_case_study_media_group_images   (_parent_id → pages_blocks_case_study_media_group.id)
+pages_blocks_case_study_media_group_images_annotations  (_parent_id → pages_blocks_case_study_media_group_images.id)
+```
+
+Six **top-level block tables** carry `_parent_id INTEGER` (FK-like to `pages.id`). These ARE cleaned by `blocksToDelete`:
+
+```
+pages_blocks_case_study_hero, pages_blocks_case_study_brief,
+pages_blocks_case_study_scope, pages_blocks_case_study_editorial,
+pages_blocks_full_width_figure, pages_blocks_case_study_media_group
+```
+
+### Minimal corrective change
+
+Two-part fix, both in a single migration file `20261030_090000_fix_nested_block_cascade.ts`:
+
+**Part A — orphan cleanup (SQL)**: Delete any existing orphaned nested rows whose parent no longer exists or whose parent belongs to pages being repaired. This is safe because Payload cannot read these rows (they reference deleted parent blocks) and they are the direct cause of the 23505.
+
+**Part B — FK CASCADE DELETE (SQL DDL)**: Add actual `FOREIGN KEY ... ON DELETE CASCADE` constraints on each of the four nested tables' `_parent_id` columns, referencing the appropriate parent table. This fixes the root cause permanently for all future publish operations (admin editor, API, repair migrations) without touching `node_modules`.
+
+```sql
+-- Part A: orphan cleanup for pages 1, 2, 4
+DELETE FROM pages_blocks_case_study_hero_chips
+  WHERE _parent_id NOT IN (SELECT id FROM pages_blocks_case_study_hero);
+DELETE FROM pages_blocks_case_study_scope_facts
+  WHERE _parent_id NOT IN (SELECT id FROM pages_blocks_case_study_scope);
+DELETE FROM pages_blocks_case_study_media_group_images_annotations
+  WHERE _parent_id NOT IN (SELECT id FROM pages_blocks_case_study_media_group_images);
+DELETE FROM pages_blocks_case_study_media_group_images
+  WHERE _parent_id NOT IN (SELECT id FROM pages_blocks_case_study_media_group);
+
+-- Part B: add FK CASCADE
+ALTER TABLE pages_blocks_case_study_hero_chips
+  ADD CONSTRAINT fk_hero_chips_parent
+  FOREIGN KEY (_parent_id) REFERENCES pages_blocks_case_study_hero(id) ON DELETE CASCADE;
+
+ALTER TABLE pages_blocks_case_study_scope_facts
+  ADD CONSTRAINT fk_scope_facts_parent
+  FOREIGN KEY (_parent_id) REFERENCES pages_blocks_case_study_scope(id) ON DELETE CASCADE;
+
+ALTER TABLE pages_blocks_case_study_media_group_images
+  ADD CONSTRAINT fk_media_images_parent
+  FOREIGN KEY (_parent_id) REFERENCES pages_blocks_case_study_media_group(id) ON DELETE CASCADE;
+
+ALTER TABLE pages_blocks_case_study_media_group_images_annotations
+  ADD CONSTRAINT fk_annotations_parent
+  FOREIGN KEY (_parent_id) REFERENCES pages_blocks_case_study_media_group_images(id) ON DELETE CASCADE;
+```
+
+After this migration, when `upsertRow` deletes top-level block rows (`pages_blocks_case_study_hero` WHERE `_parent_id = $page_id`), the database automatically cascades the DELETE to chips. The `insertArrays` plain INSERT then has no conflicting rows.
+
+### Expected behaviour after correction
+
+- `payload.update({ id: 1|2|4, data: { layout }, draft: false })` returns without error.
+- Admin editor save → reload cycle works for all case-study pages.
+- Draft saves continue to pass (unaffected — they never hit the nested-array path for live tables).
+- All 57 R2 media assets remain untouched; `pages_blocks_case_study_media_group_images.media_id` foreign references are preserved.
+
+### Potential effect on existing documents, versions, and images
+
+- **Canonical pages id=1 and id=2**: Orphan cleanup may remove rows from `_chips`/`_facts`/`_images`/`_annotations` tables whose parents were already deleted by prior failed repair attempts. These rows are invisible to the Payload API and to the frontend. Removing them is safe and necessary.
+- **Staging page id=4**: Same as above; its orphaned nested rows are removed by the cleanup.
+- **`_pages_v_blocks_*` tables**: Not touched. All draft version history remains intact.
+- **`pages_blocks_*` parent tables (hero, brief, scope, etc.)**: Not modified; only the nested sub-rows are deleted (the orphaned ones).
+- **R2 media / Media collection**: Zero impact. No media rows are modified. `media_id` FKs on `pages_blocks_case_study_media_group_images` remain.
+- **Pages table**: Not modified directly by this migration.
+
+### Rollback strategy
+
+Before running the migration, snapshot the four nested tables:
+
+```sql
+CREATE TABLE _rollback_hero_chips       AS SELECT * FROM pages_blocks_case_study_hero_chips;
+CREATE TABLE _rollback_scope_facts      AS SELECT * FROM pages_blocks_case_study_scope_facts;
+CREATE TABLE _rollback_media_images     AS SELECT * FROM pages_blocks_case_study_media_group_images;
+CREATE TABLE _rollback_annotations      AS SELECT * FROM pages_blocks_case_study_media_group_images_annotations;
+```
+
+`down()` migration drops the FK constraints and restores from rollback tables:
+
+```sql
+ALTER TABLE pages_blocks_case_study_hero_chips               DROP CONSTRAINT IF EXISTS fk_hero_chips_parent;
+ALTER TABLE pages_blocks_case_study_scope_facts              DROP CONSTRAINT IF EXISTS fk_scope_facts_parent;
+ALTER TABLE pages_blocks_case_study_media_group_images       DROP CONSTRAINT IF EXISTS fk_media_images_parent;
+ALTER TABLE pages_blocks_case_study_media_group_images_annotations DROP CONSTRAINT IF EXISTS fk_annotations_parent;
+-- Restore orphan rows (may violate new constraints if re-added before DROP, so drop first):
+INSERT INTO pages_blocks_case_study_hero_chips      SELECT * FROM _rollback_hero_chips      ON CONFLICT DO NOTHING;
+INSERT INTO pages_blocks_case_study_scope_facts     SELECT * FROM _rollback_scope_facts     ON CONFLICT DO NOTHING;
+INSERT INTO pages_blocks_case_study_media_group_images SELECT * FROM _rollback_media_images ON CONFLICT DO NOTHING;
+INSERT INTO pages_blocks_case_study_media_group_images_annotations SELECT * FROM _rollback_annotations ON CONFLICT DO NOTHING;
+```
+
+Risk of rollback: restoring orphaned rows re-introduces the bug; a subsequent `payload.update()` would fail again until the FK constraints are re-applied. Rollback is available but not recommended.
+
+---
+
+## Phase 3 implementation (2026-10-30)
+
+> Phase 2 proposal complete. Proceeding to implementation per brief.
+
+### H11 — Migration `20261030_090000_fix_nested_block_cascade.ts`
+
+**Action**: Created `payload-app/src/migrations/20261030_090000_fix_nested_block_cascade.ts`
+
+**What it does**:
+1. Snapshots all 4 nested array tables to `_rollback_*` tables (pre-deletion safety net)
+2. Deletes orphaned rows deepest-first: annotations → images → facts → chips
+3. Adds `FOREIGN KEY (_parent_id) REFERENCES … ON DELETE CASCADE` on all 4 nested tables using idempotent `DO … EXCEPTION WHEN duplicate_object` blocks
+
+**`down()` strategy**: Drops FK constraints then restores orphan rows from `_rollback_*` snapshots (`ON CONFLICT DO NOTHING`).
+
+**Status**: Migration file written. Awaiting `pnpm payload migrate` on Neon preview branch to execute.
+
 ## Rules for all agents
 Read this file **before** attempting another CMS repair. Inspect the latest branch and Neon preview state, not just this historical snapshot. A green build is not a green CMS. Keep the user's original prose and SK interaction/design direction; never substitute unrelated templates. Existing R2 assets are the source of truth for media. Never overwrite actual user edits during a repair.
