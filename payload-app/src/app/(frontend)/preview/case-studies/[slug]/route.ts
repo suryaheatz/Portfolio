@@ -31,7 +31,37 @@ const sample: Record<string, CasePage> = {
 }
 function render(b: Content, idx: number) {
   const type = String(b.blockType ?? '')
-  if (type === 'caseStudyMediaGroup') { const items=Array.isArray(b.images)?b.images as Content[]:[]; return `<section class="media-section"><div class="small">Evidence / ${escape(b.sectionKey)}</div><h2>${escape(b.sectionHeading)}</h2><div class="media-grid ${b.layoutStyle==='grid'?'media-grid--tiles':''}">${items.map((im,i)=>{const url=asset(im.media)||String(im.sourceUrl||'');if(!url.startsWith('https://')&&!url.startsWith('/'))return '';return `<figure><a href="${escape(url)}" target="_blank" rel="noopener noreferrer"><img loading="lazy" src="${escape(url)}" alt="${escape(im.alt)}"></a><figcaption><strong>${i+1}.</strong> ${escape(im.caption||im.alt)}</figcaption></figure>`}).join('')}</div></section>` }
+  if (type === 'caseStudyMediaGroup') {
+    const items = Array.isArray(b.images) ? b.images as Content[] : []
+    const mode = String(b.presentation || (b.layoutStyle === 'grid' ? 'adaptive' : 'tooltip'))
+    const variant = String(b.gridVariant || 'two')
+    const appearance = String(b.appearance || 'inherit')
+    const alignment = String(b.slideAlignment || 'textLeft')
+    const show = (v: unknown, fallback = false) => typeof v === 'boolean' ? v : fallback
+    const name = (im: Content) => escape(im.title || im.imageName || '')
+    const entries = items.map((im, i) => {
+      const url = asset(im.media) || String(im.sourceUrl || '')
+      if (!url.startsWith('https://') && !url.startsWith('/')) return ''
+      const visible = (field: string, fallback = false) => show(im['show' + field], fallback)
+      const eyebrow = visible('Eyebrow') && im.eyebrow ? `<div class="asset-eyebrow">${escape(im.eyebrow)}</div>` : ''
+      const title = visible('Title') && im.title ? `<h3>${escape(im.title)}</h3>` : ''
+      const caption = visible('Caption', true) && im.caption ? `<p class="asset-caption">${escape(im.caption)}</p>` : ''
+      const description = visible('Description') && im.description ? `<p class="asset-description">${text(im.description)}</p>` : ''
+      const credit = visible('Credit') && im.credit ? `<small class="asset-credit">${escape(im.credit)}</small>` : ''
+      const number = show(b.showNumbers) ? `<span class="asset-number">${i + 1}.</span>` : ''
+      const copy = `${eyebrow}${title}${caption}${description}${credit}`
+      const annotations = Array.isArray(im.annotations) ? im.annotations as Content[] : []
+      const dots = mode === 'annotated' ? annotations.map(a => {
+        const x = Math.max(0, Math.min(100, Number(a.x) || 0))
+        const y = Math.max(0, Math.min(100, Number(a.y) || 0))
+        return `<span class="annotation-dot" style="left:${x}%;top:${y}%" title="${escape(a.heading || a.body)}">${escape(a.number)}</span>`
+      }).join('') : ''
+      const legend = mode === 'annotated' ? `<ol class="annotation-legend">${annotations.map(a => `<li><strong>${escape(a.number)}. ${escape(a.heading)}</strong> ${escape(a.body)}</li>`).join('')}</ol>` : ''
+      return `<figure class="media-entry"><div class="media-image"><a href="${escape(url)}" target="_blank" rel="noopener noreferrer"><img loading="lazy" src="${escape(url)}" alt="${escape(im.alt)}"></a>${dots}</div><figcaption>${number}${copy}${legend}</figcaption></figure>`
+    }).join('')
+    const heading = show(b.showSectionHeading, true) ? `<h2>${escape(b.sectionHeading)}</h2>` : ''
+    return `<section class="media-section media-mode-${escape(mode)} media-variant-${escape(variant)} media-theme-${escape(appearance)} media-align-${escape(alignment)}"><div class="small">Evidence / ${escape(b.sectionKey)}</div>${heading}<div class="media-grid">${entries}</div></section>`
+  }
   if (type === 'caseStudyHero') return `<section class="hero"><div class="kicker">${text(b.eyebrow)}</div><h1>${text(b.title)}</h1><p class="lede">${text(b.description)}</p><div class="tags">${Array.isArray(b.chips) ? b.chips.map(c=>`<span>${text((c as Content).label)}</span>`).join('') : ''}</div><p class="role">${text(b.role)}</p>${figure(b.heroImage,b.heroAlt,'')}</section>`
   if (type === 'caseStudyBrief') return `<section class="brief"><div class="small">${text(b.eyebrow || 'The brief')}</div><h2>${text(b.heading || 'The brief')}</h2><p>${text(b.body)}</p>${b.supportingText ? `<p>${text(b.supportingText)}</p>` : ''}</section>`
   if (type === 'caseStudyScope') return `<section class="scope"><div class="small">${text(b.eyebrow || 'Scope')}</div><h2>${text(b.heading)}</h2><div class="facts">${Array.isArray(b.facts) ? b.facts.map(f=>`<div><small>${text((f as Content).label)}</small><p>${text((f as Content).value)}</p></div>`).join('') : ''}</div>${figure(b.sketch,b.sketchAlt,'')}</section>`
@@ -61,7 +91,18 @@ h1,h2{font-family:Georgia,serif;font-weight:400;letter-spacing:-.035em;line-heig
 .scope{background:#1a1917;color:#f5f4f0}.scope h2{color:#f5f4f0}.facts{display:grid;grid-template-columns:repeat(2,1fr);gap:30px;margin-top:40px}.facts>div{border-top:1px solid #555;padding-top:18px}.facts small{font-size:11px;text-transform:uppercase;color:#aba9a4}.facts p{font-size:17px;max-width:470px}
 .editorial{padding-left:0;padding-right:0}.editorial p{max-width:720px;color:var(--ink2);font-size:18px}
 .figure{margin:40px 0 70px}.figure-frame{position:relative;background:var(--surface);overflow:hidden;border-radius:20px}.figure img.evidence{display:block;width:100%;height:auto;position:relative;object-fit:contain}.figure .backdrop{position:absolute;width:100%;height:100%;inset:0;object-fit:cover;filter:blur(12px);opacity:.4;pointer-events:none}.figure figcaption{font-size:12px;color:var(--ink2);padding:14px 0}
-.media-section{margin:70px 0}.media-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}.media-grid figure{margin:0}.media-grid img{width:100%;height:auto;max-height:580px;object-fit:contain;background:var(--surface);border-radius:14px}.media-grid figcaption{font-size:12px;color:var(--ink2);padding:10px 0 22px}.media-grid--tiles img{aspect-ratio:4/3;object-fit:cover}.media-section h2{font-size:clamp(28px,3vw,46px)}@media(max-width:640px){.media-grid{grid-template-columns:1fr}}footer{margin:90px auto 40px;border-top:1px solid var(--rule);padding-top:20px;font-size:12px;color:var(--ink2)}
+.media-section{margin:70px 0}.media-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}.media-grid figure{margin:0}.media-grid img{width:100%;height:auto;max-height:580px;object-fit:contain;background:var(--surface);border-radius:14px}.media-grid figcaption{font-size:12px;color:var(--ink2);padding:10px 0 22px}.media-grid--tiles img{aspect-ratio:4/3;object-fit:cover}.media-section h2{font-size:clamp(28px,3vw,46px)}@media(max-width:640px){.media-grid{grid-template-columns:1fr}}.media-theme-dark{background:#171717;color:#f8f7f4;padding:32px;border-radius:16px}.media-theme-light{background:#fff;padding:32px;border-radius:16px}
+.asset-eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:11px;opacity:.7}.media-entry h3{font-family:Georgia,serif;font-size:25px;font-weight:400;margin:8px 0}.asset-description{font-size:15px;line-height:1.6}.asset-credit{opacity:.7}
+.media-variant-three .media-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.media-variant-traditional .media-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.media-variant-asymmetric .media-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.media-variant-asymmetric .media-entry:first-child{grid-column:span 2;grid-row:span 2}
+.media-mode-slides .media-grid,.media-mode-evolution .media-grid,.media-mode-figures .media-grid,.media-mode-annotated .media-grid{display:block}
+.media-mode-slides .media-entry{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:center;margin:0 0 50px}.media-mode-slides .media-entry .media-image{grid-column:2;grid-row:1}.media-mode-slides .media-entry figcaption{grid-column:1;grid-row:1}
+.media-align-imageLeft .media-entry .media-image{grid-column:1}.media-align-imageLeft .media-entry figcaption{grid-column:2}
+.media-mode-evolution .media-entry,.media-mode-figures .media-entry,.media-mode-annotated .media-entry{margin:0 0 48px}
+.media-mode-tooltip .media-entry img{object-fit:contain}.media-mode-tooltip .media-entry:focus-within img,.media-mode-tooltip .media-entry:hover img{transform:scale(1.015)}.media-mode-tooltip .media-entry img{transition:transform .35s ease}
+.media-image{position:relative}.annotation-dot{position:absolute;transform:translate(-50%,-50%);background:#e8490f;color:#fff;border-radius:50%;width:28px;height:28px;text-align:center;line-height:28px;pointer-events:none}.annotation-legend{font-size:13px}
+@media(max-width:700px){.media-variant-three .media-grid,.media-variant-asymmetric .media-grid{grid-template-columns:1fr}.media-variant-asymmetric .media-entry:first-child{grid-column:auto;grid-row:auto}.media-mode-slides .media-entry{display:block}}
+footer{margin:90px auto 40px;border-top:1px solid var(--rule);padding-top:20px;font-size:12px;color:var(--ink2)}
 @media(max-width:640px){header{padding:18px 22px}.wrap{padding:0 20px}.hero{padding:65px 0;min-height:0}.brief,.scope,.editorial{padding:32px 24px;margin:20px 0 35px}.editorial{padding-left:0;padding-right:0}.facts{grid-template-columns:1fr}h1{font-size:48px}.notice{margin:16px 20px 0}}
 </style></head><body><header><strong>SK / Portfolio CMS review</strong><nav><a href="/preview/case-studies/centronic">Centronic</a><a href="/preview/case-studies/haptix">Haptix</a><a href="/admin/collections/pages">Edit in Payload</a></nav></header>${isSample ? '<aside class="notice">Source-based preview content. To make this page editable, create a Pages document with the matching slug and add the shared case-study blocks. This is not a production replacement.</aside>' : '<aside class="notice">CMS content is active. Changes saved in Payload are rendered on refresh. This review renderer does not replace the approved production page.</aside>'}<main class="wrap">${body}</main><footer class="wrap">Isolated integration branch · Review only · Production case studies unchanged</footer></body></html>`
   return new Response(html,{headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'}})

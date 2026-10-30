@@ -68,12 +68,32 @@ export const FullWidthFigure: Block = {
 export const CaseStudyMediaGroup: Block = { slug: 'caseStudyMediaGroup', labels: {singular:'Case study image group',plural:'Case study image groups'}, fields: [
  {name:'sectionHeading',type:'text',required:true},
  {name:'sectionKey',type:'text',admin:{description:'Source section or chapter identity'}},
- {name:'layoutStyle',type:'select',defaultValue:'evidence',options:[{label:'Evidence gallery',value:'evidence'},{label:'Grid',value:'grid'}]},
+ {name:'layoutStyle',type:'select',defaultValue:'evidence',admin:{description:'Legacy layout fallback. New presentation choice below overrides this.'},options:[{label:'Evidence gallery',value:'evidence'},{label:'Grid',value:'grid'}]},
+ {name:'presentation',type:'select',admin:{description:'Change visual layout without deleting captions or other image content.'},options:[
+ {label:'Evidence / tooltip gallery',value:'tooltip'},{label:'Adaptive grid',value:'adaptive'},{label:'Sequential slides',value:'slides'},{label:'Annotated image',value:'annotated'},{label:'Evolution sequence',value:'evolution'},{label:'Full-width figures',value:'figures'}]},
+ {name:'gridVariant',type:'select',defaultValue:'two',admin:{condition:(_data,siblingData)=>siblingData?.presentation==='adaptive'},options:[
+ {label:'Two-column',value:'two'},{label:'Three equal columns',value:'three'},{label:'Traditional grid',value:'traditional'},{label:'Three-column asymmetric',value:'asymmetric'}]},
+ {name:'appearance',type:'select',defaultValue:'inherit',options:[{label:'Inherit section',value:'inherit'},{label:'Light',value:'light'},{label:'Dark',value:'dark'}]},
+ {name:'slideAlignment',type:'select',defaultValue:'textLeft',admin:{condition:(_data,siblingData)=>siblingData?.presentation==='slides'},options:[{label:'Text left / image right',value:'textLeft'},{label:'Image left / text right',value:'imageLeft'}]},
+ {name:'showSectionHeading',type:'checkbox',defaultValue:true},
+ {name:'showNumbers',type:'checkbox',defaultValue:false},
  {name:'images',type:'array',minRows:1,fields:[
  {name:'sourcePath',type:'text',required:true,admin:{description:'Original GitHub repository image path'}},
  {name:'sourceUrl',type:'text',required:true,admin:{description:'Temporary GitHub-backed image URL; replace with Media upload after validation'}},
- {name:'alt',type:'textarea'},
+ {name:'alt',type:'textarea',admin:{description:'Accessibility text, maintained independently of display toggles'}},
+ {name:'imageName',type:'text',admin:{description:'Internal asset label, never displayed by default'}},
+ {name:'eyebrow',type:'text'},
+ {name:'title',type:'text'},
  {name:'caption',type:'text'},
+ {name:'description',type:'textarea'},
+ {name:'credit',type:'text'},
+ {name:'showEyebrow',type:'checkbox',defaultValue:false},
+ {name:'showTitle',type:'checkbox',defaultValue:false},
+ {name:'showCaption',type:'checkbox',defaultValue:true},
+ {name:'showDescription',type:'checkbox',defaultValue:false},
+ {name:'showCredit',type:'checkbox',defaultValue:false},
+ {name:'annotations',type:'array',admin:{description:'Hotspot legend retained when switching layouts'},fields:[
+ {name:'number',type:'number',required:true},{name:'x',type:'number',min:0,max:100,required:true},{name:'y',type:'number',min:0,max:100,required:true},{name:'heading',type:'text'},{name:'body',type:'textarea'}]},
  {name:'media',type:'upload',relationTo:'media'},
  ]}
 ] }
