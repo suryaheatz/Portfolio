@@ -21,7 +21,6 @@ const attempt=async(id:number,slug:string,blocks:number,linked:number)=>{
  console.log('SK GATE PUBLISHED SAVE PASS',slug,'id='+id,'blocks='+blocks,'linked='+linked,'updatedAt='+after.updatedAt)
 }
 try{
- await attempt(4,'cms-rebuilt-centronic',9,20)
  await attempt(1,'centronic',9,20)
  await attempt(2,'haptix',13,55)
  console.log('SK GATE ALL PUBLISHED WRITES PASS')

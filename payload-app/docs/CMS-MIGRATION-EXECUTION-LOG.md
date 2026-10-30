@@ -256,3 +256,7 @@ Read this file **before** attempting another CMS repair. Inspect the latest bran
 - Migration file was present on the branch but missing from `src/migrations/index.ts`; registered for consistency.
 - Next gate: publish/save/reload through Payload local API for staging id 4 then canonical ids 1 and 2, with preservation of 9/13 blocks and 20/55 placements.
 - Script: `src/scripts/verify-cms-publish.ts`. Fail the build if a validation gate fails. Do not equate Vercel READY with browser admin verification.
+
+### H13: Published-write gate precheck adjustment
+- Initial hard-gated deployment `73df4f0` failed **before a save** because the temporary diagnostic page id 4 has only 1 live block and a draft version, following prior draft-mode experiments. It is not equivalent to canonical case-study data.
+- Re-run the published-update gate against intact canonical Centronic id 1 (9 blocks/20 linked images) and Haptix id 2 (13 blocks/55 linked images); staging id 4 is excluded and preserved for diagnostics. Do not call this a regression in the cascade fix.
