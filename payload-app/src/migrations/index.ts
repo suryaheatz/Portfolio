@@ -15,6 +15,8 @@ import * as repairCasePages from './20261030_040000_repair_payload_page_document
 
 import * as layoutReadAudit from './20261030_060000_layout_read_audit';
 
+import * as nestedCascade from './20261030_090000_fix_nested_block_cascade';
+
 export const migrations = [
   { up: migration_20261028_125058.up, down: migration_20261028_125058.down, name: '20261028_125058' },
   { up: migration_20261029_000000_r2_media_objectkey.up, down: migration_20261029_000000_r2_media_objectkey.down, name: '20261029_000000_r2_media_objectkey' },  { up: migration_20261029_160000_case_study_blocks.up, down: migration_20261029_160000_case_study_blocks.down, name: '20261029_160000_case_study_blocks' },
@@ -24,4 +26,5 @@ export const migrations = [
   { up: mediaPresentation.up, down: mediaPresentation.down, name: '20261030_030000_media_presentation' },
   { up: repairCasePages.up, down: repairCasePages.down, name: '20261030_040000_repair_payload_page_documents' },
   { up: layoutReadAudit.up, down: layoutReadAudit.down, name: '20261030_060000_layout_read_audit' },
+  { up: nestedCascade.up, down: nestedCascade.down, name: '20261030_090000_fix_nested_block_cascade' },
 ];

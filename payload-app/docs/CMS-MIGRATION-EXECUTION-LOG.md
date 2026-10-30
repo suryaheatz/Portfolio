@@ -247,3 +247,12 @@ Run after `pnpm payload migrate` succeeds. All 13 gates must pass.
 
 ## Rules for all agents
 Read this file **before** attempting another CMS repair. Inspect the latest branch and Neon preview state, not just this historical snapshot. A green build is not a green CMS. Keep the user's original prose and SK interaction/design direction; never substitute unrelated templates. Existing R2 assets are the source of truth for media. Never overwrite actual user edits during a repair.
+
+
+### H12: Independent verification of Claude's cascade migration (2026-10-30)
+- Preview Neon migration history already includes `20261030_090000_fix_nested_block_cascade` batch 10. Do **not** run it a second time.
+- Verified all four foreign keys use `ON DELETE CASCADE`; rollback tables exist; all four orphan counts are zero.
+- 58 total Media records means 57 case-study assets plus one prior asset; G5 must count case-study assets rather than total media.
+- Migration file was present on the branch but missing from `src/migrations/index.ts`; registered for consistency.
+- Next gate: publish/save/reload through Payload local API for staging id 4 then canonical ids 1 and 2, with preservation of 9/13 blocks and 20/55 placements.
+- Script: `src/scripts/verify-cms-publish.ts`. Fail the build if a validation gate fails. Do not equate Vercel READY with browser admin verification.
