@@ -73,8 +73,8 @@ flowchart TD
 | New attempt | Hypothesis | Code/data change | Test and observation | Outcome | Commit/rollback |
 |---|---|---|---|---|---|
 | N01 | Determine whether Payload update fails on newly created page, with exact validation details | Controlled update staging id 4 | Duplicate id unique constraint on pages; fails even without layout edits | FAILED | 805aa8a |
-| N02 | Diagnose sequence and existing IDs vs update conflict | Read database rows and id sequence after failed update | Await logs | RUNNING | |
-| N03 | Not attempted | Not attempted | Not attempted | PENDING | |
+| N02 | Diagnose sequence and existing IDs vs update conflict | Read database rows and id sequence after failed update | Staging id 4 exists, sequence last_value 4; duplicate-id update remains | FAILED | a009c0b |
+| N03 | Test transaction option and separate Media collection update to isolate scope | Run two isolated updates using Payload API | Await logs | RUNNING | |
 | N04 | Not attempted | Not attempted | Not attempted | PENDING | |
 | N05 | Not attempted | Not attempted | Not attempted | PENDING | |
 
