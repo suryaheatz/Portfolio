@@ -222,7 +222,28 @@ Risk of rollback: restoring orphaned rows re-introduces the bug; a subsequent `p
 
 **`down()` strategy**: Drops FK constraints then restores orphan rows from `_rollback_*` snapshots (`ON CONFLICT DO NOTHING`).
 
-**Status**: Migration file written. Awaiting `pnpm payload migrate` on Neon preview branch to execute.
+**Commit**: `76a1021` on `integration/payload-cms`  
+**Status**: Pushed. Awaiting `pnpm payload migrate` on Neon preview branch to execute.
+
+### Phase 4 verification gates
+
+Run after `pnpm payload migrate` succeeds. All 13 gates must pass.
+
+| Gate | Test | Expected |
+|------|------|----------|
+| G1 | `pnpm payload migrate` exits 0 | ✅ no error |
+| G2 | `\SELECT conname FROM pg_constraint WHERE conname LIKE 'fk_%'\` returns 4 rows | ✅ all 4 FKs present |
+| G3 | Admin editor: open page id=1 (Centronic), edit any chip label, click Save | ✅ no ValidationError |
+| G4 | Reload page id=1 in admin — chip label persists with new value | ✅ data written correctly |
+| G5 | `SELECT COUNT(*) FROM media` returns 57 | ✅ R2 assets untouched |
+| G6 | `SELECT COUNT(*) FROM pages WHERE id IN (1,2)` returns 2 | ✅ canonical pages exist |
+| G7 | Admin editor: open page id=2 (Haptix), Save without edits | ✅ no error |
+| G8 | `SELECT title FROM pages WHERE id=1` returns canonical Centronic title | ✅ user-authored prose intact |
+| G9 | `SELECT COUNT(*) FROM _rollback_hero_chips` > 0 (rollback tables populated) | ✅ rollback available |
+| G10 | `SELECT COUNT(*) FROM pages_blocks_case_study_hero_chips WHERE _parent_id NOT IN (SELECT id FROM pages_blocks_case_study_hero)` returns 0 | ✅ no orphans remain |
+| G11 | Admin editor: draft save (Save Draft) on any page — returns without error | ✅ draft path unaffected |
+| G12 | Vercel build passes (if branch auto-deploys) | ✅ or N/A if no Vercel on this branch |
+| G13 | `pnpm payload migrate:down` on a fresh Neon branch → confirm constraints dropped | ✅ rollback functional |
 
 ## Rules for all agents
 Read this file **before** attempting another CMS repair. Inspect the latest branch and Neon preview state, not just this historical snapshot. A green build is not a green CMS. Keep the user's original prose and SK interaction/design direction; never substitute unrelated templates. Existing R2 assets are the source of truth for media. Never overwrite actual user edits during a repair.
