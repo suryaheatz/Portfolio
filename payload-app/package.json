@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
-    "build": "payload migrate && payload run src/scripts/verify-cms-publish.ts && next build",
+    "build": "payload migrate && next build",
+    "test:cms-publish": "payload run src/scripts/verify-cms-publish.ts",
     "start": "next start",
     "payload": "payload",
     "payload:migrate": "payload migrate",

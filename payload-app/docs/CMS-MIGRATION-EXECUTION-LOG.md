@@ -267,3 +267,12 @@ Read this file **before** attempting another CMS repair. Inspect the latest bran
 - Restored canonical Centronic's 9 live blocks and 20 linked image placements from version id1 and pre-migration snapshots via insert-only transaction. Verified Haptix 13/55 and Centronic 9/20 plus 57 R2 case-study media records afterward.
 - Next test passes full `data.layout` explicitly to Payload on staging id4 first (from Centronic), then canonical ids1/2 only after staging passes. Compare source paths in addition to counts; stop on any mismatch.
 - Do **not** claim ordinary partial-field updates are safe unless independently proven. Treat published writes without `layout` as unsafe until fixed.
+
+### H15: Published-save check PASSED (2026-10-30)
+- Claude's nested FK migration already applied (batch 10), all four ON DELETE CASCADE constraints present and orphan counts zero.
+- Attempt using only `data:{title}` after FK fix **succeeded as a DB operation but erased the live layout** from Centronic. Its entire 9-block/20-media live structure was successfully restored from prior version id1 and rollback snapshots via insert-only transaction. This is a critical warning: never do a published partial-field update without supplying `layout` until Payload update semantics are independently resolved.
+- Subsequently ran `payload-app/src/scripts/verify-cms-publish.ts`, with explicit full `data.layout`, staged on id4 first and then canonical ids1/2. All three published update + readback + list lookup checks **PASSED**.
+- Actual post-save DB validation: Centronic id1 9 blocks / 5 media groups / 20 image placements, Haptix id2 13 blocks / 9 groups / 55 placements; all placements Media-linked; 57 distinct R2 case-study assets retained.
+- Canonical timestamps now 2026-10-30 11:09:58 UTC and 11:10:07 UTC, respectively.
+- Removed automatic write test from `npm run build`; retained explicitly invoked `npm run test:cms-publish` command for controlled verification. Do not run casually; it republishes both pages.
+- **Still NOT verified**: authenticated browser admin list/editor showing 9/13 blocks; actual editor Save/Reload with a modified field; functionality of front-end SK Playground motion; desktop/mobile parity. Do not declare full CMS migration complete.
