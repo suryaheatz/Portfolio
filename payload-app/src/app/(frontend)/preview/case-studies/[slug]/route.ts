@@ -104,6 +104,20 @@ h1,h2{font-family:Georgia,serif;font-weight:400;letter-spacing:-.035em;line-heig
 @media(max-width:700px){.media-variant-three .media-grid,.media-variant-asymmetric .media-grid{grid-template-columns:1fr}.media-variant-asymmetric .media-entry:first-child{grid-column:auto;grid-row:auto}.media-mode-slides .media-entry{display:block}}
 footer{margin:90px auto 40px;border-top:1px solid var(--rule);padding-top:20px;font-size:12px;color:var(--ink2)}
 @media(max-width:640px){header{padding:18px 22px}.wrap{padding:0 20px}.hero{padding:65px 0;min-height:0}.brief,.scope,.editorial{padding:32px 24px;margin:20px 0 35px}.editorial{padding-left:0;padding-right:0}.facts{grid-template-columns:1fr}h1{font-size:48px}.notice{margin:16px 20px 0}}
-</style></head><body><header><strong>SK / Portfolio CMS review</strong><nav><a href="/preview/case-studies/centronic">Centronic</a><a href="/preview/case-studies/haptix">Haptix</a><a href="/admin/collections/pages">Edit in Payload</a></nav></header>${isSample ? '<aside class="notice">Source-based preview content. To make this page editable, create a Pages document with the matching slug and add the shared case-study blocks. This is not a production replacement.</aside>' : '<aside class="notice">CMS content is active. Changes saved in Payload are rendered on refresh. This review renderer does not replace the approved production page.</aside>'}<main class="wrap">${body}</main><footer class="wrap">Isolated integration branch · Review only · Production case studies unchanged</footer></body></html>`
+</style></head><body><header><strong>SK / Portfolio CMS review</strong><nav><a href="/preview/case-studies/centronic">Centronic</a><a href="/preview/case-studies/haptix">Haptix</a><a href="/admin/collections/pages">Edit in Payload</a></nav></header>${isSample ? '<aside class="notice">Source-based preview content. To make this page editable, create a Pages document with the matching slug and add the shared case-study blocks. This is not a production replacement.</aside>' : '<aside class="notice">CMS content is active. Changes saved in Payload are rendered on refresh. This review renderer does not replace the approved production page.</aside>'}<main class="wrap">${body}</main><footer class="wrap">Isolated integration branch · Review only · Production case studies unchanged</footer>
+<script>
+// Signal to Payload admin that the preview frame is ready.
+// Without this, the admin spinner loops indefinitely waiting for confirmation.
+(function(){
+  function ready(){ if(window.parent!==window){ window.parent.postMessage({type:'payload-live-preview-ready'},'*') } }
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded',ready) } else { ready() }
+  // When Payload sends a data update (user edits a field), reload to fetch
+  // the latest draft from the DB. Simple but reliable for save-to-refresh.
+  window.addEventListener('message',function(e){
+    if(e.data&&e.data.type==='payload-live-preview'){ window.location.reload() }
+  })
+})()
+</script>
+</body></html>`
   return new Response(html,{headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'}})
 }

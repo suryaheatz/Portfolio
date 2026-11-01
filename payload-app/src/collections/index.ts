@@ -15,10 +15,10 @@ export const Pages: CollectionConfig = {
     useAsTitle: 'title',
     livePreview: {
       url: ({ data }: { data?: { slug?: string } }) => {
-        const base = process.env.NEXT_PUBLIC_SERVER_URL ?? 'http://localhost:3000'
         const slug = data?.slug
         if (!slug) return ''
-        return `${base}/preview/case-studies/${slug}`
+        // Relative path — works on any deployment (Vercel, local, staging)
+        return `/preview/case-studies/${slug}`
       },
       breakpoints: [
         { label: 'Mobile',  name: 'mobile',  width: 375,  height: 812 },
