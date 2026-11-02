@@ -303,6 +303,29 @@ function render(b: Content): string {
       </div>`
   }
 
+  /* -- Slide layout -- */
+  if (type === 'slideLayout') {
+    const imgUrl = asset(b.image)
+    if (!imgUrl) return ''
+    const variant  = String(b.variant || 'light')
+    const varClass = variant === 'dark' ? 'sk-slide--dark' : 'sk-slide--light'
+    const eyebrow  = b.eyebrow ? `<p class="cs-label">${esc(String(b.eyebrow))}</p>` : ''
+    const body     = b.body ? `<div class="cs-body">${lexToHtml(b.body)}</div>` : ''
+    return `
+      <div class="section container">
+        <div class="sk-slide ${varClass}">
+          <div class="sk-slide-text">
+            ${eyebrow}
+            <h3 class="sk-slide-heading">${esc(String(b.heading || ''))}</h3>
+            ${body}
+          </div>
+          <div class="sk-slide-image">
+            <img src="${esc(imgUrl)}" alt="${esc(String(b.altText || ''))}" loading="lazy">
+          </div>
+        </div>
+      </div>`
+  }
+
   /* ── Media group ── */
   if (type === 'caseStudyMediaGroup') {
     const items = Array.isArray(b.images) ? (b.images as Content[]) : []
@@ -584,6 +607,19 @@ export async function GET(_req: Request, context: { params: Promise<{ slug: stri
     .pq-card--light .pq-attr { color: var(--ink-2); }
     .pq-card--dark  .pq-attr { color: rgba(245,244,240,.55); }
 
+    /* -- Slide layout (SK-SLIDE, sec 24) -- */
+    .sk-slide { display: grid; grid-template-columns: 2fr 3fr; min-height: 500px; border-radius: var(--r-lg); overflow: hidden; }
+    .sk-slide--light { background: var(--surface); }
+    .sk-slide--dark  { background: var(--ink-dark); }
+    .sk-slide-text { padding: var(--sp-16) var(--col-pad); display: flex; flex-direction: column; justify-content: center; gap: var(--sp-4); }
+    .sk-slide-heading { font-family: var(--font-display); font-size: clamp(24px,2.8vw,36px); font-weight: 400; line-height: 1.2; color: var(--ink); margin: 0; }
+    .sk-slide--dark .sk-slide-heading { color: var(--bg); }
+    .sk-slide--dark .cs-body { color: rgba(245,244,240,.65); }
+    .sk-slide--dark .cs-body strong { color: var(--bg); }
+    .sk-slide--dark .cs-label { background: rgba(245,244,240,.12); color: rgba(245,244,240,.6); }
+    .sk-slide-image { position: relative; overflow: hidden; }
+    .sk-slide-image img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+
     /* ── Responsive ── */
     @media(max-width:640px){
       .container{padding:0 var(--col-pad-m)}
@@ -599,6 +635,9 @@ export async function GET(_req: Request, context: { params: Promise<{ slug: stri
       .cs-bento--3a .cs-bento-cell:nth-child(3),.cs-bento--4 .cs-bento-cell:nth-child(1){grid-column:auto}
       .cs-bento--3b .cs-bento-cell:nth-child(1){grid-row:auto}
       .cs-bento-cell{height:200px}
+      .sk-slide{grid-template-columns:1fr}
+      .sk-slide-image{height:280px;position:relative}
+      .sk-slide-text{padding:var(--sp-12) var(--col-pad-m)}
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>

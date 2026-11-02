@@ -150,6 +150,27 @@ export const Pullquote: Block = {
   ],
 }
 
+export const SlideLayout: Block = {
+  slug: 'slideLayout',
+  labels: { singular: 'Slide layout', plural: 'Slide layouts' },
+  fields: [
+    { name: 'eyebrow',  type: 'text' },
+    { name: 'heading',  type: 'text', required: true },
+    { name: 'body',     type: 'richText' },
+    { name: 'image',    type: 'upload', relationTo: 'media', required: true },
+    { name: 'altText',  type: 'text',   required: true },
+    {
+      name: 'variant',
+      type: 'select',
+      defaultValue: 'light',
+      options: [
+        { label: 'Light', value: 'light' },
+        { label: 'Dark',  value: 'dark'  },
+      ],
+    },
+  ],
+}
+
 export const CaseStudyMediaGroup: Block = { slug: 'caseStudyMediaGroup', labels: {singular:'Case study image group',plural:'Case study image groups'}, fields: [
  {name:'sectionHeading',type:'text',required:true},
  {name:'sectionKey',type:'text',admin:{description:'Source section or chapter identity'}},
@@ -182,4 +203,4 @@ export const CaseStudyMediaGroup: Block = { slug: 'caseStudyMediaGroup', labels:
  {name:'media',type:'upload',relationTo:'media'},
  ]}
 ] }
-export const caseStudyBlocks: Block[] = [CaseStudyHero, CaseStudyBrief, CaseStudyScope, CaseStudyEditorial, FullWidthFigure, CaseBento, BeforeAfterSlider, AnnotatedMedia, Pullquote, CaseStudyMediaGroup]
+export const caseStudyBlocks: Block[] = [CaseStudyHero, CaseStudyBrief, CaseStudyScope, CaseStudyEditorial, FullWidthFigure, CaseBento, BeforeAfterSlider, AnnotatedMedia, Pullquote, SlideLayout, CaseStudyMediaGroup]
