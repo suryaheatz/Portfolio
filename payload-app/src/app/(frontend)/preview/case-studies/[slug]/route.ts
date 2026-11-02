@@ -226,6 +226,34 @@ function render(b: Content): string {
       </div>`
   }
 
+  /* -- Before / after slider -- */
+  if (type === 'beforeAfterSlider') {
+    const beforeUrl = asset(b.beforeImage)
+    const afterUrl  = asset(b.afterImage)
+    if (!beforeUrl || !afterUrl) return ''
+    const beforeLabel = esc(String(b.beforeLabel || 'Before'))
+    const afterLabel  = esc(String(b.afterLabel  || 'After'))
+    const cap = b.caption ? `<p class="ba-caption">${esc(String(b.caption))}</p>` : ''
+    return `
+      <div class="section container" style="margin-top:40px">
+        <div class="ba-slider" data-ba>
+          <img class="ba-after"  src="${esc(afterUrl)}"  alt="${afterLabel}"  draggable="false">
+          <img class="ba-before" src="${esc(beforeUrl)}" alt="${beforeLabel}" draggable="false">
+          <div class="ba-handle" aria-hidden="true">
+            <div class="ba-line"></div>
+            <div class="ba-circle">
+              <svg width="20" height="12" viewBox="0 0 20 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 6h18M1 6l4-4M1 6l4 4M19 6l-4-4M19 6l-4 4" stroke="var(--ink)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </div>
+          <span class="ba-label ba-label--before">${beforeLabel}</span>
+          <span class="ba-label ba-label--after">${afterLabel}</span>
+        </div>
+        ${cap}
+      </div>`
+  }
+
   /* ── Media group ── */
   if (type === 'caseStudyMediaGroup') {
     const items = Array.isArray(b.images) ? (b.images as Content[]) : []
@@ -469,6 +497,18 @@ export async function GET(_req: Request, context: { params: Promise<{ slug: stri
     #bento-stage .cs-bento-cell { width: auto; height: auto; max-width: 90vw; max-height: 90vh; border-radius: var(--r-bento); overflow: hidden; cursor: pointer; }
     #bento-stage .cs-bento-cell img { width: auto; height: auto; max-width: 88vw; max-height: 86vh; object-fit: contain; }
 
+    /* -- Before / after slider -- */
+    .ba-slider { position: relative; overflow: hidden; border-radius: var(--r-lg); background: var(--surface); width: 100%; height: 480px; user-select: none; touch-action: none; cursor: ew-resize; }
+    .ba-after, .ba-before { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; pointer-events: none; }
+    .ba-before { clip-path: inset(0 50% 0 0); }
+    .ba-handle { position: absolute; top: 0; bottom: 0; left: 50%; z-index: 10; cursor: ew-resize; }
+    .ba-line { position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; transform: translateX(-50%); background: rgba(255,255,255,.9); box-shadow: 0 0 8px rgba(0,0,0,.3); }
+    .ba-circle { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 44px; height: 44px; border-radius: 50%; background: #fff; box-shadow: 0 2px 12px rgba(0,0,0,.25); display: flex; align-items: center; justify-content: center; }
+    .ba-label { position: absolute; top: 16px; font-family: var(--font-sans); font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #fff; background: rgba(17,17,16,.45); backdrop-filter: blur(4px); border-radius: 20px; padding: 4px 10px; pointer-events: none; z-index: 5; }
+    .ba-label--before { left: 16px; }
+    .ba-label--after { right: 16px; }
+    .ba-caption { font-family: var(--font-sans); font-size: 12px; line-height: 1.5; color: var(--ink-3); margin-top: var(--sp-3); }
+
     /* ── Responsive ── */
     @media(max-width:640px){
       .container{padding:0 var(--col-pad-m)}
@@ -589,6 +629,31 @@ function doRefresh(){
     stage.classList.remove('active')
     Flip.from(state, { duration: 0.55, ease: 'power3.inOut', nested: true })
     expandedCell = null; origParent = null; origNextSib = null
+  })
+})()
+
+// -- Before/after slider drag --
+;(function baInit(){
+  document.querySelectorAll('[data-ba]').forEach(function(slider){
+    var before  = slider.querySelector('.ba-before')
+    var handle  = slider.querySelector('.ba-handle')
+    if(!before || !handle) return
+    var isDragging = false
+
+    function setPos(x) {
+      var r   = slider.getBoundingClientRect()
+      var pct = Math.max(2, Math.min(98, ((x - r.left) / r.width) * 100))
+      before.style.clipPath   = 'inset(0 ' + (100 - pct) + '% 0 0)'
+      handle.style.left = pct + '%'
+    }
+
+    slider.addEventListener('mousedown', function(e){ isDragging = true; setPos(e.clientX); e.preventDefault() })
+    window.addEventListener('mousemove', function(e){ if(isDragging) setPos(e.clientX) })
+    window.addEventListener('mouseup',   function(){  isDragging = false })
+
+    slider.addEventListener('touchstart', function(e){ isDragging = true; setPos(e.touches[0].clientX); e.preventDefault() }, { passive: false })
+    window.addEventListener('touchmove',  function(e){ if(isDragging) setPos(e.touches[0].clientX) })
+    window.addEventListener('touchend',   function(){  isDragging = false })
   })
 })()
 </script>

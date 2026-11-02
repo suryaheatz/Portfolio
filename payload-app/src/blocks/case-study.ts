@@ -96,6 +96,19 @@ export const CaseBento: Block = {
     },
   ],
 }
+
+export const BeforeAfterSlider: Block = {
+  slug: 'beforeAfterSlider',
+  labels: { singular: 'Before / after slider', plural: 'Before / after sliders' },
+  fields: [
+    { name: 'beforeImage', type: 'upload', relationTo: 'media', required: true },
+    { name: 'beforeLabel', type: 'text', defaultValue: 'Before' },
+    { name: 'afterImage',  type: 'upload', relationTo: 'media', required: true },
+    { name: 'afterLabel',  type: 'text', defaultValue: 'After' },
+    { name: 'caption',     type: 'text' },
+  ],
+}
+
 export const CaseStudyMediaGroup: Block = { slug: 'caseStudyMediaGroup', labels: {singular:'Case study image group',plural:'Case study image groups'}, fields: [
  {name:'sectionHeading',type:'text',required:true},
  {name:'sectionKey',type:'text',admin:{description:'Source section or chapter identity'}},
@@ -128,4 +141,4 @@ export const CaseStudyMediaGroup: Block = { slug: 'caseStudyMediaGroup', labels:
  {name:'media',type:'upload',relationTo:'media'},
  ]}
 ] }
-export const caseStudyBlocks: Block[] = [CaseStudyHero, CaseStudyBrief, CaseStudyScope, CaseStudyEditorial, FullWidthFigure, CaseBento, CaseStudyMediaGroup]
+export const caseStudyBlocks: Block[] = [CaseStudyHero, CaseStudyBrief, CaseStudyScope, CaseStudyEditorial, FullWidthFigure, CaseBento, BeforeAfterSlider, CaseStudyMediaGroup]
