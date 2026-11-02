@@ -120,9 +120,15 @@ function render(b: Content): string {
   /* ── Brief ── */
   if (type === 'caseStudyBrief') {
     const supp = b.supportingText ? lexToHtml(b.supportingText) : ''
+    const meta = (b.eyebrow || b.heading) ? `
+      <div class="brief-meta">
+        ${b.eyebrow ? `<p class="cs-label">${esc(String(b.eyebrow))}</p>` : ''}
+        ${b.heading ? `<h2 class="brief-heading">${esc(String(b.heading))}</h2>` : ''}
+      </div>` : ''
     return `
       <section class="st-card st-brief">
         <div class="brief-centre">
+          ${meta}
           ${lexToHtml(b.body)}
           ${supp}
         </div>
@@ -480,6 +486,9 @@ export async function GET(_req: Request, context: { params: Promise<{ slug: stri
     .brief-centre{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px var(--col-pad);text-align:center}
     .brief-centre p{font-family:var(--font-display);font-size:clamp(26px,3vw,42px);font-weight:300;line-height:1.35;letter-spacing:-.02em;color:var(--ink);max-width:960px}
     .brief-centre p+p{margin-top:1.2em;color:var(--ink-2)}
+    .brief-meta{display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:48px}
+    .brief-meta .cs-label{margin:0}
+    .brief-heading{font-family:var(--font-display);font-size:clamp(22px,2.5vw,30px);font-weight:400;color:var(--ink);margin:0;letter-spacing:-.015em;line-height:1.2}
 
     /* ── Scope card ── */
     .st-scope{background:var(--ink-dark);border-radius:var(--r-lg) var(--r-lg) 0 0}

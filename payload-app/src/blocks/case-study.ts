@@ -88,6 +88,20 @@ export const CaseBento: Block = {
       type: 'array',
       minRows: 2,
       maxRows: 4,
+      admin: {
+        description: '2-Up = 2 cells / 3A or 3B = 3 cells / 4-Up = 4 cells. Cell count must match the selected layout.',
+      },
+      validate: (value: unknown, { siblingData }: { siblingData: Record<string, unknown> }) => {
+        const counts: Record<string, number> = { 'bento-2': 2, 'bento-3a': 3, 'bento-3b': 3, 'bento-4': 4 }
+        const layout = siblingData?.layout as string
+        const required = counts[layout]
+        if (!required) return true
+        const count = Array.isArray(value) ? (value as unknown[]).length : 0
+        if (count !== required) {
+          return `"${layout}" requires exactly ${required} cell${required === 1 ? '' : 's'} - you have ${count}. Add or remove cells to match.`
+        }
+        return true
+      },
       fields: [
         { name: 'image',   type: 'upload', relationTo: 'media', required: true },
         { name: 'caption', type: 'text' },
