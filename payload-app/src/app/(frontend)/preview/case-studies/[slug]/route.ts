@@ -10,6 +10,44 @@ const esc = (value: unknown): string =>
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;')
 const text = (v: unknown) => esc(v).replace(/\n/g, '<br>')
 type Content = Record<string, unknown>
+
+/* ── Lexical rich text → HTML ── */
+type LexNode = Record<string, unknown>
+function walkLexNode(node: LexNode): string {
+  const t = String(node.type ?? '')
+  const kids = (node.children ?? []) as LexNode[]
+  if (t === 'text') {
+    const fmt = Number(node.format ?? 0)
+    let s = esc(node.text)
+    if (fmt & 16) s = `<code>${s}</code>`
+    if (fmt & 1)  s = `<strong>${s}</strong>`
+    if (fmt & 2)  s = `<em>${s}</em>`
+    if (fmt & 8)  s = `<u>${s}</u>`
+    if (fmt & 4)  s = `<s>${s}</s>`
+    return s
+  }
+  if (t === 'linebreak') return '<br>'
+  if (t === 'paragraph') { const inner = kids.map(walkLexNode).join(''); return inner ? `<p>${inner}</p>` : '' }
+  if (t === 'heading') { const tag = esc(String(node.tag ?? 'h3')); return `<${tag}>${kids.map(walkLexNode).join('')}</${tag}>` }
+  if (t === 'list') { const tag = node.listType === 'number' ? 'ol' : 'ul'; return `<${tag}>${kids.map(walkLexNode).join('')}</${tag}>` }
+  if (t === 'listitem') { return `<li>${kids.map(walkLexNode).join('')}</li>` }
+  if (t === 'link') {
+    const fields = (node.fields ?? {}) as LexNode
+    const href = esc(String(fields.url ?? node.url ?? '#'))
+    return `<a href="${href}" target="_blank" rel="noopener">${kids.map(walkLexNode).join('')}</a>`
+  }
+  if (kids.length) return kids.map(walkLexNode).join('')
+  return ''
+}
+/** Render a Payload richText (Lexical JSON) field to HTML.
+ *  Falls back to text() for legacy plain-string values during migration. */
+function lexToHtml(v: unknown): string {
+  if (typeof v === 'string') return v ? `<p>${text(v)}</p>` : ''
+  if (!v || typeof v !== 'object') return ''
+  const root = ((v as LexNode).root ?? {}) as LexNode
+  const children = (root.children ?? []) as LexNode[]
+  return children.map(walkLexNode).join('')
+}
 type CasePage = { title: string; layout?: Content[] }
 const asset = (v: unknown) =>
   v && typeof v === 'object' && 'url' in v && typeof (v as Record<string,unknown>).url === 'string'
@@ -74,18 +112,18 @@ function render(b: Content): string {
           ${chipTags}
         </div>
         <h1 class="hero-scroll-text">${text(b.title)}</h1>
-        <p class="hero-subtitle">${text(b.description)}</p>
+        <div class="hero-subtitle">${lexToHtml(b.description)}</div>
       </section>
       ${heroSection}`
   }
 
   /* ── Brief ── */
   if (type === 'caseStudyBrief') {
-    const supp = b.supportingText ? `<p>${text(b.supportingText)}</p>` : ''
+    const supp = b.supportingText ? lexToHtml(b.supportingText) : ''
     return `
       <section class="st-card st-brief">
         <div class="brief-centre">
-          <p>${text(b.body)}</p>
+          ${lexToHtml(b.body)}
           ${supp}
         </div>
       </section>`
@@ -127,7 +165,7 @@ function render(b: Content): string {
           </div>
           <div class="cs-context-main">
             <h3 class="cs-h3">${text(b.heading)}</h3>
-            ${b.body ? `<p class="cs-body">${text(b.body)}</p>` : ''}
+            ${b.body ? `<div class="cs-body">${lexToHtml(b.body)}</div>` : ''}
           </div>
         </div>
         ${fig}
@@ -287,6 +325,8 @@ export async function GET(_req: Request, context: { params: Promise<{ slug: stri
     .hero-scroll-meta{display:flex;align-items:center;justify-content:center;gap:var(--sp-5);margin-bottom:var(--sp-6);flex-wrap:wrap}
     .hero-scroll-text{font-family:var(--font-display);font-size:clamp(36px,5.5vw,76px);font-weight:400;line-height:1.1;letter-spacing:-.02em;max-width:min(1100px,92vw);margin:0 auto;color:var(--ink)}
     .hero-subtitle{font-family:var(--font-sans);font-size:16px;font-weight:400;line-height:1.6;color:var(--ink-2);max-width:min(640px,90vw);margin:20px auto 0;text-align:center}
+    .hero-subtitle p{margin:0;font:inherit;color:inherit}
+    .hero-subtitle p+p{margin-top:.75em}
 
     /* ── Hero image ── */
     /* Full-bleed override for iframe: stretch to viewport edges without overflow trick */
@@ -329,6 +369,12 @@ export async function GET(_req: Request, context: { params: Promise<{ slug: stri
     .cs-label{display:inline-block;font-family:var(--font-sans);font-size:12px;font-weight:400;color:var(--ink-2);background:rgba(17,17,16,0.06);border-radius:20px;padding:3px 10px}
     .cs-h3{font-family:var(--font-display);font-size:clamp(24px,2.8vw,34px);line-height:1.2;font-weight:400;color:var(--ink);margin:0}
     .cs-body{font-family:var(--font-sans);font-size:15px;line-height:1.65;color:var(--ink-2)}
+    .cs-body p{margin:0;font:inherit;color:inherit;line-height:inherit}
+    .cs-body p+p{margin-top:1em}
+    .cs-body strong{font-weight:600;color:var(--ink)}
+    .cs-body em{font-style:italic}
+    .cs-body ul,.cs-body ol{padding-left:1.4em;margin-top:.5em}
+    .cs-body li+li{margin-top:.25em}
 
     /* ── Research figures (media group) ── */
     .research-figures{display:flex;flex-direction:column;gap:var(--sp-10)}

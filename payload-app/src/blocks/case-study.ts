@@ -10,7 +10,7 @@ export const CaseStudyHero: Block = {
     { name: 'period', type: 'text' },
     { name: 'role', type: 'text' },
     { name: 'title', type: 'text', required: true },
-    { name: 'description', type: 'textarea' },
+    { name: 'description', type: 'richText' },
     { name: 'chips', type: 'array', fields: [{ name: 'label', type: 'text', required: true }] },
     { name: 'heroImage', type: 'upload', relationTo: 'media' },
     { name: 'heroAlt', type: 'text' },
@@ -22,8 +22,8 @@ export const CaseStudyBrief: Block = {
   fields: [
     { name: 'eyebrow', type: 'text' },
     { name: 'heading', type: 'text' },
-    { name: 'body', type: 'textarea', required: true },
-    { name: 'supportingText', type: 'textarea' },
+    { name: 'body', type: 'richText', required: true },
+    { name: 'supportingText', type: 'richText' },
   ],
 }
 export const CaseStudyScope: Block = {
@@ -46,7 +46,7 @@ export const CaseStudyEditorial: Block = {
   fields: [
     { name: 'eyebrow', type: 'text' },
     { name: 'heading', type: 'text', required: true },
-    { name: 'body', type: 'textarea' },
+    { name: 'body', type: 'richText' },
     { name: 'image', type: 'upload', relationTo: 'media' },
     { name: 'imageAlt', type: 'text' },
     { name: 'caption', type: 'text' },
