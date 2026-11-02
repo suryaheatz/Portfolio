@@ -206,7 +206,7 @@ export async function GET(_req: Request, context: { params: Promise<{ slug: stri
   if (!['centronic', 'haptix'].includes(slug)) return new Response('Not found', { status: 404 })
 
   const payload = await getPayload({ config })
-  const result  = await payload.find({ collection: 'pages', where: { slug: { equals: slug } }, depth: 1, limit: 1 })
+  const result  = await payload.find({ collection: 'pages', where: { slug: { equals: slug } }, depth: 1, limit: 1, draft: true, overrideAccess: true })
   const doc     = result.docs[0]
   const page: CasePage = doc ? { title: doc.title, layout: doc.layout as Content[] } : sample[slug]
   const isSample = !doc
