@@ -1,0 +1,15 @@
+<svg width="250" height="160" viewBox="0 0 250 160" xmlns="http://www.w3.org/2000/svg">
+  <rect width="250" height="160" fill="#f5f4f0"/>
+  <!-- left margin column -->
+  <rect x="12" y="24" width="50" height="6" rx="2" fill="#E8490F" opacity="0.6"/>
+  <!-- main content column -->
+  <rect x="74" y="24" width="110" height="10" rx="3" fill="#111110" opacity="0.75"/>
+  <rect x="74" y="42" width="164" height="6" rx="2" fill="#111110" opacity="0.22"/>
+  <rect x="74" y="54" width="164" height="6" rx="2" fill="#111110" opacity="0.22"/>
+  <rect x="74" y="66" width="120" height="6" rx="2" fill="#111110" opacity="0.22"/>
+  <!-- image -->
+  <rect x="74" y="84" width="164" height="64" rx="8" fill="#eeece7"/>
+  <rect x="110" y="104" width="90" height="8" rx="2" fill="#dddad0"/>
+  <rect x="126" y="118" width="58" height="6" rx="2" fill="#dddad0"/>
+  <text x="125" y="155" font-family="system-ui,sans-serif" font-size="9" fill="#545450" text-anchor="middle">Editorial Text</text>
+</svg>

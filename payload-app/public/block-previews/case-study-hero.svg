@@ -1,0 +1,20 @@
+<svg width="250" height="160" viewBox="0 0 250 160" xmlns="http://www.w3.org/2000/svg">
+  <rect width="250" height="160" fill="#f5f4f0"/>
+  <!-- hero image area -->
+  <rect x="0" y="60" width="250" height="100" fill="#1a1917"/>
+  <!-- eyebrow chip -->
+  <rect x="16" y="72" width="60" height="10" rx="5" fill="#E8490F" opacity="0.8"/>
+  <!-- big headline -->
+  <rect x="16" y="90" width="160" height="14" rx="3" fill="#fafaf8"/>
+  <rect x="16" y="110" width="110" height="14" rx="3" fill="#fafaf8"/>
+  <!-- meta row -->
+  <rect x="16" y="132" width="40" height="8" rx="2" fill="#fafaf8" opacity="0.5"/>
+  <rect x="62" y="132" width="40" height="8" rx="2" fill="#fafaf8" opacity="0.5"/>
+  <!-- nav bar hint -->
+  <rect x="0" y="0" width="250" height="52" fill="#fafaf8"/>
+  <circle cx="24" cy="26" r="10" fill="#E8490F" opacity="0.15"/>
+  <rect x="42" y="22" width="30" height="8" rx="2" fill="#111110" opacity="0.25"/>
+  <rect x="180" y="22" width="30" height="8" rx="2" fill="#111110" opacity="0.15"/>
+  <rect x="216" y="22" width="20" height="8" rx="2" fill="#111110" opacity="0.15"/>
+  <text x="125" y="150" font-family="system-ui,sans-serif" font-size="9" fill="#fafaf8" opacity="0.5" text-anchor="middle">Hero</text>
+</svg>

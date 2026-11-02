@@ -1,0 +1,12 @@
+<svg width="250" height="160" viewBox="0 0 250 160" xmlns="http://www.w3.org/2000/svg">
+  <rect width="250" height="160" fill="#f5f4f0"/>
+  <!-- full bleed image -->
+  <rect x="0" y="8" width="250" height="126" rx="0" fill="#eeece7"/>
+  <!-- image placeholder icon -->
+  <rect x="100" y="44" width="50" height="36" rx="6" fill="#dddad0"/>
+  <circle cx="115" cy="57" r="5" fill="#b5b2a8"/>
+  <path d="M103 78 L118 62 L128 72 L135 65 L147 78Z" fill="#b5b2a8"/>
+  <!-- caption -->
+  <rect x="16" y="142" width="120" height="7" rx="2" fill="#545450" opacity="0.4"/>
+  <text x="125" y="157" font-family="system-ui,sans-serif" font-size="9" fill="#545450" text-anchor="middle">Full-Width Figure</text>
+</svg>

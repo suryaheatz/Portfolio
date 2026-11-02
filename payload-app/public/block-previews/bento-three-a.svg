@@ -1,0 +1,14 @@
+<svg width="250" height="160" viewBox="0 0 250 160" xmlns="http://www.w3.org/2000/svg">
+  <rect width="250" height="160" fill="#f5f4f0"/>
+  <rect x="90" y="12" width="70" height="7" rx="2" fill="#111110" opacity="0.2"/>
+  <!-- top row: 2 equal cells -->
+  <rect x="12" y="28" width="107" height="56" rx="10" fill="#eeece7"/>
+  <rect x="131" y="28" width="107" height="56" rx="10" fill="#eeece7"/>
+  <!-- bottom: 1 wide cell -->
+  <rect x="12" y="92" width="226" height="54" rx="10" fill="#eeece7"/>
+  <!-- image placeholders -->
+  <rect x="38" y="42" width="54" height="28" rx="3" fill="#dddad0"/>
+  <rect x="157" y="42" width="54" height="28" rx="3" fill="#dddad0"/>
+  <rect x="98" y="106" width="54" height="28" rx="3" fill="#dddad0"/>
+  <text x="125" y="155" font-family="system-ui,sans-serif" font-size="9" fill="#545450" text-anchor="middle">Bento 3A</text>
+</svg>

@@ -1,0 +1,13 @@
+<svg width="250" height="160" viewBox="0 0 250 160" xmlns="http://www.w3.org/2000/svg">
+  <rect width="250" height="160" fill="#f5f4f0"/>
+  <!-- big quote mark -->
+  <text x="32" y="72" font-family="Georgia,serif" font-size="72" fill="#E8490F" opacity="0.18">"</text>
+  <!-- quote lines -->
+  <rect x="44" y="52" width="162" height="10" rx="3" fill="#111110" opacity="0.65"/>
+  <rect x="44" y="68" width="162" height="10" rx="3" fill="#111110" opacity="0.65"/>
+  <rect x="44" y="84" width="110" height="10" rx="3" fill="#111110" opacity="0.65"/>
+  <!-- attribution -->
+  <rect x="44" y="108" width="70" height="7" rx="2" fill="#545450" opacity="0.5"/>
+  <rect x="44" y="120" width="50" height="6" rx="2" fill="#545450" opacity="0.3"/>
+  <text x="125" y="152" font-family="system-ui,sans-serif" font-size="9" fill="#545450" text-anchor="middle">Pullquote</text>
+</svg>

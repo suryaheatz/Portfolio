@@ -1,8 +1,11 @@
 import type { Block } from 'payload'
 
 /** Shared editorial structures. Motion, pinning, and composition belong to the template renderer. */
+const PV = (name: string) => `/block-previews/${name}.svg`
+
 export const CaseStudyHero: Block = {
   slug: 'caseStudyHero',
+  imageURL: PV('case-study-hero'),
   labels: { singular: 'Case study hero', plural: 'Case study heroes' },
   fields: [
     { name: 'eyebrow', type: 'text' },
@@ -18,6 +21,7 @@ export const CaseStudyHero: Block = {
 }
 export const CaseStudyBrief: Block = {
   slug: 'caseStudyBrief',
+  imageURL: PV('case-study-brief'),
   labels: { singular: 'Brief / narrative', plural: 'Briefs / narratives' },
   fields: [
     { name: 'eyebrow', type: 'text' },
@@ -28,6 +32,7 @@ export const CaseStudyBrief: Block = {
 }
 export const CaseStudyScope: Block = {
   slug: 'caseStudyScope',
+  imageURL: PV('case-study-scope'),
   labels: { singular: 'Project scope', plural: 'Project scopes' },
   fields: [
     { name: 'eyebrow', type: 'text' },
@@ -42,6 +47,7 @@ export const CaseStudyScope: Block = {
 }
 export const CaseStudyEditorial: Block = {
   slug: 'caseStudyEditorial',
+  imageURL: PV('case-study-editorial'),
   labels: { singular: 'Editorial text', plural: 'Editorial sections' },
   fields: [
     { name: 'eyebrow', type: 'text' },
@@ -54,6 +60,7 @@ export const CaseStudyEditorial: Block = {
 }
 export const FullWidthFigure: Block = {
   slug: 'fullWidthFigure',
+  imageURL: PV('full-width-figure'),
   labels: { singular: 'Full-width figure', plural: 'Full-width figures' },
   fields: [
     { name: 'image', type: 'upload', relationTo: 'media', required: true },
@@ -67,7 +74,8 @@ export const FullWidthFigure: Block = {
 }
 export const CaseBento: Block = {
   slug: 'caseBento',
-  labels: { singular: 'Bento grid', plural: 'Bento grids' },
+  imageURL: PV('case-bento'),
+  labels: { singular: 'Bento grid (legacy)', plural: 'Bento grids (legacy)' },
   fields: [
     { name: 'eyebrow',  type: 'text' },
     { name: 'title',    type: 'text' },
@@ -113,6 +121,7 @@ export const CaseBento: Block = {
 
 export const BeforeAfterSlider: Block = {
   slug: 'beforeAfterSlider',
+  imageURL: PV('before-after-slider'),
   labels: { singular: 'Before / after slider', plural: 'Before / after sliders' },
   fields: [
     { name: 'beforeImage', type: 'upload', relationTo: 'media', required: true },
@@ -125,6 +134,7 @@ export const BeforeAfterSlider: Block = {
 
 export const AnnotatedMedia: Block = {
   slug: 'annotatedMedia',
+  imageURL: PV('annotated-media'),
   labels: { singular: 'Annotated media', plural: 'Annotated media' },
   fields: [
     { name: 'image',   type: 'upload', relationTo: 'media', required: true },
@@ -148,6 +158,7 @@ export const AnnotatedMedia: Block = {
 
 export const Pullquote: Block = {
   slug: 'pullquote',
+  imageURL: PV('pullquote'),
   labels: { singular: 'Pullquote', plural: 'Pullquotes' },
   fields: [
     { name: 'quote',       type: 'richText', required: true },
@@ -166,6 +177,7 @@ export const Pullquote: Block = {
 
 export const SlideLayout: Block = {
   slug: 'slideLayout',
+  imageURL: PV('slide-layout'),
   labels: { singular: 'Slide layout', plural: 'Slide layouts' },
   fields: [
     { name: 'eyebrow',  type: 'text' },
@@ -185,7 +197,71 @@ export const SlideLayout: Block = {
   ],
 }
 
-export const CaseStudyMediaGroup: Block = { slug: 'caseStudyMediaGroup', labels: {singular:'Case study image group',plural:'Case study image groups'}, fields: [
+// -- Typed bento grid blocks (cell count enforced by minRows === maxRows) ------
+
+const BENTO_CELLS_FIELDS = [
+  { name: 'image',   type: 'upload' as const, relationTo: 'media' as const, required: true },
+  { name: 'caption', type: 'text' as const },
+  { name: 'altText', type: 'text' as const, required: true },
+]
+
+export const BentoTwoUp: Block = {
+  slug: 'bentoTwoUp',
+  imageURL: PV('bento-two-up'),
+  labels: { singular: 'Bento 2-Up (equal)', plural: 'Bento 2-Up grids' },
+  fields: [
+    { name: 'eyebrow',  type: 'text' },
+    { name: 'title',    type: 'text' },
+    { name: 'subtitle', type: 'text' },
+    { name: 'cells', type: 'array', minRows: 2, maxRows: 2,
+      admin: { description: 'Exactly 2 cells - matches layout.' },
+      fields: BENTO_CELLS_FIELDS },
+  ],
+}
+
+export const BentoThreeA: Block = {
+  slug: 'bentoThreeA',
+  imageURL: PV('bento-three-a'),
+  labels: { singular: 'Bento 3A (two top, wide bottom)', plural: 'Bento 3A grids' },
+  fields: [
+    { name: 'eyebrow',  type: 'text' },
+    { name: 'title',    type: 'text' },
+    { name: 'subtitle', type: 'text' },
+    { name: 'cells', type: 'array', minRows: 3, maxRows: 3,
+      admin: { description: 'Exactly 3 cells - cell 1 and 2 top row, cell 3 spans full width below.' },
+      fields: BENTO_CELLS_FIELDS },
+  ],
+}
+
+export const BentoThreeB: Block = {
+  slug: 'bentoThreeB',
+  imageURL: PV('bento-three-b'),
+  labels: { singular: 'Bento 3B (tall left, two right)', plural: 'Bento 3B grids' },
+  fields: [
+    { name: 'eyebrow',  type: 'text' },
+    { name: 'title',    type: 'text' },
+    { name: 'subtitle', type: 'text' },
+    { name: 'cells', type: 'array', minRows: 3, maxRows: 3,
+      admin: { description: 'Exactly 3 cells - cell 1 spans full height left, cells 2 and 3 stack right.' },
+      fields: BENTO_CELLS_FIELDS },
+  ],
+}
+
+export const BentoFourUp: Block = {
+  slug: 'bentoFourUp',
+  imageURL: PV('bento-four-up'),
+  labels: { singular: 'Bento 4-Up (wide top, three bottom)', plural: 'Bento 4-Up grids' },
+  fields: [
+    { name: 'eyebrow',  type: 'text' },
+    { name: 'title',    type: 'text' },
+    { name: 'subtitle', type: 'text' },
+    { name: 'cells', type: 'array', minRows: 4, maxRows: 4,
+      admin: { description: 'Exactly 4 cells - cell 1 spans full width top, cells 2-4 equal columns below.' },
+      fields: BENTO_CELLS_FIELDS },
+  ],
+}
+
+export const CaseStudyMediaGroup: Block = { slug: 'caseStudyMediaGroup', imageURL: PV('case-study-media-group'), labels: {singular:'Case study image group',plural:'Case study image groups'}, fields: [
  {name:'sectionHeading',type:'text',required:true},
  {name:'sectionKey',type:'text',admin:{description:'Source section or chapter identity'}},
  {name:'layoutStyle',type:'select',defaultValue:'evidence',admin:{description:'Legacy layout fallback. New presentation choice below overrides this.'},options:[{label:'Evidence gallery',value:'evidence'},{label:'Grid',value:'grid'}]},
@@ -217,4 +293,10 @@ export const CaseStudyMediaGroup: Block = { slug: 'caseStudyMediaGroup', labels:
  {name:'media',type:'upload',relationTo:'media'},
  ]}
 ] }
-export const caseStudyBlocks: Block[] = [CaseStudyHero, CaseStudyBrief, CaseStudyScope, CaseStudyEditorial, FullWidthFigure, CaseBento, BeforeAfterSlider, AnnotatedMedia, Pullquote, SlideLayout, CaseStudyMediaGroup]
+export const caseStudyBlocks: Block[] = [
+  CaseStudyHero, CaseStudyBrief, CaseStudyScope, CaseStudyEditorial,
+  FullWidthFigure,
+  BentoTwoUp, BentoThreeA, BentoThreeB, BentoFourUp,
+  CaseBento,
+  BeforeAfterSlider, AnnotatedMedia, Pullquote, SlideLayout, CaseStudyMediaGroup,
+]

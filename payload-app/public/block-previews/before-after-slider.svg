@@ -1,0 +1,20 @@
+<svg width="250" height="160" viewBox="0 0 250 160" xmlns="http://www.w3.org/2000/svg">
+  <rect width="250" height="160" fill="#f5f4f0"/>
+  <!-- slider frame -->
+  <rect x="12" y="16" width="226" height="120" rx="10" fill="#eeece7"/>
+  <!-- before half -->
+  <rect x="12" y="16" width="113" height="120" rx="0" fill="#dddad0"/>
+  <rect x="12" y="16" width="113" height="120" rx="10" fill="#dddad0" clip-path="url(#leftClip)"/>
+  <clipPath id="leftClip">
+    <rect x="12" y="16" width="113" height="120"/>
+  </clipPath>
+  <!-- labels -->
+  <rect x="20" y="128" width="32" height="7" rx="2" fill="#111110" opacity="0.4"/>
+  <rect x="198" y="128" width="28" height="7" rx="2" fill="#111110" opacity="0.4"/>
+  <!-- divider line -->
+  <line x1="125" y1="16" x2="125" y2="136" stroke="#fff" stroke-width="2"/>
+  <!-- handle circle -->
+  <circle cx="125" cy="76" r="14" fill="#fff" stroke="#dddad0" stroke-width="1"/>
+  <path d="M119 76l4-4M119 76l4 4M131 76l-4-4M131 76l-4 4" stroke="#111110" stroke-width="1.5" stroke-linecap="round"/>
+  <text x="125" y="153" font-family="system-ui,sans-serif" font-size="9" fill="#545450" text-anchor="middle">Before / After Slider</text>
+</svg>

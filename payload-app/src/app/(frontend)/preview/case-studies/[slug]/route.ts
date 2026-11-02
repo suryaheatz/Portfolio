@@ -11,7 +11,7 @@ const esc = (value: unknown): string =>
 const text = (v: unknown) => esc(v).replace(/\n/g, '<br>')
 type Content = Record<string, unknown>
 
-/* ── Lexical rich text → HTML ── */
+/* -- Lexical rich text -> HTML -- */
 type LexNode = Record<string, unknown>
 function walkLexNode(node: LexNode): string {
   const t = String(node.type ?? '')
@@ -54,10 +54,10 @@ const asset = (v: unknown) =>
     ? (v as Record<string,unknown>).url as string
     : ''
 
-/* ── Sample fallback data ── */
+/* -- Sample fallback data -- */
 const sample: Record<string, CasePage> = {
   centronic: { title: 'Centronic', layout: [
-    { blockType: 'caseStudyHero', eyebrow: 'ZF Friedrichshafen AG · 2019', role: 'Sr. UX Designer',
+    { blockType: 'caseStudyHero', eyebrow: 'ZF Friedrichshafen AG  - 2019', role: 'Sr. UX Designer',
       title: 'Reimagining the HMI for SAE Level 4 autonomous cars',
       chips: [{ label: 'HMI' }, { label: 'Autonomous Vehicles' }],
       description: "ZF's engineering team had been building a physical control knob, the Centronic, later called MMA." },
@@ -65,13 +65,13 @@ const sample: Record<string, CasePage> = {
       body: 'At Level 4, the old automotive HMI constraints disappear. You can look at the screen, lean back, use both hands. The UI has to show the hardware capabilities.' },
     { blockType: 'caseStudyScope', heading: 'Project scope', facts: [
       { label: 'Where', value: 'ZF India Technology Centre, Hyderabad' },
-      { label: 'When',  value: '2019–2020 · 10 months' },
+      { label: 'When',  value: '2019-2020  - 10 months' },
       { label: 'My role', value: 'UX architecture, interaction model, hardware industrial design, research, feedback animations' },
     ]},
     { blockType: 'caseStudyEditorial', eyebrow: 'Research', heading: 'What people reach for, and what they ignore.' },
   ]},
   haptix: { title: 'Haptix', layout: [
-    { blockType: 'caseStudyHero', eyebrow: 'UX Design · Jan–Jul 2020', role: 'Senior UX Designer',
+    { blockType: 'caseStudyHero', eyebrow: 'UX Design  - Jan-Jul 2020', role: 'Senior UX Designer',
       title: 'Haptix thumbwheel demonstrator',
       chips: [{ label: 'HMI' }, { label: 'Interaction Design' }],
       description: 'I was the UI and UX designer on a demonstrator that ZF built to pitch a new thumbwheel technology for operating a car interface.' },
@@ -79,7 +79,7 @@ const sample: Record<string, CasePage> = {
       body: 'ZF pitched this demonstrator to promote a new thumbwheel technology for operating a vehicle interface. The customer was Mercedes-Benz (Daimler).' },
     { blockType: 'caseStudyScope', heading: 'Where, when and what', facts: [
       { label: 'Where',       value: 'ZF India Technology Centre, Hyderabad' },
-      { label: 'When',        value: 'January to July 2020 · about 7 months' },
+      { label: 'When',        value: 'January to July 2020  - about 7 months' },
       { label: 'My role',     value: 'Senior UX Designer, R&D UI and UX' },
       { label: 'Deliverables', value: 'Screens in Adobe XD, prototype in Figma, developer handoffs' },
     ]},
@@ -88,11 +88,11 @@ const sample: Record<string, CasePage> = {
   ]},
 }
 
-/* ── Block renderers — production class names ── */
+/* -- Block renderers -- production class names -- */
 function render(b: Content): string {
   const type = String(b.blockType ?? '')
 
-  /* ── Hero ── */
+  /* -- Hero -- */
   if (type === 'caseStudyHero') {
     const chipTags = Array.isArray(b.chips)
       ? b.chips.map(c =>
@@ -117,7 +117,7 @@ function render(b: Content): string {
       ${heroSection}`
   }
 
-  /* ── Brief ── */
+  /* -- Brief -- */
   if (type === 'caseStudyBrief') {
     const supp = b.supportingText ? lexToHtml(b.supportingText) : ''
     const meta = (b.eyebrow || b.heading) ? `
@@ -135,7 +135,7 @@ function render(b: Content): string {
       </section>`
   }
 
-  /* ── Scope ── */
+  /* -- Scope -- */
   if (type === 'caseStudyScope') {
     const facts = Array.isArray(b.facts)
       ? b.facts.map(f =>
@@ -157,7 +157,7 @@ function render(b: Content): string {
       </section>`
   }
 
-  /* ── Editorial ── */
+  /* -- Editorial -- */
   if (type === 'caseStudyEditorial') {
     const imgUrl = asset(b.image)
     const fig = imgUrl
@@ -178,7 +178,7 @@ function render(b: Content): string {
       </div>`
   }
 
-  /* ── Full-width figure ── */
+  /* -- Full-width figure -- */
   if (type === 'fullWidthFigure') {
     const src = asset(b.image)
     if (!src) return ''
@@ -191,7 +191,47 @@ function render(b: Content): string {
       </figure>`
   }
 
-  /* -- Bento grid -- */
+  /* -- Typed bento grids (enforced cell count) -- */
+  const TYPED_BENTO_CLASS: Record<string, string> = {
+    bentoTwoUp:   'cs-bento--2',
+    bentoThreeA:  'cs-bento--3a',
+    bentoThreeB:  'cs-bento--3b',
+    bentoFourUp:  'cs-bento--4',
+  }
+  if (type in TYPED_BENTO_CLASS) {
+    const cells = Array.isArray(b.cells) ? (b.cells as Content[]) : []
+    const layoutClass = TYPED_BENTO_CLASS[type]
+    const cellsHtml = cells.map((cell, i) => {
+      const imgUrl = asset(cell.image)
+      if (!imgUrl) return ''
+      const cap = cell.caption ? `<div class="cs-bento-caption">${esc(String(cell.caption))}</div>` : ''
+      return `<div class="cs-bento-cell" data-bento-index="${i}">
+        <img src="${esc(imgUrl)}" alt="${esc(String(cell.altText || ''))}" loading="lazy">
+        <div class="cs-bento-overlay"></div>
+        ${cap}
+        <button class="cs-bento-expand" aria-label="Expand image">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 11L11 1M7 1h4v4M5 11H1V7" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>`
+    }).join('\n')
+    const hdr = (b.eyebrow || b.title || b.subtitle) ? `
+      <div class="cs-bento-header">
+        ${b.eyebrow  ? `<p class="cs-label">${esc(String(b.eyebrow))}</p>` : ''}
+        ${b.title    ? `<h3 class="cs-bento-title">${esc(String(b.title))}</h3>` : ''}
+        ${b.subtitle ? `<p class="cs-bento-subtitle">${esc(String(b.subtitle))}</p>` : ''}
+      </div>` : ''
+    return `
+      <div class="section container" style="margin-top:40px">
+        ${hdr}
+        <div class="cs-bento ${layoutClass}" data-bento>
+          ${cellsHtml}
+        </div>
+      </div>`
+  }
+
+  /* -- Bento grid (legacy caseBento) -- */
   if (type === 'caseBento') {
     const cells = Array.isArray(b.cells) ? (b.cells as Content[]) : []
     const layout = String(b.layout || 'bento-2')
@@ -332,7 +372,7 @@ function render(b: Content): string {
       </div>`
   }
 
-  /* ── Media group ── */
+  /* -- Media group -- */
   if (type === 'caseStudyMediaGroup') {
     const items = Array.isArray(b.images) ? (b.images as Content[]) : []
     const mode = String(b.presentation || (b.layoutStyle === 'grid' ? 'adaptive' : 'tooltip'))
@@ -402,12 +442,12 @@ export async function GET(_req: Request, context: { params: Promise<{ slug: stri
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${esc(page.title)} · CMS Preview</title>
+  <title>${esc(page.title)}  - CMS Preview</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;400;500;600&family=Manrope:wght@300;400;500;600&display=swap">
   <style>
-    /* ── SK Design System tokens (inlined — no public/ in payload-app) ── */
+    /* -- SK Design System tokens (inlined -- no public/ in payload-app) -- */
     :root {
       --bg:             #f5f4f0;
       --ink:            #111110;
@@ -443,17 +483,17 @@ export async function GET(_req: Request, context: { params: Promise<{ slug: stri
       --bento-row: 200px;
       --ease-out: cubic-bezier(0.16,1,0.3,1);
     }
-    /* ── Reset + base ── */
+    /* -- Reset + base -- */
     *{box-sizing:border-box;margin:0;padding:0}
     html{overflow-x:hidden}
     body{background:var(--bg);color:var(--ink);font-family:var(--font-sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
     a{color:var(--sun);text-decoration:none}
     a:hover{text-decoration:underline}
 
-    /* ── Container ── */
+    /* -- Container -- */
     .container{max-width:var(--page-w);margin:0 auto;padding:0 var(--col-pad)}
 
-    /* ── Preview bar ── */
+    /* -- Preview bar -- */
     .preview-bar{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--rule);padding:18px max(24px,calc((100vw - 1100px)/2));gap:20px;background:var(--surface-chrome)}
     .preview-bar strong{font-size:13px;font-family:var(--font-sans)}
     .preview-nav{display:flex;align-items:center;gap:20px;font-size:12px;font-family:var(--font-sans)}
@@ -465,7 +505,7 @@ export async function GET(_req: Request, context: { params: Promise<{ slug: stri
     .preview-refresh.spinning svg{transform:rotate(360deg)}
     .preview-notice{max-width:var(--page-w);margin:20px auto;padding:12px 20px;background:#fff4df;border-left:3px solid var(--sun);font-size:12px;font-family:var(--font-sans);color:var(--ink-2)}
 
-    /* ── Hero meta ── */
+    /* -- Hero meta -- */
     .hero-tag{display:inline-block;font-size:12px;font-weight:400;color:var(--ink-2);background:rgba(17,17,16,0.06);border-radius:20px;padding:3px 10px}
     .hero-dot{width:3px;height:3px;border-radius:50%;background:var(--rule);flex-shrink:0}
     .hero-section{padding:var(--sp-20) 0 var(--sp-16);text-align:center;max-width:100%}
@@ -475,12 +515,12 @@ export async function GET(_req: Request, context: { params: Promise<{ slug: stri
     .hero-subtitle p{margin:0;font:inherit;color:inherit}
     .hero-subtitle p+p{margin-top:.75em}
 
-    /* ── Hero image ── */
+    /* -- Hero image -- */
     /* Full-bleed override for iframe: stretch to viewport edges without overflow trick */
     .hero-image-section{background:var(--ink-dark-2);width:100%;overflow:hidden;margin-left:0;margin-right:0}
     #hero-img{width:100%;display:block}
 
-    /* ── Brief card ── */
+    /* -- Brief card -- */
     .st-card{position:relative;width:100%;margin-left:0}
     .st-brief{background:var(--bg);border-radius:var(--r-lg) var(--r-lg) 0 0}
     .brief-centre{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px var(--col-pad);text-align:center}
@@ -490,7 +530,7 @@ export async function GET(_req: Request, context: { params: Promise<{ slug: stri
     .brief-meta .cs-label{margin:0}
     .brief-heading{font-family:var(--font-display);font-size:clamp(22px,2.5vw,30px);font-weight:400;color:var(--ink);margin:0;letter-spacing:-.015em;line-height:1.2}
 
-    /* ── Scope card ── */
+    /* -- Scope card -- */
     .st-scope{background:var(--ink-dark);border-radius:var(--r-lg) var(--r-lg) 0 0}
     .st-scope .scope-strip{border-top-color:var(--rule-dark);border-bottom-color:var(--rule-dark)}
     .st-scope .scope-item+.scope-item{border-left-color:var(--rule-dark)}
@@ -504,10 +544,10 @@ export async function GET(_req: Request, context: { params: Promise<{ slug: stri
     .scope-sketch{margin:0;padding:48px 0 0}
     .scope-sketch img{width:100%;display:block;border-radius:var(--r-md)}
 
-    /* ── Section ── */
+    /* -- Section -- */
     .section{padding:var(--section-gap) 0}
 
-    /* ── Editorial (context layout) ── */
+    /* -- Editorial (context layout) -- */
     .cs-context-layout{display:grid;grid-template-columns:140px 1fr;gap:var(--col-pad);align-items:start}
     .cs-context-margin{padding-top:4px;display:flex;flex-direction:column;gap:var(--sp-4)}
     .cs-context-main{display:flex;flex-direction:column;gap:var(--sp-6)}
@@ -515,7 +555,7 @@ export async function GET(_req: Request, context: { params: Promise<{ slug: stri
     .cs-context-figure img{display:block;width:100%;max-height:480px;object-fit:contain;object-position:center center}
     .cs-context-caption{padding:var(--sp-3) var(--sp-4) var(--sp-4);font-family:var(--font-sans);font-size:12px;line-height:1.5;color:var(--ink-3)}
 
-    /* ── CS typography ── */
+    /* -- CS typography -- */
     .cs-label{display:inline-block;font-family:var(--font-sans);font-size:12px;font-weight:400;color:var(--ink-2);background:rgba(17,17,16,0.06);border-radius:20px;padding:3px 10px}
     .cs-h3{font-family:var(--font-display);font-size:clamp(24px,2.8vw,34px);line-height:1.2;font-weight:400;color:var(--ink);margin:0}
     .cs-body{font-family:var(--font-sans);font-size:15px;line-height:1.65;color:var(--ink-2)}
@@ -526,7 +566,7 @@ export async function GET(_req: Request, context: { params: Promise<{ slug: stri
     .cs-body ul,.cs-body ol{padding-left:1.4em;margin-top:.5em}
     .cs-body li+li{margin-top:.25em}
 
-    /* ── Research figures (media group) ── */
+    /* -- Research figures (media group) -- */
     .research-figures{display:flex;flex-direction:column;gap:var(--sp-10)}
     .research-figure{background:var(--bg);border-radius:var(--r-lg);overflow:hidden;position:relative;box-shadow:0 0 0 1px var(--rule)}
     .research-figure-window{position:relative;width:100%;overflow:hidden;background:var(--bg);padding:24px 24px 0}
@@ -629,7 +669,7 @@ export async function GET(_req: Request, context: { params: Promise<{ slug: stri
     .sk-slide-image { position: relative; overflow: hidden; }
     .sk-slide-image img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
 
-    /* ── Responsive ── */
+    /* -- Responsive -- */
     @media(max-width:640px){
       .container{padding:0 var(--col-pad-m)}
       .hero-section{padding:var(--sp-12) 0 var(--sp-8)}
@@ -656,11 +696,11 @@ export async function GET(_req: Request, context: { params: Promise<{ slug: stri
 <div id="bento-stage"></div>
 
 <header class="preview-bar">
-  <strong>SK · CMS Preview</strong>
+  <strong>SK  - CMS Preview</strong>
   <nav class="preview-nav">
     <a href="/preview/case-studies/centronic">Centronic</a>
     <a href="/preview/case-studies/haptix">Haptix</a>
-    <a href="/admin/collections/pages">← Edit in Payload</a>
+    <a href="/admin/collections/pages"><- Edit in Payload</a>
     <button class="preview-refresh" id="refreshBtn" onclick="doRefresh()" title="Reload preview with latest saved draft">
       <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M11.5 6.5A5 5 0 1 1 6.5 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
@@ -673,7 +713,7 @@ export async function GET(_req: Request, context: { params: Promise<{ slug: stri
 
 <aside class="preview-notice container">
   ${isSample
-    ? 'Sample content — create a Pages document with slug <code>centronic</code> or <code>haptix</code> to see live CMS data here.'
+    ? 'Sample content -- create a Pages document with slug <code>centronic</code> or <code>haptix</code> to see live CMS data here.'
     : 'Live CMS data. Save Draft or Publish in Payload to see changes here. Animations are not shown in preview.'}
 </aside>
 
@@ -682,7 +722,7 @@ ${body}
 </div>
 
 <footer style="margin:80px auto 40px;border-top:1px solid var(--rule);padding-top:20px;font-size:12px;color:var(--ink-3);max-width:var(--page-w);padding-left:var(--col-pad)">
-  Integration branch · Review only · Production case studies unchanged
+  Integration branch  - Review only  - Production case studies unchanged
 </footer>
 
 <script>

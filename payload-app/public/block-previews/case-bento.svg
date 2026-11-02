@@ -1,0 +1,17 @@
+<svg width="250" height="160" viewBox="0 0 250 160" xmlns="http://www.w3.org/2000/svg">
+  <rect width="250" height="160" fill="#f5f4f0"/>
+  <!-- deprecated badge -->
+  <rect x="82" y="10" width="86" height="14" rx="7" fill="#dddad0"/>
+  <text x="125" y="20" font-family="system-ui,sans-serif" font-size="8" fill="#636360" text-anchor="middle">Legacy - use typed bento</text>
+  <!-- generic 2x2 bento hint -->
+  <rect x="12" y="32" width="107" height="56" rx="10" fill="#eeece7"/>
+  <rect x="131" y="32" width="107" height="56" rx="10" fill="#eeece7"/>
+  <rect x="12" y="96" width="107" height="52" rx="10" fill="#eeece7"/>
+  <rect x="131" y="96" width="107" height="52" rx="10" fill="#eeece7"/>
+  <!-- placeholder images -->
+  <rect x="30" y="46" width="70" height="28" rx="3" fill="#dddad0"/>
+  <rect x="149" y="46" width="70" height="28" rx="3" fill="#dddad0"/>
+  <rect x="30" y="108" width="70" height="28" rx="3" fill="#dddad0"/>
+  <rect x="149" y="108" width="70" height="28" rx="3" fill="#dddad0"/>
+  <text x="125" y="157" font-family="system-ui,sans-serif" font-size="9" fill="#545450" text-anchor="middle">Bento Grid (legacy)</text>
+</svg>

@@ -1,0 +1,16 @@
+<svg width="250" height="160" viewBox="0 0 250 160" xmlns="http://www.w3.org/2000/svg">
+  <rect width="250" height="160" fill="#f5f4f0"/>
+  <!-- eyebrow -->
+  <rect x="90" y="30" width="70" height="8" rx="3" fill="#E8490F" opacity="0.7"/>
+  <!-- heading -->
+  <rect x="60" y="46" width="130" height="12" rx="3" fill="#111110" opacity="0.8"/>
+  <!-- body lines centred -->
+  <rect x="32" y="68" width="186" height="7" rx="2" fill="#111110" opacity="0.25"/>
+  <rect x="32" y="81" width="186" height="7" rx="2" fill="#111110" opacity="0.25"/>
+  <rect x="32" y="94" width="140" height="7" rx="2" fill="#111110" opacity="0.25"/>
+  <!-- supporting text divider -->
+  <line x1="90" y1="112" x2="160" y2="112" stroke="#dddad0" stroke-width="1"/>
+  <rect x="56" y="122" width="138" height="6" rx="2" fill="#111110" opacity="0.15"/>
+  <rect x="70" y="133" width="110" height="6" rx="2" fill="#111110" opacity="0.15"/>
+  <text x="125" y="153" font-family="system-ui,sans-serif" font-size="9" fill="#545450" text-anchor="middle">Brief / Narrative</text>
+</svg>

@@ -1,0 +1,17 @@
+<svg width="250" height="160" viewBox="0 0 250 160" xmlns="http://www.w3.org/2000/svg">
+  <rect width="250" height="160" fill="#f5f4f0"/>
+  <!-- main image -->
+  <rect x="12" y="16" width="226" height="120" rx="10" fill="#eeece7"/>
+  <!-- hotspot dots -->
+  <circle cx="72" cy="58" r="10" fill="#E8490F" opacity="0.9"/>
+  <text x="72" y="62" font-family="system-ui,sans-serif" font-size="9" font-weight="600" fill="#fff" text-anchor="middle">1</text>
+  <circle cx="148" cy="74" r="10" fill="#E8490F" opacity="0.9"/>
+  <text x="148" y="78" font-family="system-ui,sans-serif" font-size="9" font-weight="600" fill="#fff" text-anchor="middle">2</text>
+  <circle cx="196" cy="100" r="10" fill="#E8490F" opacity="0.9"/>
+  <text x="196" y="104" font-family="system-ui,sans-serif" font-size="9" font-weight="600" fill="#fff" text-anchor="middle">3</text>
+  <!-- tooltip example -->
+  <rect x="80" y="38" width="70" height="28" rx="6" fill="#111110" opacity="0.9"/>
+  <rect x="86" y="44" width="38" height="5" rx="2" fill="#fff" opacity="0.8"/>
+  <rect x="86" y="53" width="50" height="5" rx="2" fill="#fff" opacity="0.4"/>
+  <text x="125" y="153" font-family="system-ui,sans-serif" font-size="9" fill="#545450" text-anchor="middle">Annotated Media</text>
+</svg>
