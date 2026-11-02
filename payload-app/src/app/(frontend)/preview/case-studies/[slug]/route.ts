@@ -221,8 +221,43 @@ export async function GET(_req: Request, context: { params: Promise<{ slug: stri
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;400;500;600&family=Manrope:wght@300;400;500;600&display=swap">
-  <link rel="stylesheet" href="/ds-tokens.css">
   <style>
+    /* ── SK Design System tokens (inlined — no public/ in payload-app) ── */
+    :root {
+      --bg:             #f5f4f0;
+      --ink:            #111110;
+      --ink-2:          #545450;
+      --ink-3:          #636360;
+      --rule:           #dddad0;
+      --surface:        #eeece7;
+      --surface-chrome: #fafaf8;
+      --sun:            #E8490F;
+      --sun-light:      rgba(232,73,15,0.12);
+      --sun-muted:      rgba(232,73,15,0.06);
+      --ink-dark:       #1a1917;
+      --ink-dark-2:     #1e1c1a;
+      --ink-void:       #0e0e0d;
+      --rule-dark:      #3a3a36;
+      --proto-bg:       #030B1B;
+      --page-w:         1080px;
+      --col-pad:        48px;
+      --col-pad-m:      24px;
+      --section-gap:    80px;
+      --section-gap-m:  48px;
+      --r-sm:  6px;  --r-md: 12px;  --r-lg: 20px;
+      --r-1:4px; --r-2:8px; --r-3:12px; --r-4:16px; --r-5:20px;
+      --r-6:24px; --r-7:32px; --r-8:40px; --r-9:48px;
+      --sp-1:4px;  --sp-2:8px;   --sp-3:12px; --sp-4:16px;
+      --sp-5:20px; --sp-6:24px;  --sp-8:32px; --sp-10:40px;
+      --sp-12:48px;--sp-16:64px; --sp-20:80px;--sp-24:96px;
+      --font-display: 'Bricolage Grotesque', system-ui, sans-serif;
+      --font-sans:    'Manrope', system-ui, sans-serif;
+      --font-quote:   Georgia, serif;
+      --bento-gap: 16px;
+      --r-bento: 24px;
+      --bento-row: 200px;
+      --ease-out: cubic-bezier(0.16,1,0.3,1);
+    }
     /* ── Reset + base ── */
     *{box-sizing:border-box;margin:0;padding:0}
     html{overflow-x:hidden}
@@ -261,7 +296,7 @@ export async function GET(_req: Request, context: { params: Promise<{ slug: stri
     /* ── Brief card ── */
     .st-card{position:relative;width:100%;margin-left:0}
     .st-brief{background:var(--bg);border-radius:var(--r-lg) var(--r-lg) 0 0}
-    .brief-centre{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:50vh;padding:80px var(--col-pad);text-align:center}
+    .brief-centre{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px var(--col-pad);text-align:center}
     .brief-centre p{font-family:var(--font-display);font-size:clamp(26px,3vw,42px);font-weight:300;line-height:1.35;letter-spacing:-.02em;color:var(--ink);max-width:960px}
     .brief-centre p+p{margin-top:1.2em;color:var(--ink-2)}
 
