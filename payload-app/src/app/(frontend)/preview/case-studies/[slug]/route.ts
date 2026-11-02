@@ -22,7 +22,7 @@ const sample: Record<string, CasePage> = {
     { blockType: 'caseStudyHero', eyebrow: 'ZF Friedrichshafen AG · 2019', role: 'Sr. UX Designer',
       title: 'Reimagining the HMI for SAE Level 4 autonomous cars',
       chips: [{ label: 'HMI' }, { label: 'Autonomous Vehicles' }],
-      description: 'ZF's engineering team had been building a physical control knob, the Centronic, later called MMA.' },
+      description: "ZF's engineering team had been building a physical control knob, the Centronic, later called MMA." },
     { blockType: 'caseStudyBrief', heading: 'The brief',
       body: 'At Level 4, the old automotive HMI constraints disappear. You can look at the screen, lean back, use both hands. The UI has to show the hardware capabilities.' },
     { blockType: 'caseStudyScope', heading: 'Project scope', facts: [
