@@ -287,6 +287,22 @@ function render(b: Content): string {
       </div>`
   }
 
+  /* -- Pullquote -- */
+  if (type === 'pullquote') {
+    const quoteHtml = lexToHtml(b.quote)
+    if (!quoteHtml) return ''
+    const variant  = String(b.variant || 'light')
+    const varClass = variant === 'dark' ? 'pq-card--dark' : 'pq-card--light'
+    const attr     = b.attribution ? `<p class="pq-attr">${esc(String(b.attribution))}</p>` : ''
+    return `
+      <div class="section container">
+        <div class="pq-card ${varClass}">
+          <div class="pq-quote">${quoteHtml}</div>
+          ${attr}
+        </div>
+      </div>`
+  }
+
   /* ── Media group ── */
   if (type === 'caseStudyMediaGroup') {
     const items = Array.isArray(b.images) ? (b.images as Content[]) : []
@@ -554,6 +570,19 @@ export async function GET(_req: Request, context: { params: Promise<{ slug: stri
     .am-panel-heading { font-family: var(--font-display); font-size: 15px; font-weight: 500; color: var(--ink); margin: 0 0 var(--sp-2); }
     .am-panel-body { font-family: var(--font-sans); font-size: 13px; line-height: 1.55; color: var(--ink-2); margin: 0; }
     .am-caption { display: block; font-family: var(--font-sans); font-size: 12px; line-height: 1.5; color: var(--ink-3); margin-top: var(--sp-3); }
+
+    /* -- Pullquote -- */
+    .pq-card { padding: var(--sp-12) var(--sp-16); border-radius: var(--r-lg); border-left: 3px solid var(--sun); }
+    .pq-card--light { background: var(--surface); }
+    .pq-card--dark  { background: var(--ink-dark); }
+    .pq-quote { font-family: var(--font-quote); font-size: clamp(22px,2.8vw,32px); font-style: italic; font-weight: 300; line-height: 1.45; letter-spacing: -.01em; }
+    .pq-card--light .pq-quote { color: var(--ink); }
+    .pq-card--dark  .pq-quote { color: var(--bg); }
+    .pq-quote p { margin: 0; font: inherit; color: inherit; line-height: inherit; }
+    .pq-quote p+p { margin-top: .6em; }
+    .pq-attr { font-family: var(--font-sans); font-size: 13px; font-weight: 500; margin: var(--sp-6) 0 0; }
+    .pq-card--light .pq-attr { color: var(--ink-2); }
+    .pq-card--dark  .pq-attr { color: rgba(245,244,240,.55); }
 
     /* ── Responsive ── */
     @media(max-width:640px){
