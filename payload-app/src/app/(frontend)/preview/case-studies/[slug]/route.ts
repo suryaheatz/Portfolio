@@ -285,7 +285,7 @@ export async function GET(_req: Request, context: { params: Promise<{ slug: stri
     .hero-dot{width:3px;height:3px;border-radius:50%;background:var(--rule);flex-shrink:0}
     .hero-section{padding:var(--sp-20) 0 var(--sp-16);text-align:center;max-width:100%}
     .hero-scroll-meta{display:flex;align-items:center;justify-content:center;gap:var(--sp-5);margin-bottom:var(--sp-6);flex-wrap:wrap}
-    .hero-scroll-text{font-family:var(--font-display);font-size:clamp(36px,5.5vw,76px);font-weight:300;line-height:1.1;letter-spacing:-.02em;max-width:min(1100px,92vw);margin:0 auto;color:var(--ink)}
+    .hero-scroll-text{font-family:var(--font-display);font-size:clamp(36px,5.5vw,76px);font-weight:400;line-height:1.1;letter-spacing:-.02em;max-width:min(1100px,92vw);margin:0 auto;color:var(--ink)}
     .hero-subtitle{font-family:var(--font-sans);font-size:16px;font-weight:400;line-height:1.6;color:var(--ink-2);max-width:min(640px,90vw);margin:20px auto 0;text-align:center}
 
     /* ── Hero image ── */
