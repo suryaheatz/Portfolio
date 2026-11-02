@@ -109,6 +109,29 @@ export const BeforeAfterSlider: Block = {
   ],
 }
 
+export const AnnotatedMedia: Block = {
+  slug: 'annotatedMedia',
+  labels: { singular: 'Annotated media', plural: 'Annotated media' },
+  fields: [
+    { name: 'image',   type: 'upload', relationTo: 'media', required: true },
+    { name: 'altText', type: 'text',   required: true },
+    { name: 'caption', type: 'text' },
+    {
+      name: 'hotspots',
+      type: 'array',
+      minRows: 1,
+      maxRows: 12,
+      fields: [
+        { name: 'x',       type: 'number', required: true, min: 0, max: 100, admin: { description: 'Horizontal position 0-100%' } },
+        { name: 'y',       type: 'number', required: true, min: 0, max: 100, admin: { description: 'Vertical position 0-100%' } },
+        { name: 'number',  type: 'number', admin: { description: 'Display number (auto-sequenced if blank)' } },
+        { name: 'heading', type: 'text', required: true },
+        { name: 'body',    type: 'textarea' },
+      ],
+    },
+  ],
+}
+
 export const CaseStudyMediaGroup: Block = { slug: 'caseStudyMediaGroup', labels: {singular:'Case study image group',plural:'Case study image groups'}, fields: [
  {name:'sectionHeading',type:'text',required:true},
  {name:'sectionKey',type:'text',admin:{description:'Source section or chapter identity'}},
@@ -141,4 +164,4 @@ export const CaseStudyMediaGroup: Block = { slug: 'caseStudyMediaGroup', labels:
  {name:'media',type:'upload',relationTo:'media'},
  ]}
 ] }
-export const caseStudyBlocks: Block[] = [CaseStudyHero, CaseStudyBrief, CaseStudyScope, CaseStudyEditorial, FullWidthFigure, CaseBento, BeforeAfterSlider, CaseStudyMediaGroup]
+export const caseStudyBlocks: Block[] = [CaseStudyHero, CaseStudyBrief, CaseStudyScope, CaseStudyEditorial, FullWidthFigure, CaseBento, BeforeAfterSlider, AnnotatedMedia, CaseStudyMediaGroup]

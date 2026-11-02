@@ -254,6 +254,39 @@ function render(b: Content): string {
       </div>`
   }
 
+  /* -- Annotated media -- */
+  if (type === 'annotatedMedia') {
+    const imgUrl    = asset(b.image)
+    if (!imgUrl) return ''
+    const hotspots  = Array.isArray(b.hotspots) ? (b.hotspots as Content[]) : []
+    const cap       = b.caption ? `<figcaption class="am-caption">${esc(String(b.caption))}</figcaption>` : ''
+
+    const dots = hotspots.map((hs, i) => {
+      const n = hs.number != null ? Number(hs.number) : i + 1
+      const x = Math.max(0, Math.min(100, Number(hs.x ?? 50)))
+      const y = Math.max(0, Math.min(100, Number(hs.y ?? 50)))
+      return `<button class="am-dot" style="left:${x}%;top:${y}%" aria-label="Hotspot ${n}">${n}</button>`
+    }).join('\n          ')
+
+    const panels = hotspots.map((hs) => {
+      const heading = hs.heading ? `<p class="am-panel-heading">${esc(String(hs.heading))}</p>` : ''
+      const body    = hs.body    ? `<p class="am-panel-body">${esc(String(hs.body))}</p>`       : ''
+      return `<div class="am-panel" role="tooltip">${heading}${body}</div>`
+    }).join('\n          ')
+
+    return `
+      <div class="section container" style="margin-top:40px">
+        <figure class="am-figure">
+          <div class="am-stage" data-am>
+            <img class="am-image" src="${esc(imgUrl)}" alt="${esc(String(b.altText || ''))}" loading="lazy">
+            ${dots}
+            ${panels}
+          </div>
+          ${cap}
+        </figure>
+      </div>`
+  }
+
   /* ── Media group ── */
   if (type === 'caseStudyMediaGroup') {
     const items = Array.isArray(b.images) ? (b.images as Content[]) : []
@@ -509,6 +542,19 @@ export async function GET(_req: Request, context: { params: Promise<{ slug: stri
     .ba-label--after { right: 16px; }
     .ba-caption { font-family: var(--font-sans); font-size: 12px; line-height: 1.5; color: var(--ink-3); margin-top: var(--sp-3); }
 
+    /* -- Annotated media -- */
+    @keyframes am-pulse { 0%{box-shadow:0 0 0 0 rgba(232,73,15,.5)} 60%{box-shadow:0 0 0 8px rgba(232,73,15,0)} 100%{box-shadow:0 0 0 0 rgba(232,73,15,0)} }
+    .am-figure { margin: 0; }
+    .am-stage { position: relative; overflow: hidden; border-radius: var(--r-lg); background: var(--surface); }
+    .am-image { display: block; width: 100%; object-fit: contain; object-position: center; }
+    .am-dot { position: absolute; transform: translate(-50%,-50%); width: 28px; height: 28px; border-radius: 50%; background: var(--sun); color: #fff; font-family: var(--font-sans); font-size: 12px; font-weight: 600; border: 2px solid rgba(255,255,255,.65); cursor: pointer; z-index: 5; display: flex; align-items: center; justify-content: center; animation: am-pulse 2.5s infinite; transition: transform var(--dur-fast) var(--ease-out); }
+    .am-dot.active { animation: none; transform: translate(-50%,-50%) scale(1.2); }
+    .am-panel { position: absolute; display: none; z-index: 20; background: var(--surface-chrome); border: 1px solid var(--rule); border-radius: var(--r-md); padding: var(--sp-4); min-width: 200px; max-width: 260px; box-shadow: 0 4px 24px rgba(0,0,0,.12); }
+    .am-panel.active { display: block; }
+    .am-panel-heading { font-family: var(--font-display); font-size: 15px; font-weight: 500; color: var(--ink); margin: 0 0 var(--sp-2); }
+    .am-panel-body { font-family: var(--font-sans); font-size: 13px; line-height: 1.55; color: var(--ink-2); margin: 0; }
+    .am-caption { display: block; font-family: var(--font-sans); font-size: 12px; line-height: 1.5; color: var(--ink-3); margin-top: var(--sp-3); }
+
     /* ── Responsive ── */
     @media(max-width:640px){
       .container{padding:0 var(--col-pad-m)}
@@ -654,6 +700,52 @@ function doRefresh(){
     slider.addEventListener('touchstart', function(e){ isDragging = true; setPos(e.touches[0].clientX); e.preventDefault() }, { passive: false })
     window.addEventListener('touchmove',  function(e){ if(isDragging) setPos(e.touches[0].clientX) })
     window.addEventListener('touchend',   function(){  isDragging = false })
+  })
+})()
+
+// -- Annotated media hotspots --
+;(function amInit(){
+  function positionPanel(stage, dot, panel) {
+    var sw  = stage.offsetWidth
+    var sh  = stage.offsetHeight
+    var dx  = parseFloat(dot.style.left)  / 100 * sw
+    var dy  = parseFloat(dot.style.top)   / 100 * sh
+    var pw  = 260
+    var ph  = panel.offsetHeight || 80
+
+    var left = dx + 20
+    var top  = dy - 20
+    if (left + pw > sw - 8) left = dx - pw - 20
+    if (top + ph > sh - 8)  top  = sh - ph - 8
+    if (top < 8)            top  = 8
+    if (left < 8)           left = 8
+
+    panel.style.left = left + 'px'
+    panel.style.top  = top  + 'px'
+  }
+
+  document.querySelectorAll('[data-am]').forEach(function(stage){
+    var dots   = Array.from(stage.querySelectorAll('.am-dot'))
+    var panels = Array.from(stage.querySelectorAll('.am-panel'))
+
+    dots.forEach(function(dot, i){
+      dot.addEventListener('click', function(e){
+        e.stopPropagation()
+        var isOpen = dot.classList.contains('active')
+        dots.forEach(function(d){ d.classList.remove('active') })
+        panels.forEach(function(p){ p.classList.remove('active') })
+        if (!isOpen && panels[i]) {
+          dot.classList.add('active')
+          panels[i].classList.add('active')
+          positionPanel(stage, dot, panels[i])
+        }
+      })
+    })
+
+    stage.addEventListener('click', function(){
+      dots.forEach(function(d){ d.classList.remove('active') })
+      panels.forEach(function(p){ p.classList.remove('active') })
+    })
   })
 })()
 </script>
