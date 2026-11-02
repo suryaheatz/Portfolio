@@ -63,10 +63,10 @@ function render(b: Content): string {
       : ''
     const heroUrl = asset(b.heroImage)
     const heroSection = heroUrl
-      ? `<div class="hero-image-section" style="margin-top:32px"><img id="hero-img" src="${esc(heroUrl)}" alt="${esc(b.heroAlt)}"></div>`
+      ? `<div class="hero-image-section"><img id="hero-img" src="${esc(heroUrl)}" alt="${esc(b.heroAlt)}"></div>`
       : ''
     return `
-      <section class="hero-section">
+      <section class="hero-section container">
         <div class="hero-scroll-meta">
           <span class="hero-tag">${text(b.eyebrow)}</span>
           <span class="hero-dot"></span>
@@ -248,19 +248,20 @@ export async function GET(_req: Request, context: { params: Promise<{ slug: stri
     /* ── Hero meta ── */
     .hero-tag{display:inline-block;font-size:12px;font-weight:400;color:var(--ink-2);background:rgba(17,17,16,0.06);border-radius:20px;padding:3px 10px}
     .hero-dot{width:3px;height:3px;border-radius:50%;background:var(--rule);flex-shrink:0}
-    .hero-section{padding:var(--sp-20) 0 var(--sp-16);text-align:center}
+    .hero-section{padding:var(--sp-20) 0 var(--sp-16);text-align:center;max-width:100%}
     .hero-scroll-meta{display:flex;align-items:center;justify-content:center;gap:var(--sp-5);margin-bottom:var(--sp-6);flex-wrap:wrap}
     .hero-scroll-text{font-family:var(--font-display);font-size:clamp(36px,5.5vw,76px);font-weight:300;line-height:1.1;letter-spacing:-.02em;max-width:min(1100px,92vw);margin:0 auto;color:var(--ink)}
     .hero-subtitle{font-family:var(--font-sans);font-size:16px;font-weight:400;line-height:1.6;color:var(--ink-2);max-width:min(640px,90vw);margin:20px auto 0;text-align:center}
 
     /* ── Hero image ── */
-    .hero-image-section{background:var(--ink-dark-2);width:100vw;position:relative;left:50%;margin-left:-50vw;margin-right:-50vw;overflow:hidden}
+    /* Full-bleed override for iframe: stretch to viewport edges without overflow trick */
+    .hero-image-section{background:var(--ink-dark-2);width:100%;overflow:hidden;margin-left:0;margin-right:0}
     #hero-img{width:100%;display:block}
 
     /* ── Brief card ── */
-    .st-card{position:relative;width:100vw;left:50%;margin-left:-50vw}
+    .st-card{position:relative;width:100%;margin-left:0}
     .st-brief{background:var(--bg);border-radius:var(--r-lg) var(--r-lg) 0 0}
-    .brief-centre{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;padding:80px var(--col-pad);text-align:center}
+    .brief-centre{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:50vh;padding:80px var(--col-pad);text-align:center}
     .brief-centre p{font-family:var(--font-display);font-size:clamp(26px,3vw,42px);font-weight:300;line-height:1.35;letter-spacing:-.02em;color:var(--ink);max-width:960px}
     .brief-centre p+p{margin-top:1.2em;color:var(--ink-2)}
 
@@ -346,7 +347,7 @@ export async function GET(_req: Request, context: { params: Promise<{ slug: stri
     : 'Live CMS data. Save Draft or Publish in Payload to see changes here. Animations are not shown in preview.'}
 </aside>
 
-<div class="container">
+<div id="page-content">
 ${body}
 </div>
 
