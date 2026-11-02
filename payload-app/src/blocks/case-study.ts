@@ -1,7 +1,11 @@
-import type { Block } from 'payload'
+import type { Block, FieldHook } from 'payload'
+import { coerceLexical } from '../lib/coerce-lexical'
 
 /** Shared editorial structures. Motion, pinning, and composition belong to the template renderer. */
 const PV = (name: string) => `/block-previews/${name}.svg`
+
+/** Hook bag applied to every richText body/description field to coerce legacy plain-text values. */
+const RT = { hooks: { afterRead: [coerceLexical] as FieldHook[] } }
 
 export const CaseStudyHero: Block = {
   slug: 'caseStudyHero',
@@ -13,7 +17,7 @@ export const CaseStudyHero: Block = {
     { name: 'period', type: 'text' },
     { name: 'role', type: 'text' },
     { name: 'title', type: 'text', required: true },
-    { name: 'description', type: 'richText' },
+    { name: 'description', type: 'richText', ...RT },
     { name: 'chips', type: 'array', fields: [{ name: 'label', type: 'text', required: true }] },
     { name: 'heroImage', type: 'upload', relationTo: 'media' },
     { name: 'heroAlt', type: 'text' },
@@ -26,8 +30,8 @@ export const CaseStudyBrief: Block = {
   fields: [
     { name: 'eyebrow', type: 'text' },
     { name: 'heading', type: 'text' },
-    { name: 'body', type: 'richText', required: true },
-    { name: 'supportingText', type: 'richText' },
+    { name: 'body', type: 'richText', required: true, ...RT },
+    { name: 'supportingText', type: 'richText', ...RT },
   ],
 }
 export const CaseStudyScope: Block = {
@@ -52,7 +56,7 @@ export const CaseStudyEditorial: Block = {
   fields: [
     { name: 'eyebrow', type: 'text' },
     { name: 'heading', type: 'text', required: true },
-    { name: 'body', type: 'richText' },
+    { name: 'body', type: 'richText', ...RT },
     { name: 'image', type: 'upload', relationTo: 'media' },
     { name: 'imageAlt', type: 'text' },
     { name: 'caption', type: 'text' },
@@ -182,7 +186,7 @@ export const SlideLayout: Block = {
   fields: [
     { name: 'eyebrow',  type: 'text' },
     { name: 'heading',  type: 'text', required: true },
-    { name: 'body',     type: 'richText' },
+    { name: 'body',     type: 'richText', ...RT },
     { name: 'image',    type: 'upload', relationTo: 'media', required: true },
     { name: 'altText',  type: 'text',   required: true },
     {
