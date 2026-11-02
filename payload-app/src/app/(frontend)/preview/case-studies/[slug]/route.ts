@@ -185,6 +185,47 @@ function render(b: Content): string {
       </figure>`
   }
 
+  /* -- Bento grid -- */
+  if (type === 'caseBento') {
+    const cells = Array.isArray(b.cells) ? (b.cells as Content[]) : []
+    const layout = String(b.layout || 'bento-2')
+    const layoutClassMap: Record<string, string> = {
+      'bento-2':  'cs-bento--2',
+      'bento-3a': 'cs-bento--3a',
+      'bento-3b': 'cs-bento--3b',
+      'bento-4':  'cs-bento--4',
+    }
+    const layoutClass = layoutClassMap[layout] ?? 'cs-bento--2'
+    const cellsHtml = cells.map((cell, i) => {
+      const imgUrl = asset(cell.image)
+      if (!imgUrl) return ''
+      const cap = cell.caption ? `<div class="cs-bento-caption">${esc(cell.caption)}</div>` : ''
+      return `<div class="cs-bento-cell" data-bento-index="${i}">
+        <img src="${esc(imgUrl)}" alt="${esc(cell.altText)}" loading="lazy">
+        <div class="cs-bento-overlay"></div>
+        ${cap}
+        <button class="cs-bento-expand" aria-label="Expand image">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 11L11 1M7 1h4v4M5 11H1V7" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>`
+    }).join('\n')
+    const hdr = (b.eyebrow || b.title || b.subtitle) ? `
+      <div class="cs-bento-header">
+        ${b.eyebrow  ? `<p class="cs-label">${esc(b.eyebrow)}</p>` : ''}
+        ${b.title    ? `<h3 class="cs-bento-title">${esc(b.title)}</h3>` : ''}
+        ${b.subtitle ? `<p class="cs-bento-subtitle">${esc(b.subtitle)}</p>` : ''}
+      </div>` : ''
+    return `
+      <div class="section container" style="margin-top:40px">
+        ${hdr}
+        <div class="cs-bento ${layoutClass}" data-bento>
+          ${cellsHtml}
+        </div>
+      </div>`
+  }
+
   /* ── Media group ── */
   if (type === 'caseStudyMediaGroup') {
     const items = Array.isArray(b.images) ? (b.images as Content[]) : []
@@ -390,6 +431,44 @@ export async function GET(_req: Request, context: { params: Promise<{ slug: stri
     .research-figure-caption-text h3{font-family:var(--font-display);font-size:18px;font-weight:400;margin:6px 0 4px;color:var(--ink)}
     .annotation-dot{position:absolute;transform:translate(-50%,-50%);background:var(--sun);color:#fff;border-radius:50%;width:28px;height:28px;text-align:center;line-height:28px;pointer-events:none;font-size:12px;font-weight:600}
 
+    /* -- Bento grid -- */
+    .cs-bento { display: grid; gap: var(--bento-gap); width: 100%; }
+    .cs-bento-cell { position: relative; border-radius: var(--r-bento); overflow: hidden; background: var(--surface); cursor: pointer; }
+    .cs-bento-cell img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center center; }
+
+    /* Layouts: 240px rows (design-correct for UI screenshots - production uses 200px token) */
+    .cs-bento--2  { grid-template-columns: 1fr 1fr; grid-template-rows: 240px; }
+    .cs-bento--3a { grid-template-columns: 1fr 1fr; grid-template-rows: 240px 240px; }
+    .cs-bento--3a .cs-bento-cell:nth-child(3) { grid-column: 1 / -1; }
+    .cs-bento--3b { grid-template-columns: 3fr 2fr; grid-template-rows: 240px 240px; }
+    .cs-bento--3b .cs-bento-cell:nth-child(1) { grid-row: 1 / 3; }
+    .cs-bento--4  { grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 240px 240px; }
+    .cs-bento--4  .cs-bento-cell:nth-child(1) { grid-column: 1 / -1; }
+
+    /* Overlay */
+    .cs-bento-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(17,17,16,.55) 0%, transparent 48%); opacity: 0; transition: opacity .22s ease; pointer-events: none; }
+    .cs-bento-cell:hover .cs-bento-overlay { opacity: 1; }
+
+    /* Caption */
+    .cs-bento-caption { position: absolute; bottom: 0; left: 0; right: 0; padding: 14px 16px; font-family: var(--font-sans); font-size: 12px; line-height: 1.5; color: #fff; opacity: 0; transition: opacity .22s ease; pointer-events: none; }
+    .cs-bento-cell:hover .cs-bento-caption { opacity: 1; }
+
+    /* Expand button */
+    .cs-bento-expand { position: absolute; top: 12px; right: 12px; width: 32px; height: 32px; border-radius: 50%; background: rgba(245,244,240,.12); backdrop-filter: blur(8px); border: 1px solid rgba(245,244,240,.2); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity .22s ease; cursor: pointer; padding: 0; }
+    .cs-bento-cell:hover .cs-bento-expand { opacity: 1; }
+
+    /* Block header (eyebrow / title / subtitle above grid) */
+    .cs-bento-header { margin-bottom: var(--sp-10); }
+    .cs-bento-header .cs-label { display: block; margin-bottom: var(--sp-3); }
+    .cs-bento-title { font-family: var(--font-display); font-size: clamp(24px,2.8vw,34px); font-weight: 400; line-height: 1.2; color: var(--ink); margin: 0 0 var(--sp-3); }
+    .cs-bento-subtitle { font-family: var(--font-sans); font-size: 15px; line-height: 1.65; color: var(--ink-2); margin: 0; }
+
+    /* Expand stage overlay */
+    #bento-stage { position: fixed; inset: 0; background: rgba(17,17,16,.85); backdrop-filter: blur(12px); z-index: 1000; display: none; align-items: center; justify-content: center; }
+    #bento-stage.active { display: flex; }
+    #bento-stage .cs-bento-cell { width: auto; height: auto; max-width: 90vw; max-height: 90vh; border-radius: var(--r-bento); overflow: hidden; cursor: pointer; }
+    #bento-stage .cs-bento-cell img { width: auto; height: auto; max-width: 88vw; max-height: 86vh; object-fit: contain; }
+
     /* ── Responsive ── */
     @media(max-width:640px){
       .container{padding:0 var(--col-pad-m)}
@@ -401,10 +480,17 @@ export async function GET(_req: Request, context: { params: Promise<{ slug: stri
       .scope-item{padding-right:12px}
       .scope-item+.scope-item{padding-left:12px}
       .research-figure-window--mid,.research-figure-window--tall{height:220px}
+      .cs-bento--2,.cs-bento--3a,.cs-bento--3b,.cs-bento--4{grid-template-columns:1fr;grid-template-rows:auto}
+      .cs-bento--3a .cs-bento-cell:nth-child(3),.cs-bento--4 .cs-bento-cell:nth-child(1){grid-column:auto}
+      .cs-bento--3b .cs-bento-cell:nth-child(1){grid-row:auto}
+      .cs-bento-cell{height:200px}
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/Flip.min.js"></script>
 </head>
 <body>
+<div id="bento-stage"></div>
 
 <header class="preview-bar">
   <strong>SK · CMS Preview</strong>
@@ -451,6 +537,60 @@ function doRefresh(){
   if(btn){ btn.classList.add('spinning') }
   setTimeout(function(){ window.location.reload() }, 320)
 }
+
+// -- Bento: 3D tilt + Flip expand/close --
+(function bentoInit(){
+  if(typeof gsap === 'undefined') return
+  var cells = document.querySelectorAll('[data-bento] .cs-bento-cell')
+  var stage = document.getElementById('bento-stage')
+  var expandedCell = null
+  var origParent = null
+  var origNextSib = null
+
+  cells.forEach(function(cell){
+    cell.addEventListener('mousemove', function(e){
+      if(cell.classList.contains('flip-expanded')) return
+      var r = cell.getBoundingClientRect()
+      var x = (e.clientX - r.left) / r.width - 0.5
+      var y = (e.clientY - r.top)  / r.height - 0.5
+      gsap.to(cell, {
+        rotationY: x * 16, rotationX: -y * 16,
+        transformPerspective: 800, duration: 0.3, ease: 'power2.out'
+      })
+    })
+    cell.addEventListener('mouseleave', function(){
+      gsap.to(cell, { rotationY: 0, rotationX: 0, duration: 0.7, ease: 'elastic.out(1, 0.45)' })
+    })
+  })
+
+  if(typeof Flip === 'undefined' || !stage) return
+  document.querySelectorAll('.cs-bento-expand').forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      e.stopPropagation()
+      var cell = btn.closest('.cs-bento-cell')
+      if(!cell) return
+      origParent = cell.parentNode
+      origNextSib = cell.nextSibling
+      var state = Flip.getState(cell)
+      cell.classList.add('flip-expanded')
+      stage.appendChild(cell)
+      stage.classList.add('active')
+      expandedCell = cell
+      Flip.from(state, { duration: 0.55, ease: 'power3.inOut', nested: true })
+    })
+  })
+
+  stage.addEventListener('click', function(){
+    if(!expandedCell || !origParent) return
+    var state = Flip.getState(expandedCell)
+    if(origNextSib) { origParent.insertBefore(expandedCell, origNextSib) }
+    else { origParent.appendChild(expandedCell) }
+    expandedCell.classList.remove('flip-expanded')
+    stage.classList.remove('active')
+    Flip.from(state, { duration: 0.55, ease: 'power3.inOut', nested: true })
+    expandedCell = null; origParent = null; origNextSib = null
+  })
+})()
 </script>
 
 </body>

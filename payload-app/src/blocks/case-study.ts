@@ -65,6 +65,37 @@ export const FullWidthFigure: Block = {
     ] },
   ],
 }
+export const CaseBento: Block = {
+  slug: 'caseBento',
+  labels: { singular: 'Bento grid', plural: 'Bento grids' },
+  fields: [
+    { name: 'eyebrow',  type: 'text' },
+    { name: 'title',    type: 'text' },
+    { name: 'subtitle', type: 'text' },
+    {
+      name: 'layout',
+      type: 'select',
+      required: true,
+      options: [
+        { label: '2-Up: Two equal cells',       value: 'bento-2'  },
+        { label: '3A: Two top, wide bottom',     value: 'bento-3a' },
+        { label: '3B: Asymmetric tall-left',     value: 'bento-3b' },
+        { label: '4: Wide top, three bottom',    value: 'bento-4'  },
+      ],
+    },
+    {
+      name: 'cells',
+      type: 'array',
+      minRows: 2,
+      maxRows: 4,
+      fields: [
+        { name: 'image',   type: 'upload', relationTo: 'media', required: true },
+        { name: 'caption', type: 'text' },
+        { name: 'altText', type: 'text', required: true },
+      ],
+    },
+  ],
+}
 export const CaseStudyMediaGroup: Block = { slug: 'caseStudyMediaGroup', labels: {singular:'Case study image group',plural:'Case study image groups'}, fields: [
  {name:'sectionHeading',type:'text',required:true},
  {name:'sectionKey',type:'text',admin:{description:'Source section or chapter identity'}},
@@ -97,4 +128,4 @@ export const CaseStudyMediaGroup: Block = { slug: 'caseStudyMediaGroup', labels:
  {name:'media',type:'upload',relationTo:'media'},
  ]}
 ] }
-export const caseStudyBlocks: Block[] = [CaseStudyHero, CaseStudyBrief, CaseStudyScope, CaseStudyEditorial, FullWidthFigure, CaseStudyMediaGroup]
+export const caseStudyBlocks: Block[] = [CaseStudyHero, CaseStudyBrief, CaseStudyScope, CaseStudyEditorial, FullWidthFigure, CaseBento, CaseStudyMediaGroup]
