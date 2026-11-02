@@ -236,9 +236,13 @@ export async function GET(_req: Request, context: { params: Promise<{ slug: stri
     /* ── Preview bar ── */
     .preview-bar{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--rule);padding:18px max(24px,calc((100vw - 1100px)/2));gap:20px;background:var(--surface-chrome)}
     .preview-bar strong{font-size:13px;font-family:var(--font-sans)}
-    .preview-nav{display:flex;gap:20px;font-size:12px;font-family:var(--font-sans)}
+    .preview-nav{display:flex;align-items:center;gap:20px;font-size:12px;font-family:var(--font-sans)}
     .preview-nav a{color:var(--ink-3);transition:color .2s ease}
     .preview-nav a:hover{color:var(--sun);text-decoration:none}
+    .preview-refresh{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;border:1px solid var(--rule);background:var(--bg);color:var(--ink-2);font-size:12px;font-family:var(--font-sans);cursor:pointer;transition:all .18s ease}
+    .preview-refresh:hover{border-color:var(--sun);color:var(--sun);background:var(--sun-muted)}
+    .preview-refresh svg{transition:transform .4s var(--ease-out)}
+    .preview-refresh.spinning svg{transform:rotate(360deg)}
     .preview-notice{max-width:var(--page-w);margin:20px auto;padding:12px 20px;background:#fff4df;border-left:3px solid var(--sun);font-size:12px;font-family:var(--font-sans);color:var(--ink-2)}
 
     /* ── Hero meta ── */
@@ -326,6 +330,13 @@ export async function GET(_req: Request, context: { params: Promise<{ slug: stri
     <a href="/preview/case-studies/centronic">Centronic</a>
     <a href="/preview/case-studies/haptix">Haptix</a>
     <a href="/admin/collections/pages">← Edit in Payload</a>
+    <button class="preview-refresh" id="refreshBtn" onclick="doRefresh()" title="Reload preview with latest saved draft">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M11.5 6.5A5 5 0 1 1 6.5 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <polyline points="6.5,1.5 9,1.5 9,4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Refresh
+    </button>
   </nav>
 </header>
 
@@ -352,6 +363,12 @@ ${body}
     if(e.data&&e.data.type==='payload-live-preview'){ window.location.reload() }
   })
 })()
+
+function doRefresh(){
+  var btn = document.getElementById('refreshBtn')
+  if(btn){ btn.classList.add('spinning') }
+  setTimeout(function(){ window.location.reload() }, 320)
+}
 </script>
 
 </body>
