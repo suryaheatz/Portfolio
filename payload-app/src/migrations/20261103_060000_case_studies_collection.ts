@@ -42,8 +42,8 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
     DO $$ BEGIN CREATE TYPE "public"."enum_case_studies_blocks_case_study_media_group_appearance" AS ENUM('inherit', 'light', 'dark'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
     DO $$ BEGIN CREATE TYPE "public"."enum__case_studies_v_blocks_case_study_media_group_appearance" AS ENUM('inherit', 'light', 'dark'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
-    DO $$ BEGIN CREATE TYPE "public"."enum_case_studies_blocks_case_study_media_group_slide_alignment" AS ENUM('textLeft', 'imageLeft'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-    DO $$ BEGIN CREATE TYPE "public"."enum__case_studies_v_blocks_case_study_media_group_slide_alignment" AS ENUM('textLeft', 'imageLeft'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+    DO $$ BEGIN CREATE TYPE "public"."enum_case_studies_blocks_case_study_media_group_slide_align" AS ENUM('textLeft', 'imageLeft'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+    DO $$ BEGIN CREATE TYPE "public"."enum__case_studies_v_blocks_case_study_media_group_slide_align" AS ENUM('textLeft', 'imageLeft'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
   `))
 
   // -- Step 2: Main collection tables ----------------------------------------
@@ -342,7 +342,7 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
       "presentation" "enum_case_studies_blocks_case_study_media_group_presentation",
       "grid_variant" "enum_case_studies_blocks_case_study_media_group_grid_variant" DEFAULT 'two',
       "appearance" "enum_case_studies_blocks_case_study_media_group_appearance" DEFAULT 'inherit',
-      "slide_alignment" "enum_case_studies_blocks_case_study_media_group_slide_alignment" DEFAULT 'textLeft',
+      "slide_align" "enum_case_studies_blocks_case_study_media_group_slide_align" DEFAULT 'textLeft',
       "show_section_heading" boolean DEFAULT true,
       "show_numbers" boolean DEFAULT false,
       "block_name" varchar
@@ -664,7 +664,7 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
       "presentation" "enum__case_studies_v_blocks_case_study_media_group_presentation",
       "grid_variant" "enum__case_studies_v_blocks_case_study_media_group_grid_variant" DEFAULT 'two',
       "appearance" "enum__case_studies_v_blocks_case_study_media_group_appearance" DEFAULT 'inherit',
-      "slide_alignment" "enum__case_studies_v_blocks_case_study_media_group_slide_alignment" DEFAULT 'textLeft',
+      "slide_align" "enum__case_studies_v_blocks_case_study_media_group_slide_align" DEFAULT 'textLeft',
       "show_section_heading" boolean DEFAULT true,
       "show_numbers" boolean DEFAULT false,
       "_uuid" varchar,
@@ -1131,8 +1131,8 @@ export async function down({ db }: MigrateDownArgs): Promise<void> {
     DROP TABLE IF EXISTS "_case_studies_v" CASCADE;
     DROP TABLE IF EXISTS "case_studies" CASCADE;
 
-    DROP TYPE IF EXISTS "public"."enum__case_studies_v_blocks_case_study_media_group_slide_alignment";
-    DROP TYPE IF EXISTS "public"."enum_case_studies_blocks_case_study_media_group_slide_alignment";
+    DROP TYPE IF EXISTS "public"."enum__case_studies_v_blocks_case_study_media_group_slide_align";
+    DROP TYPE IF EXISTS "public"."enum_case_studies_blocks_case_study_media_group_slide_align";
     DROP TYPE IF EXISTS "public"."enum__case_studies_v_blocks_case_study_media_group_appearance";
     DROP TYPE IF EXISTS "public"."enum_case_studies_blocks_case_study_media_group_appearance";
     DROP TYPE IF EXISTS "public"."enum__case_studies_v_blocks_case_study_media_group_grid_variant";

@@ -274,7 +274,7 @@ export const CaseStudyMediaGroup: Block = { slug: 'caseStudyMediaGroup', imageUR
  {name:'gridVariant',type:'select',defaultValue:'two',admin:{condition:(_data,siblingData)=>siblingData?.presentation==='adaptive'},options:[
  {label:'Two-column',value:'two'},{label:'Three equal columns',value:'three'},{label:'Traditional grid',value:'traditional'},{label:'Three-column asymmetric',value:'asymmetric'}]},
  {name:'appearance',type:'select',defaultValue:'inherit',options:[{label:'Inherit section',value:'inherit'},{label:'Light',value:'light'},{label:'Dark',value:'dark'}]},
- {name:'slideAlignment',type:'select',defaultValue:'textLeft',admin:{condition:(_data,siblingData)=>siblingData?.presentation==='slides'},options:[{label:'Text left / image right',value:'textLeft'},{label:'Image left / text right',value:'imageLeft'}]},
+ {name:'slideAlignment',dbName:'slide_align',type:'select',defaultValue:'textLeft',admin:{condition:(_data,siblingData)=>siblingData?.presentation==='slides'},options:[{label:'Text left / image right',value:'textLeft'},{label:'Image left / text right',value:'imageLeft'}]},
  {name:'showSectionHeading',type:'checkbox',defaultValue:true},
  {name:'showNumbers',type:'checkbox',defaultValue:false},
  {name:'images',type:'array',minRows:1,fields:[
