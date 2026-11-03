@@ -23,6 +23,7 @@ import * as bentoSplitBlocks from './20261103_010000_bento_split_blocks';
 import * as renormalizeRichText from './20261103_020000_renormalize_richtext_via_api';
 import * as rollbackRichtextToTextarea from './20261103_030000_rollback_richtext_to_textarea';
 import * as renameBodyFields from './20261103_040000_rename_body_fields';
+import * as repairTextColumns from './20261103_050000_repair_text_columns';
 
 export const migrations = [
   { up: migration_20261028_125058.up, down: migration_20261028_125058.down, name: '20261028_125058' },
@@ -40,4 +41,5 @@ export const migrations = [
   { up: renormalizeRichText.up, down: renormalizeRichText.down, name: '20261103_020000_renormalize_richtext_via_api' },
   { up: rollbackRichtextToTextarea.up, down: rollbackRichtextToTextarea.down, name: '20261103_030000_rollback_richtext_to_textarea' },
   { up: renameBodyFields.up, down: renameBodyFields.down, name: '20261103_040000_rename_body_fields' },
+  { up: repairTextColumns.up, down: repairTextColumns.down, name: '20261103_050000_repair_text_columns' },
 ];

@@ -30,8 +30,8 @@ export const CaseStudyBrief: Block = {
   fields: [
     { name: 'eyebrow', type: 'text' },
     { name: 'heading', type: 'text' },
-    { name: 'narrativeBody', type: 'text', required: true },
-    { name: 'narrativeSub', type: 'text' },
+    { name: 'narrativeBody', type: 'textarea', required: true },
+    { name: 'narrativeSub', type: 'textarea' },
   ],
 }
 export const CaseStudyScope: Block = {
