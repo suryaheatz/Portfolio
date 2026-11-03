@@ -30,8 +30,8 @@ export const CaseStudyBrief: Block = {
   fields: [
     { name: 'eyebrow', type: 'text' },
     { name: 'heading', type: 'text' },
-    { name: 'body', type: 'richText', required: true, ...RT },
-    { name: 'supportingText', type: 'richText', ...RT },
+    { name: 'body', type: 'textarea', required: true },
+    { name: 'supportingText', type: 'textarea' },
   ],
 }
 export const CaseStudyScope: Block = {
@@ -56,7 +56,7 @@ export const CaseStudyEditorial: Block = {
   fields: [
     { name: 'eyebrow', type: 'text' },
     { name: 'heading', type: 'text', required: true },
-    { name: 'body', type: 'richText', ...RT },
+    { name: 'body', type: 'textarea' },
     { name: 'image', type: 'upload', relationTo: 'media' },
     { name: 'imageAlt', type: 'text' },
     { name: 'caption', type: 'text' },

@@ -21,6 +21,7 @@ import * as newBlockTables from './20261102_000000_new_block_tables';
 import * as fixRichTextBody from './20261103_000000_fix_richtext_body_migration';
 import * as bentoSplitBlocks from './20261103_010000_bento_split_blocks';
 import * as renormalizeRichText from './20261103_020000_renormalize_richtext_via_api';
+import * as rollbackRichtextToTextarea from './20261103_030000_rollback_richtext_to_textarea';
 
 export const migrations = [
   { up: migration_20261028_125058.up, down: migration_20261028_125058.down, name: '20261028_125058' },
@@ -36,4 +37,5 @@ export const migrations = [
   { up: fixRichTextBody.up, down: fixRichTextBody.down, name: '20261103_000000_fix_richtext_body_migration' },
   { up: bentoSplitBlocks.up, down: bentoSplitBlocks.down, name: '20261103_010000_bento_split_blocks' },
   { up: renormalizeRichText.up, down: renormalizeRichText.down, name: '20261103_020000_renormalize_richtext_via_api' },
+  { up: rollbackRichtextToTextarea.up, down: rollbackRichtextToTextarea.down, name: '20261103_030000_rollback_richtext_to_textarea' },
 ];
