@@ -2,6 +2,8 @@ import type { CollectionConfig } from 'payload'
 import { homeBlocks } from '../blocks/home'
 import { caseStudyBlocks } from '../blocks/case-study'
 
+export { CaseStudies } from './case-studies'
+
 export const Media: CollectionConfig = {
   slug: 'media',
   upload: true,
@@ -17,7 +19,7 @@ export const Pages: CollectionConfig = {
       url: ({ data }: { data?: { slug?: string } }) => {
         const slug = data?.slug
         if (!slug) return ''
-        // Relative path — works on any deployment (Vercel, local, staging)
+        // Relative path -- works on any deployment (Vercel, local, staging)
         return `/preview/case-studies/${slug}`
       },
       breakpoints: [

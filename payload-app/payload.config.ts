@@ -4,9 +4,8 @@ import { s3Storage } from '@payloadcms/storage-s3'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import sharp from 'sharp'
 import { Users } from './src/collections/users'
-import { Media, Pages } from './src/collections'
+import { Media, Pages, CaseStudies } from './src/collections'
 import { SiteHeader, SiteFooter } from './src/globals/site'
-import { AtlasContent } from './src/globals/atlas'
 
 export default buildConfig({
   secret: process.env.PAYLOAD_SECRET || '',
@@ -21,8 +20,8 @@ export default buildConfig({
   editor: lexicalEditor(),
   sharp,
   admin: { user: 'users' },
-  collections: [Users, Media, Pages],
-  globals: [SiteHeader, SiteFooter, AtlasContent],
+  collections: [Users, Media, Pages, CaseStudies],
+  globals: [SiteHeader, SiteFooter],
   plugins: [
     s3Storage({
       collections: {
