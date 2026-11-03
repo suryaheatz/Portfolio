@@ -13,6 +13,19 @@ const getRows = async (db: MigrateUpArgs['db'], query: string): Promise<Row[]> =
 }
 const lookup = (rows: Row[], id: unknown) => rows.filter(r => String(r._parent_id) === String(id)).sort((a,b) => Number(a._order)-Number(b._order))
 export async function up({db,payload}:MigrateUpArgs):Promise<void>{
+  // The bento typed-block tables (pages_blocks_bento_two_up etc.) are created by
+  // 20261103_010000_bento_split_blocks which runs after this migration.
+  // payload.findByID and payload.update both JOIN those tables and will crash if
+  // they do not exist yet. Defer to 20261103_015000_repair_payload_page_documents_v2
+  // which runs after the bento tables are in place.
+  const bentoCheck = await getRows(db, `
+    SELECT 1 FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'pages_blocks_bento_two_up'
+  `)
+  if (bentoCheck.length === 0) {
+    payload.logger.warn('20261030_040000: bento tables not yet created -- repair deferred to 20261103_015000_repair_payload_page_documents_v2')
+    return
+  }
   const [heroes, briefs, scopes, editorials, groups, chips, facts, images] = await Promise.all([
     getRows(db,'SELECT * FROM pages_blocks_case_study_hero'),
     getRows(db,'SELECT * FROM pages_blocks_case_study_brief'),
