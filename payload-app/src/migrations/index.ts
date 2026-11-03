@@ -20,6 +20,7 @@ import * as nestedCascade from './20261030_090000_fix_nested_block_cascade';
 import * as newBlockTables from './20261102_000000_new_block_tables';
 import * as fixRichTextBody from './20261103_000000_fix_richtext_body_migration';
 import * as bentoSplitBlocks from './20261103_010000_bento_split_blocks';
+import * as renormalizeRichText from './20261103_020000_renormalize_richtext_via_api';
 
 export const migrations = [
   { up: migration_20261028_125058.up, down: migration_20261028_125058.down, name: '20261028_125058' },
@@ -34,4 +35,5 @@ export const migrations = [
   { up: newBlockTables.up, down: newBlockTables.down, name: '20261102_000000_new_block_tables' },
   { up: fixRichTextBody.up, down: fixRichTextBody.down, name: '20261103_000000_fix_richtext_body_migration' },
   { up: bentoSplitBlocks.up, down: bentoSplitBlocks.down, name: '20261103_010000_bento_split_blocks' },
+  { up: renormalizeRichText.up, down: renormalizeRichText.down, name: '20261103_020000_renormalize_richtext_via_api' },
 ];
