@@ -19,6 +19,10 @@ const keyFor = (path: string) =>
     .replace(/^haptix\/assets\//, 'haptix-').replace(/\//g, '-').replace(/[^a-zA-Z0-9._-]/g, '-').toLowerCase()
 
 export async function up({ db, payload }: MigrateUpArgs): Promise<void> {
+  if (!process.env.R2_BUCKET) {
+    payload.logger.warn('20261030_020000: R2_BUCKET not set -- skipping bulk media import. Re-run after adding R2 env vars to import media.')
+    return
+  }
   const result = await db.execute(sql`
     SELECT DISTINCT source_path FROM pages_blocks_case_study_media_group_images
     WHERE media_id IS NULL AND source_path IS NOT NULL AND source_path <> ''

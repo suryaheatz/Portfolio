@@ -5,12 +5,16 @@ import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-postgres'
  * Source images remain available at GitHub until R2 URLs and records are verified.
  */
 const sources = [
-  { source: 'case-studies/haptix/assets/screens/screen-01.jpg', name: 'sk-haptix-screen-01.jpg', alt: 'Fav · Climate, idle', type: 'image/jpeg' },
+  { source: 'case-studies/haptix/assets/screens/screen-01.jpg', name: 'sk-haptix-screen-01.jpg', alt: 'Fav - Climate, idle', type: 'image/jpeg' },
   { source: 'case-studies/haptix/assets/styling/demonstrator-render.jpg', name: 'sk-haptix-demonstrator-render.jpg', alt: 'Haptix demonstrator render', type: 'image/jpeg' },
   { source: 'public/images/centronic-ambient.gif', name: 'sk-centronic-ambient.gif', alt: 'Ambient lighting in Centronic demonstrator', type: 'image/gif' },
 ]
 
 export async function up({ db, payload }: MigrateUpArgs): Promise<void> {
+  if (!process.env.R2_BUCKET) {
+    payload.logger.warn('20261030_010000: R2_BUCKET not set -- skipping media pilot upload. Re-run after adding R2 env vars to import media.')
+    return
+  }
   for (const item of sources) {
     const existing = await payload.find({ collection: 'media', where: { filename: { equals: item.name } }, limit: 1, depth: 0 })
     let id = existing.docs[0]?.id
