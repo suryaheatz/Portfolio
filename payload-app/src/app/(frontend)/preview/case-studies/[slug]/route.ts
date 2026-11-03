@@ -62,7 +62,7 @@ const sample: Record<string, CasePage> = {
       chips: [{ label: 'HMI' }, { label: 'Autonomous Vehicles' }],
       description: "ZF's engineering team had been building a physical control knob, the Centronic, later called MMA." },
     { blockType: 'caseStudyBrief', heading: 'The brief',
-      body: 'At Level 4, the old automotive HMI constraints disappear. You can look at the screen, lean back, use both hands. The UI has to show the hardware capabilities.' },
+      narrativeBody: 'At Level 4, the old automotive HMI constraints disappear. You can look at the screen, lean back, use both hands. The UI has to show the hardware capabilities.' },
     { blockType: 'caseStudyScope', heading: 'Project scope', facts: [
       { label: 'Where', value: 'ZF India Technology Centre, Hyderabad' },
       { label: 'When',  value: '2019-2020  - 10 months' },
@@ -76,7 +76,7 @@ const sample: Record<string, CasePage> = {
       chips: [{ label: 'HMI' }, { label: 'Interaction Design' }],
       description: 'I was the UI and UX designer on a demonstrator that ZF built to pitch a new thumbwheel technology for operating a car interface.' },
     { blockType: 'caseStudyBrief', heading: 'The brief',
-      body: 'ZF pitched this demonstrator to promote a new thumbwheel technology for operating a vehicle interface. The customer was Mercedes-Benz (Daimler).' },
+      narrativeBody: 'ZF pitched this demonstrator to promote a new thumbwheel technology for operating a vehicle interface. The customer was Mercedes-Benz (Daimler).' },
     { blockType: 'caseStudyScope', heading: 'Where, when and what', facts: [
       { label: 'Where',       value: 'ZF India Technology Centre, Hyderabad' },
       { label: 'When',        value: 'January to July 2020  - about 7 months' },
@@ -84,7 +84,7 @@ const sample: Record<string, CasePage> = {
       { label: 'Deliverables', value: 'Screens in Adobe XD, prototype in Figma, developer handoffs' },
     ]},
     { blockType: 'caseStudyEditorial', eyebrow: 'The hardware', heading: 'What the thumbwheel can do',
-      body: 'The thumbwheel has three actions. You can turn it, push it, and touch it.' },
+      editorialBody: 'The thumbwheel has three actions. You can turn it, push it, and touch it.' },
   ]},
 }
 
@@ -119,7 +119,7 @@ function render(b: Content): string {
 
   /* -- Brief -- */
   if (type === 'caseStudyBrief') {
-    const supp = b.supportingText ? lexToHtml(b.supportingText) : ''
+    const supp = b.narrativeSub ? lexToHtml(b.narrativeSub) : ''
     const meta = (b.eyebrow || b.heading) ? `
       <div class="brief-meta">
         ${b.eyebrow ? `<p class="cs-label">${esc(String(b.eyebrow))}</p>` : ''}
@@ -129,7 +129,7 @@ function render(b: Content): string {
       <section class="st-card st-brief">
         <div class="brief-centre">
           ${meta}
-          ${lexToHtml(b.body)}
+          ${lexToHtml(b.narrativeBody)}
           ${supp}
         </div>
       </section>`
@@ -171,7 +171,7 @@ function render(b: Content): string {
           </div>
           <div class="cs-context-main">
             <h3 class="cs-h3">${text(b.heading)}</h3>
-            ${b.body ? `<div class="cs-body">${lexToHtml(b.body)}</div>` : ''}
+            ${b.editorialBody ? `<div class="cs-body">${lexToHtml(b.editorialBody)}</div>` : ''}
           </div>
         </div>
         ${fig}
