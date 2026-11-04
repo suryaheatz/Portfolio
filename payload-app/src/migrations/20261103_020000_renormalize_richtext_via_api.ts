@@ -32,13 +32,30 @@ export async function up({ payload: _payload }: MigrateUpArgs): Promise<void> {
   // Get a real Payload instance so hooks and serialisers run correctly
   const payload = await getPayload({ config })
 
-  const result = await payload.find({
-    collection: 'pages',
-    limit: 100,
-    depth: 3,
-    draft: false,
-    overrideAccess: true,
-  })
+  // Guard: payload.find() generates SQL using the CURRENT schema, which
+  // references narrative_body / narrative_sub on pages_blocks_case_study_brief.
+  // Those columns are added by migration 040000_rename_body_fields, which runs
+  // AFTER this migration.  If the query fails because the column doesn't exist
+  // yet, skip gracefully -- the richText normalisation this migration was doing
+  // is superseded by the new case_studies collection (clean column names from
+  // the start), so skipping has no functional consequence.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let result: any
+  try {
+    result = await payload.find({
+      collection: 'pages',
+      limit: 100,
+      depth: 3,
+      draft: false,
+      overrideAccess: true,
+    })
+  } catch (err) {
+    payload.logger.warn(
+      `20261103_020000: skipping -- pages schema query failed before column rename migration ran. ` +
+      `Error: ${String(err).slice(0, 200)}`
+    )
+    return
+  }
 
   if (!result.docs.length) {
     payload.logger.warn('20261103_020000: no published pages found -- nothing to renormalise')
@@ -66,16 +83,24 @@ export async function up({ payload: _payload }: MigrateUpArgs): Promise<void> {
   }
 
   // Repeat for draft versions so the admin editor works in draft mode too
-  const draftResult = await payload.find({
-    collection: 'pages',
-    limit: 100,
-    depth: 3,
-    draft: true,
-    overrideAccess: true,
-  })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let draftResult: any
+  try {
+    draftResult = await payload.find({
+      collection: 'pages',
+      limit: 100,
+      depth: 3,
+      draft: true,
+      overrideAccess: true,
+    })
+  } catch (err) {
+    payload.logger.warn(`20261103_020000: draft find failed -- skipping drafts. Error: ${String(err).slice(0, 200)}`)
+    return
+  }
 
   for (const page of draftResult.docs) {
-    if (result.docs.some((p) => p.id === page.id)) continue // already handled as published
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (result.docs.some((p: any) => p.id === page.id)) continue // already handled as published
     try {
       await payload.update({
         collection: 'pages',
