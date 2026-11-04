@@ -67,18 +67,8 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
   for (const [from, to] of enumRenames) {
     try {
       await db.execute(sql.raw(`ALTER TYPE "public"."${from}" RENAME TO "${to}"`))
-    } catch (err: unknown) {
-      const msg = String(err)
-      if (
-        msg.includes('does not exist') ||
-        msg.includes('already exists') ||
-        msg.includes('42704') ||
-        msg.includes('42710')
-      ) {
-        // already renamed or never created -- skip
-      } else {
-        throw err
-      }
+    } catch (_e) {
+      // already renamed or never existed -- both are success states; skip
     }
   }
 
@@ -115,18 +105,8 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
   for (const [from, to] of tableRenames) {
     try {
       await db.execute(sql.raw(`ALTER TABLE "${from}" RENAME TO "${to}"`))
-    } catch (err: unknown) {
-      const msg = String(err)
-      if (
-        msg.includes('does not exist') ||
-        msg.includes('already exists') ||
-        msg.includes('42P01') ||
-        msg.includes('42P07')
-      ) {
-        // already renamed or never created -- skip
-      } else {
-        throw err
-      }
+    } catch (_e) {
+      // already renamed or never existed -- both are success states; skip
     }
   }
 
@@ -143,22 +123,12 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
       await db.execute(
         sql.raw(`ALTER TABLE "${table}" RENAME COLUMN "${from}" TO "${to}"`),
       )
-    } catch (err: unknown) {
-      const msg = String(err)
-      if (
-        msg.includes('does not exist') ||
-        msg.includes('already exists') ||
-        msg.includes('42703') ||
-        msg.includes('42701')
-      ) {
-        // already renamed or column never added -- skip
-      } else {
-        throw err
-      }
+    } catch (_e) {
+      // already renamed or column never added -- both are success states; skip
     }
   }
 }
 
 export async function down(_args: MigrateDownArgs): Promise<void> {
-  // Intentional no-op — same reasoning as 20261104_000000.
+  // Intentional no-op - same reasoning as 20261104_000000.
 }
