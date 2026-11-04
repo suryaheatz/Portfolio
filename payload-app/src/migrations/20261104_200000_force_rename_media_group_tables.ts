@@ -13,9 +13,16 @@ import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-postgres'
  * This file has a later timestamp, so it is NOT yet in payload_migrations
  * and WILL be executed by `payload migrate`.
  *
- * The logic is identical to 20261104_000000 and is fully idempotent --
- * every statement is wrapped in try/catch; if the rename was already done
- * (or the source never existed) it skips silently.
+ * IDEMPOTENCY APPROACH
+ * --------------------
+ * Each DDL statement is wrapped in a PostgreSQL DO block with an EXCEPTION
+ * handler. Error handling lives inside Postgres itself, so the outer
+ * transaction never sees an error and is never marked ABORTED.
+ *
+ * Previous attempts used TypeScript try/catch, which silences the JS throw
+ * but does NOT prevent Postgres from marking the transaction as aborted --
+ * causing all subsequent statements (including the final INSERT INTO
+ * payload_migrations) to fail with "current transaction is aborted".
  */
 export async function up({ db }: MigrateUpArgs): Promise<void> {
   // ------------------------------------------------------------------ //
@@ -65,11 +72,15 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
   ]
 
   for (const [from, to] of enumRenames) {
-    try {
-      await db.execute(sql.raw(`ALTER TYPE "public"."${from}" RENAME TO "${to}"`))
-    } catch (_e) {
-      // already renamed or never existed -- both are success states; skip
-    }
+    await db.execute(sql.raw(`
+      DO $$
+      BEGIN
+        ALTER TYPE "public"."${from}" RENAME TO "${to}";
+      EXCEPTION
+        WHEN undefined_object  THEN NULL;
+        WHEN duplicate_object  THEN NULL;
+      END;
+      $$`))
   }
 
   // ------------------------------------------------------------------ //
@@ -103,11 +114,15 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
   ]
 
   for (const [from, to] of tableRenames) {
-    try {
-      await db.execute(sql.raw(`ALTER TABLE "${from}" RENAME TO "${to}"`))
-    } catch (_e) {
-      // already renamed or never existed -- both are success states; skip
-    }
+    await db.execute(sql.raw(`
+      DO $$
+      BEGIN
+        ALTER TABLE "${from}" RENAME TO "${to}";
+      EXCEPTION
+        WHEN undefined_table  THEN NULL;
+        WHEN duplicate_table  THEN NULL;
+      END;
+      $$`))
   }
 
   // ------------------------------------------------------------------ //
@@ -119,13 +134,15 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
   ]
 
   for (const [table, from, to] of columnRenames) {
-    try {
-      await db.execute(
-        sql.raw(`ALTER TABLE "${table}" RENAME COLUMN "${from}" TO "${to}"`),
-      )
-    } catch (_e) {
-      // already renamed or column never added -- both are success states; skip
-    }
+    await db.execute(sql.raw(`
+      DO $$
+      BEGIN
+        ALTER TABLE "${table}" RENAME COLUMN "${from}" TO "${to}";
+      EXCEPTION
+        WHEN undefined_column  THEN NULL;
+        WHEN duplicate_column  THEN NULL;
+      END;
+      $$`))
   }
 }
 
