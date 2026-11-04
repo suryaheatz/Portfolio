@@ -265,7 +265,7 @@ export const BentoFourUp: Block = {
   ],
 }
 
-export const CaseStudyMediaGroup: Block = { slug: 'caseStudyMediaGroup', imageURL: PV('case-study-media-group'), labels: {singular:'Case study image group',plural:'Case study image groups'}, fields: [
+export const CaseStudyMediaGroup: Block = { slug: 'caseStudyMediaGroup', dbName: 'cs_media_group', imageURL: PV('case-study-media-group'), labels: {singular:'Case study image group',plural:'Case study image groups'}, fields: [
  {name:'sectionHeading',type:'text',required:true},
  {name:'sectionKey',type:'text',admin:{description:'Source section or chapter identity'}},
  {name:'layoutStyle',type:'select',defaultValue:'evidence',admin:{description:'Legacy layout fallback. New presentation choice below overrides this.'},options:[{label:'Evidence gallery',value:'evidence'},{label:'Grid',value:'grid'}]},

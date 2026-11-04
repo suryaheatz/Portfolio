@@ -30,20 +30,20 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
     DO $$ BEGIN CREATE TYPE "public"."enum_case_studies_blocks_slide_layout_variant" AS ENUM('light', 'dark'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
     DO $$ BEGIN CREATE TYPE "public"."enum__case_studies_v_blocks_slide_layout_variant" AS ENUM('light', 'dark'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
-    DO $$ BEGIN CREATE TYPE "public"."enum_case_studies_blocks_case_study_media_group_layout_style" AS ENUM('evidence', 'grid'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-    DO $$ BEGIN CREATE TYPE "public"."enum__case_studies_v_blocks_case_study_media_group_layout_style" AS ENUM('evidence', 'grid'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+    DO $$ BEGIN CREATE TYPE "public"."enum_case_studies_blocks_cs_media_group_layout_style" AS ENUM('evidence', 'grid'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+    DO $$ BEGIN CREATE TYPE "public"."enum__case_studies_v_blocks_cs_media_group_layout_style" AS ENUM('evidence', 'grid'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
-    DO $$ BEGIN CREATE TYPE "public"."enum_case_studies_blocks_case_study_media_group_presentation" AS ENUM('tooltip', 'adaptive', 'slides', 'annotated', 'evolution', 'figures'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-    DO $$ BEGIN CREATE TYPE "public"."enum__case_studies_v_blocks_case_study_media_group_presentation" AS ENUM('tooltip', 'adaptive', 'slides', 'annotated', 'evolution', 'figures'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+    DO $$ BEGIN CREATE TYPE "public"."enum_case_studies_blocks_cs_media_group_presentation" AS ENUM('tooltip', 'adaptive', 'slides', 'annotated', 'evolution', 'figures'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+    DO $$ BEGIN CREATE TYPE "public"."enum__case_studies_v_blocks_cs_media_group_presentation" AS ENUM('tooltip', 'adaptive', 'slides', 'annotated', 'evolution', 'figures'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
-    DO $$ BEGIN CREATE TYPE "public"."enum_case_studies_blocks_case_study_media_group_grid_variant" AS ENUM('two', 'three', 'traditional', 'asymmetric'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-    DO $$ BEGIN CREATE TYPE "public"."enum__case_studies_v_blocks_case_study_media_group_grid_variant" AS ENUM('two', 'three', 'traditional', 'asymmetric'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+    DO $$ BEGIN CREATE TYPE "public"."enum_case_studies_blocks_cs_media_group_grid_variant" AS ENUM('two', 'three', 'traditional', 'asymmetric'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+    DO $$ BEGIN CREATE TYPE "public"."enum__case_studies_v_blocks_cs_media_group_grid_variant" AS ENUM('two', 'three', 'traditional', 'asymmetric'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
-    DO $$ BEGIN CREATE TYPE "public"."enum_case_studies_blocks_case_study_media_group_appearance" AS ENUM('inherit', 'light', 'dark'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-    DO $$ BEGIN CREATE TYPE "public"."enum__case_studies_v_blocks_case_study_media_group_appearance" AS ENUM('inherit', 'light', 'dark'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+    DO $$ BEGIN CREATE TYPE "public"."enum_case_studies_blocks_cs_media_group_appearance" AS ENUM('inherit', 'light', 'dark'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+    DO $$ BEGIN CREATE TYPE "public"."enum__case_studies_v_blocks_cs_media_group_appearance" AS ENUM('inherit', 'light', 'dark'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
-    DO $$ BEGIN CREATE TYPE "public"."enum_case_studies_blocks_case_study_media_group_slide_align" AS ENUM('textLeft', 'imageLeft'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
-    DO $$ BEGIN CREATE TYPE "public"."enum__case_studies_v_blocks_case_study_media_group_slide_align" AS ENUM('textLeft', 'imageLeft'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+    DO $$ BEGIN CREATE TYPE "public"."enum_case_studies_blocks_cs_media_group_slide_align" AS ENUM('textLeft', 'imageLeft'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+    DO $$ BEGIN CREATE TYPE "public"."enum__case_studies_v_blocks_cs_media_group_slide_align" AS ENUM('textLeft', 'imageLeft'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
   `))
 
   // -- Step 2: Main collection tables ----------------------------------------
@@ -331,23 +331,23 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
     );
 
     -- CaseStudyMediaGroup
-    CREATE TABLE IF NOT EXISTS "case_studies_blocks_case_study_media_group" (
+    CREATE TABLE IF NOT EXISTS "case_studies_blocks_cs_media_group" (
       "_order" integer NOT NULL,
       "_parent_id" integer NOT NULL,
       "_path" text NOT NULL,
       "id" varchar PRIMARY KEY NOT NULL,
       "section_heading" varchar,
       "section_key" varchar,
-      "layout_style" "enum_case_studies_blocks_case_study_media_group_layout_style" DEFAULT 'evidence',
-      "presentation" "enum_case_studies_blocks_case_study_media_group_presentation",
-      "grid_variant" "enum_case_studies_blocks_case_study_media_group_grid_variant" DEFAULT 'two',
-      "appearance" "enum_case_studies_blocks_case_study_media_group_appearance" DEFAULT 'inherit',
-      "slide_align" "enum_case_studies_blocks_case_study_media_group_slide_align" DEFAULT 'textLeft',
+      "layout_style" "enum_case_studies_blocks_cs_media_group_layout_style" DEFAULT 'evidence',
+      "presentation" "enum_case_studies_blocks_cs_media_group_presentation",
+      "grid_variant" "enum_case_studies_blocks_cs_media_group_grid_variant" DEFAULT 'two',
+      "appearance" "enum_case_studies_blocks_cs_media_group_appearance" DEFAULT 'inherit',
+      "slide_align" "enum_case_studies_blocks_cs_media_group_slide_align" DEFAULT 'textLeft',
       "show_section_heading" boolean DEFAULT true,
       "show_numbers" boolean DEFAULT false,
       "block_name" varchar
     );
-    CREATE TABLE IF NOT EXISTS "case_studies_blocks_case_study_media_group_images" (
+    CREATE TABLE IF NOT EXISTS "case_studies_blocks_cs_media_group_images" (
       "_order" integer NOT NULL,
       "_parent_id" varchar NOT NULL,
       "id" varchar PRIMARY KEY NOT NULL,
@@ -367,7 +367,7 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
       "show_credit" boolean DEFAULT false,
       "media_id" integer
     );
-    CREATE TABLE IF NOT EXISTS "case_studies_blocks_case_study_media_group_images_annotations" (
+    CREATE TABLE IF NOT EXISTS "case_studies_blocks_cs_media_group_images_annotations" (
       "_order" integer NOT NULL,
       "_parent_id" varchar NOT NULL,
       "id" varchar PRIMARY KEY NOT NULL,
@@ -652,25 +652,25 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
       "block_name" varchar
     );
 
-    -- _case_studies_v_blocks_case_study_media_group
-    CREATE TABLE IF NOT EXISTS "_case_studies_v_blocks_case_study_media_group" (
+    -- _case_studies_v_blocks_cs_media_group
+    CREATE TABLE IF NOT EXISTS "_case_studies_v_blocks_cs_media_group" (
       "_order" integer NOT NULL,
       "_parent_id" integer NOT NULL,
       "_path" text NOT NULL,
       "id" serial PRIMARY KEY NOT NULL,
       "section_heading" varchar,
       "section_key" varchar,
-      "layout_style" "enum__case_studies_v_blocks_case_study_media_group_layout_style" DEFAULT 'evidence',
-      "presentation" "enum__case_studies_v_blocks_case_study_media_group_presentation",
-      "grid_variant" "enum__case_studies_v_blocks_case_study_media_group_grid_variant" DEFAULT 'two',
-      "appearance" "enum__case_studies_v_blocks_case_study_media_group_appearance" DEFAULT 'inherit',
-      "slide_align" "enum__case_studies_v_blocks_case_study_media_group_slide_align" DEFAULT 'textLeft',
+      "layout_style" "enum__case_studies_v_blocks_cs_media_group_layout_style" DEFAULT 'evidence',
+      "presentation" "enum__case_studies_v_blocks_cs_media_group_presentation",
+      "grid_variant" "enum__case_studies_v_blocks_cs_media_group_grid_variant" DEFAULT 'two',
+      "appearance" "enum__case_studies_v_blocks_cs_media_group_appearance" DEFAULT 'inherit',
+      "slide_align" "enum__case_studies_v_blocks_cs_media_group_slide_align" DEFAULT 'textLeft',
       "show_section_heading" boolean DEFAULT true,
       "show_numbers" boolean DEFAULT false,
       "_uuid" varchar,
       "block_name" varchar
     );
-    CREATE TABLE IF NOT EXISTS "_case_studies_v_blocks_case_study_media_group_images" (
+    CREATE TABLE IF NOT EXISTS "_case_studies_v_blocks_cs_media_group_images" (
       "_order" integer NOT NULL,
       "_parent_id" integer NOT NULL,
       "id" serial PRIMARY KEY NOT NULL,
@@ -691,7 +691,7 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
       "media_id" integer,
       "_uuid" varchar
     );
-    CREATE TABLE IF NOT EXISTS "_case_studies_v_blocks_case_study_media_group_images_annotations" (
+    CREATE TABLE IF NOT EXISTS "_case_studies_v_blocks_cs_media_group_images_annotations" (
       "_order" integer NOT NULL,
       "_parent_id" integer NOT NULL,
       "id" serial PRIMARY KEY NOT NULL,
@@ -877,21 +877,21 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
       END IF;
     END $$;
     DO $$ BEGIN
-      IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'case_studies_blocks_case_study_media_group_parent_id_fk') THEN
-        ALTER TABLE "case_studies_blocks_case_study_media_group" ADD CONSTRAINT "case_studies_blocks_case_study_media_group_parent_id_fk"
+      IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'case_studies_blocks_cs_media_group_parent_id_fk') THEN
+        ALTER TABLE "case_studies_blocks_cs_media_group" ADD CONSTRAINT "case_studies_blocks_cs_media_group_parent_id_fk"
           FOREIGN KEY ("_parent_id") REFERENCES "public"."case_studies"("id") ON DELETE cascade ON UPDATE no action;
       END IF;
     END $$;
     DO $$ BEGIN
-      IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'case_studies_blocks_case_study_media_group_images_parent_id_fk') THEN
-        ALTER TABLE "case_studies_blocks_case_study_media_group_images" ADD CONSTRAINT "case_studies_blocks_case_study_media_group_images_parent_id_fk"
-          FOREIGN KEY ("_parent_id") REFERENCES "public"."case_studies_blocks_case_study_media_group"("id") ON DELETE cascade ON UPDATE no action;
+      IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'case_studies_blocks_cs_media_group_images_parent_id_fk') THEN
+        ALTER TABLE "case_studies_blocks_cs_media_group_images" ADD CONSTRAINT "case_studies_blocks_cs_media_group_images_parent_id_fk"
+          FOREIGN KEY ("_parent_id") REFERENCES "public"."case_studies_blocks_cs_media_group"("id") ON DELETE cascade ON UPDATE no action;
       END IF;
     END $$;
     DO $$ BEGIN
-      IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'case_studies_blocks_case_study_media_group_images_annotations_parent_id_fk') THEN
-        ALTER TABLE "case_studies_blocks_case_study_media_group_images_annotations" ADD CONSTRAINT "case_studies_blocks_case_study_media_group_images_annotations_parent_id_fk"
-          FOREIGN KEY ("_parent_id") REFERENCES "public"."case_studies_blocks_case_study_media_group_images"("id") ON DELETE cascade ON UPDATE no action;
+      IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'case_studies_blocks_cs_media_group_images_annotations_parent_id_fk') THEN
+        ALTER TABLE "case_studies_blocks_cs_media_group_images_annotations" ADD CONSTRAINT "case_studies_blocks_cs_media_group_images_annotations_parent_id_fk"
+          FOREIGN KEY ("_parent_id") REFERENCES "public"."case_studies_blocks_cs_media_group_images"("id") ON DELETE cascade ON UPDATE no action;
       END IF;
     END $$;
   `))
@@ -1031,21 +1031,21 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
       END IF;
     END $$;
     DO $$ BEGIN
-      IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = '_case_studies_v_blocks_case_study_media_group_parent_id_fk') THEN
-        ALTER TABLE "_case_studies_v_blocks_case_study_media_group" ADD CONSTRAINT "_case_studies_v_blocks_case_study_media_group_parent_id_fk"
+      IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = '_case_studies_v_blocks_cs_media_group_parent_id_fk') THEN
+        ALTER TABLE "_case_studies_v_blocks_cs_media_group" ADD CONSTRAINT "_case_studies_v_blocks_cs_media_group_parent_id_fk"
           FOREIGN KEY ("_parent_id") REFERENCES "public"."_case_studies_v"("id") ON DELETE cascade ON UPDATE no action;
       END IF;
     END $$;
     DO $$ BEGIN
-      IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = '_case_studies_v_blocks_case_study_media_group_images_parent_id_fk') THEN
-        ALTER TABLE "_case_studies_v_blocks_case_study_media_group_images" ADD CONSTRAINT "_case_studies_v_blocks_case_study_media_group_images_parent_id_fk"
-          FOREIGN KEY ("_parent_id") REFERENCES "public"."_case_studies_v_blocks_case_study_media_group"("id") ON DELETE cascade ON UPDATE no action;
+      IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = '_case_studies_v_blocks_cs_media_group_images_parent_id_fk') THEN
+        ALTER TABLE "_case_studies_v_blocks_cs_media_group_images" ADD CONSTRAINT "_case_studies_v_blocks_cs_media_group_images_parent_id_fk"
+          FOREIGN KEY ("_parent_id") REFERENCES "public"."_case_studies_v_blocks_cs_media_group"("id") ON DELETE cascade ON UPDATE no action;
       END IF;
     END $$;
     DO $$ BEGIN
-      IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = '_case_studies_v_blocks_case_study_media_group_images_annotations_parent_id_fk') THEN
-        ALTER TABLE "_case_studies_v_blocks_case_study_media_group_images_annotations" ADD CONSTRAINT "_case_studies_v_blocks_case_study_media_group_images_annotations_parent_id_fk"
-          FOREIGN KEY ("_parent_id") REFERENCES "public"."_case_studies_v_blocks_case_study_media_group_images"("id") ON DELETE cascade ON UPDATE no action;
+      IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = '_case_studies_v_blocks_cs_media_group_images_annotations_parent_id_fk') THEN
+        ALTER TABLE "_case_studies_v_blocks_cs_media_group_images_annotations" ADD CONSTRAINT "_case_studies_v_blocks_cs_media_group_images_annotations_parent_id_fk"
+          FOREIGN KEY ("_parent_id") REFERENCES "public"."_case_studies_v_blocks_cs_media_group_images"("id") ON DELETE cascade ON UPDATE no action;
       END IF;
     END $$;
   `))
@@ -1076,9 +1076,9 @@ export async function down({ db }: MigrateDownArgs): Promise<void> {
   await db.execute(sql.raw(`
     ALTER TABLE "payload_locked_documents_rels" DROP COLUMN IF EXISTS "case_studies_id";
 
-    DROP TABLE IF EXISTS "_case_studies_v_blocks_case_study_media_group_images_annotations" CASCADE;
-    DROP TABLE IF EXISTS "_case_studies_v_blocks_case_study_media_group_images" CASCADE;
-    DROP TABLE IF EXISTS "_case_studies_v_blocks_case_study_media_group" CASCADE;
+    DROP TABLE IF EXISTS "_case_studies_v_blocks_cs_media_group_images_annotations" CASCADE;
+    DROP TABLE IF EXISTS "_case_studies_v_blocks_cs_media_group_images" CASCADE;
+    DROP TABLE IF EXISTS "_case_studies_v_blocks_cs_media_group" CASCADE;
     DROP TABLE IF EXISTS "_case_studies_v_blocks_slide_layout" CASCADE;
     DROP TABLE IF EXISTS "_case_studies_v_blocks_pullquote" CASCADE;
     DROP TABLE IF EXISTS "_case_studies_v_blocks_annotated_media_hotspots" CASCADE;
@@ -1102,9 +1102,9 @@ export async function down({ db }: MigrateDownArgs): Promise<void> {
     DROP TABLE IF EXISTS "_case_studies_v_blocks_case_study_hero_chips" CASCADE;
     DROP TABLE IF EXISTS "_case_studies_v_blocks_case_study_hero" CASCADE;
 
-    DROP TABLE IF EXISTS "case_studies_blocks_case_study_media_group_images_annotations" CASCADE;
-    DROP TABLE IF EXISTS "case_studies_blocks_case_study_media_group_images" CASCADE;
-    DROP TABLE IF EXISTS "case_studies_blocks_case_study_media_group" CASCADE;
+    DROP TABLE IF EXISTS "case_studies_blocks_cs_media_group_images_annotations" CASCADE;
+    DROP TABLE IF EXISTS "case_studies_blocks_cs_media_group_images" CASCADE;
+    DROP TABLE IF EXISTS "case_studies_blocks_cs_media_group" CASCADE;
     DROP TABLE IF EXISTS "case_studies_blocks_slide_layout" CASCADE;
     DROP TABLE IF EXISTS "case_studies_blocks_pullquote" CASCADE;
     DROP TABLE IF EXISTS "case_studies_blocks_annotated_media_hotspots" CASCADE;
@@ -1131,16 +1131,16 @@ export async function down({ db }: MigrateDownArgs): Promise<void> {
     DROP TABLE IF EXISTS "_case_studies_v" CASCADE;
     DROP TABLE IF EXISTS "case_studies" CASCADE;
 
-    DROP TYPE IF EXISTS "public"."enum__case_studies_v_blocks_case_study_media_group_slide_align";
-    DROP TYPE IF EXISTS "public"."enum_case_studies_blocks_case_study_media_group_slide_align";
-    DROP TYPE IF EXISTS "public"."enum__case_studies_v_blocks_case_study_media_group_appearance";
-    DROP TYPE IF EXISTS "public"."enum_case_studies_blocks_case_study_media_group_appearance";
-    DROP TYPE IF EXISTS "public"."enum__case_studies_v_blocks_case_study_media_group_grid_variant";
-    DROP TYPE IF EXISTS "public"."enum_case_studies_blocks_case_study_media_group_grid_variant";
-    DROP TYPE IF EXISTS "public"."enum__case_studies_v_blocks_case_study_media_group_presentation";
-    DROP TYPE IF EXISTS "public"."enum_case_studies_blocks_case_study_media_group_presentation";
-    DROP TYPE IF EXISTS "public"."enum__case_studies_v_blocks_case_study_media_group_layout_style";
-    DROP TYPE IF EXISTS "public"."enum_case_studies_blocks_case_study_media_group_layout_style";
+    DROP TYPE IF EXISTS "public"."enum__case_studies_v_blocks_cs_media_group_slide_align";
+    DROP TYPE IF EXISTS "public"."enum_case_studies_blocks_cs_media_group_slide_align";
+    DROP TYPE IF EXISTS "public"."enum__case_studies_v_blocks_cs_media_group_appearance";
+    DROP TYPE IF EXISTS "public"."enum_case_studies_blocks_cs_media_group_appearance";
+    DROP TYPE IF EXISTS "public"."enum__case_studies_v_blocks_cs_media_group_grid_variant";
+    DROP TYPE IF EXISTS "public"."enum_case_studies_blocks_cs_media_group_grid_variant";
+    DROP TYPE IF EXISTS "public"."enum__case_studies_v_blocks_cs_media_group_presentation";
+    DROP TYPE IF EXISTS "public"."enum_case_studies_blocks_cs_media_group_presentation";
+    DROP TYPE IF EXISTS "public"."enum__case_studies_v_blocks_cs_media_group_layout_style";
+    DROP TYPE IF EXISTS "public"."enum_case_studies_blocks_cs_media_group_layout_style";
     DROP TYPE IF EXISTS "public"."enum__case_studies_v_blocks_slide_layout_variant";
     DROP TYPE IF EXISTS "public"."enum_case_studies_blocks_slide_layout_variant";
     DROP TYPE IF EXISTS "public"."enum__case_studies_v_blocks_pullquote_variant";
