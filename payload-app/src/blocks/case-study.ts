@@ -265,7 +265,7 @@ export const BentoFourUp: Block = {
   ],
 }
 
-export const CaseStudyMediaGroup: Block = { slug: 'caseStudyMediaGroup', dbName: 'cs_media_group', imageURL: PV('case-study-media-group'), labels: {singular:'Case study image group',plural:'Case study image groups'}, fields: [
+export const CaseStudyMediaGroup: Block = { slug: 'caseStudyMediaGroup', dbName: ({ tableName }) => `${(tableName ?? '').replace(/^_/, '').replace(/_v$/, '')}_blocks_cs_media_group`, imageURL: PV('case-study-media-group'), labels: {singular:'Case study image group',plural:'Case study image groups'}, fields: [
  {name:'sectionHeading',type:'text',required:true},
  {name:'sectionKey',type:'text',admin:{description:'Source section or chapter identity'}},
  {name:'layoutStyle',type:'select',defaultValue:'evidence',admin:{description:'Legacy layout fallback. New presentation choice below overrides this.'},options:[{label:'Evidence gallery',value:'evidence'},{label:'Grid',value:'grid'}]},
@@ -274,7 +274,7 @@ export const CaseStudyMediaGroup: Block = { slug: 'caseStudyMediaGroup', dbName:
  {name:'gridVariant',type:'select',defaultValue:'two',admin:{condition:(_data,siblingData)=>siblingData?.presentation==='adaptive'},options:[
  {label:'Two-column',value:'two'},{label:'Three equal columns',value:'three'},{label:'Traditional grid',value:'traditional'},{label:'Three-column asymmetric',value:'asymmetric'}]},
  {name:'appearance',type:'select',defaultValue:'inherit',options:[{label:'Inherit section',value:'inherit'},{label:'Light',value:'light'},{label:'Dark',value:'dark'}]},
- {name:'slideAlignment',dbName:'slide_align',type:'select',defaultValue:'textLeft',admin:{condition:(_data,siblingData)=>siblingData?.presentation==='slides'},options:[{label:'Text left / image right',value:'textLeft'},{label:'Image left / text right',value:'imageLeft'}]},
+ {name:'slideAlignment',type:'select',defaultValue:'textLeft',admin:{condition:(_data,siblingData)=>siblingData?.presentation==='slides'},options:[{label:'Text left / image right',value:'textLeft'},{label:'Image left / text right',value:'imageLeft'}]},
  {name:'showSectionHeading',type:'checkbox',defaultValue:true},
  {name:'showNumbers',type:'checkbox',defaultValue:false},
  {name:'images',type:'array',minRows:1,fields:[
