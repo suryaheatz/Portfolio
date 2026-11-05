@@ -428,12 +428,13 @@ function render(b: Content): string {
 
 export async function GET(_req: Request, context: { params: Promise<{ slug: string }> }) {
   const { slug } = await context.params
-  if (!['centronic', 'haptix'].includes(slug)) return new Response('Not found', { status: 404 })
+  // Allow any case study or page slug to render in Live Preview
 
   const payload = await getPayload({ config })
-  const result  = await payload.find({ collection: 'pages', where: { slug: { equals: slug } }, depth: 1, limit: 1, draft: true, overrideAccess: true })
+  const csRes   = await payload.find({ collection: 'case-studies', where: { slug: { equals: slug } }, depth: 1, limit: 1, draft: true, overrideAccess: true })
+  const result  = csRes.docs.length ? csRes : await payload.find({ collection: 'pages', where: { slug: { equals: slug } }, depth: 1, limit: 1, draft: true, overrideAccess: true })
   const doc     = result.docs[0]
-  const page: CasePage = doc ? { title: doc.title, layout: doc.layout as Content[] } : sample[slug]
+  const page: CasePage = doc ? { title: doc.title, layout: doc.layout as Content[] } : (sample[slug] ?? { title: slug === '_new' ? 'New Case Study' : slug, layout: sample.centronic.layout })
   const isSample = !doc
   const body = (page.layout ?? []).map(b => render(b)).join('')
 
@@ -700,7 +701,7 @@ export async function GET(_req: Request, context: { params: Promise<{ slug: stri
   <nav class="preview-nav">
     <a href="/preview/case-studies/centronic">Centronic</a>
     <a href="/preview/case-studies/haptix">Haptix</a>
-    <a href="/admin/collections/pages"><- Edit in Payload</a>
+    <a href="/admin/collections/case-studies"><- Edit in Payload</a>
     <button class="preview-refresh" id="refreshBtn" onclick="doRefresh()" title="Reload preview with latest saved draft">
       <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M11.5 6.5A5 5 0 1 1 6.5 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
@@ -713,7 +714,7 @@ export async function GET(_req: Request, context: { params: Promise<{ slug: stri
 
 <aside class="preview-notice container">
   ${isSample
-    ? 'Sample content -- create a Pages document with slug <code>centronic</code> or <code>haptix</code> to see live CMS data here.'
+    ? 'Template preview -- enter a title and slug, then click Save Draft to preview your live CMS data here.'
     : 'Live CMS data. Save Draft or Publish in Payload to see changes here. Animations are not shown in preview.'}
 </aside>
 

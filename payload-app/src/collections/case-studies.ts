@@ -3,14 +3,24 @@ import { caseStudyBlocks } from '../blocks/case-study'
 
 /**
  * CaseStudies collection -- dedicated home for all case study documents.
- * Replaces the pattern of storing case studies as Pages.
+ * Uses the Centronic 3-block starter template (Hero -> Brief -> Scope) by default.
  */
 export const CaseStudies: CollectionConfig = {
   slug: 'case-studies',
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', 'updatedAt'],
-    description: 'Portfolio case study documents. Each entry maps to one published case study page.',
+    description: 'Portfolio case study documents. Each entry starts with the Hero -> Brief -> Scope template.',
+    livePreview: {
+      url: ({ data }: { data?: { slug?: string } }) => {
+        const slug = data?.slug
+        return `/preview/case-studies/${encodeURIComponent(slug || '_new')}`
+      },
+      breakpoints: [
+        { label: 'Mobile',  name: 'mobile',  width: 375,  height: 812 },
+        { label: 'Desktop', name: 'desktop', width: 1280, height: 900 },
+      ],
+    },
   },
   versions: { drafts: true },
   fields: [
@@ -18,7 +28,7 @@ export const CaseStudies: CollectionConfig = {
       name: 'title',
       type: 'text',
       required: true,
-      admin: { description: 'Internal title -- also used as the page <title>.' },
+      admin: { description: 'Case study title -- also used as the page <title>.' },
     },
     {
       name: 'slug',
@@ -26,39 +36,39 @@ export const CaseStudies: CollectionConfig = {
       required: true,
       unique: true,
       admin: {
-        description: 'URL slug -- lowercase, hyphenated. e.g. "zf-centronic-hmi".',
-        position: 'sidebar',
-      },
-    },
-    {
-      name: 'eyebrow',
-      type: 'text',
-      admin: { description: 'Category label shown above the title. e.g. "Automotive HMI".' },
-    },
-    {
-      name: 'role',
-      type: 'text',
-      admin: { description: 'Your role on this project.' },
-    },
-    {
-      name: 'period',
-      type: 'text',
-      admin: { description: 'Engagement period. e.g. "2022 - 2024".' },
-    },
-    {
-      name: 'heroImage',
-      type: 'upload',
-      relationTo: 'media',
-      admin: {
-        description: 'Hero / cover image for the case study.',
-        position: 'sidebar',
+        description: 'URL slug -- lowercase, hyphenated. e.g. "centronic" or "haptix".',
       },
     },
     {
       name: 'layout',
       type: 'blocks',
       blocks: caseStudyBlocks,
-      admin: { description: 'Page content blocks.' },
+      admin: {
+        description: 'Starts with Hero -> Brief -> Project Scope (Where, When, My role + optional sketch), followed by case study blocks.',
+      },
+      defaultValue: () => [
+        {
+          blockType: 'caseStudyHero',
+          eyebrow: '',
+          role: '',
+          title: '',
+          chips: [],
+        },
+        {
+          blockType: 'caseStudyBrief',
+          heading: 'The brief',
+          narrativeBody: '',
+        },
+        {
+          blockType: 'caseStudyScope',
+          heading: 'Project scope',
+          facts: [
+            { label: 'Where', value: '' },
+            { label: 'When', value: '' },
+            { label: 'My role', value: '' },
+          ],
+        },
+      ],
     },
   ],
 }

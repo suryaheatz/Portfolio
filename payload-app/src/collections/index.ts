@@ -18,7 +18,7 @@ export const Pages: CollectionConfig = {
     livePreview: {
       url: ({ data }: { data?: { slug?: string } }) => {
         const slug = data?.slug
-        if (!slug) return ''
+        if (!slug) return '/preview/case-studies/_new'
         // Relative path -- works on any deployment (Vercel, local, staging)
         return `/preview/case-studies/${slug}`
       },
