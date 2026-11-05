@@ -3,14 +3,14 @@ import { caseStudyBlocks } from '../blocks/case-study'
 
 /**
  * CaseStudies collection -- dedicated home for all case study documents.
- * Uses the Centronic 3-block starter template (Hero -> Brief -> Scope) by default.
+ * Includes a 3-option format/template selector and the Centronic 3-block starter template.
  */
 export const CaseStudies: CollectionConfig = {
   slug: 'case-studies',
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'slug', 'updatedAt'],
-    description: 'Portfolio case study documents. Each entry starts with the Hero -> Brief -> Scope template.',
+    defaultColumns: ['title', 'slug', 'template', 'updatedAt'],
+    description: 'Portfolio case study documents. Choose one of the 3 SK Design System case study formats.',
     livePreview: {
       url: ({ data }: { data?: { slug?: string } }) => {
         const slug = data?.slug
@@ -24,6 +24,20 @@ export const CaseStudies: CollectionConfig = {
   },
   versions: { drafts: true },
   fields: [
+    {
+      name: 'template',
+      type: 'select',
+      required: true,
+      defaultValue: 'narrative',
+      options: [
+        { label: '1. Standard Narrative (Hero -> Brief -> Scope + Blocks)', value: 'narrative' },
+        { label: '2. Narrative + Presentation Deck (Case Study / Slides Switcher)', value: 'narrative-slides' },
+        { label: '3. Visual / Image-Only Showcase (Gallery & Bento Focus)', value: 'visual-showcase' },
+      ],
+      admin: {
+        description: 'Select the case study format from the SK Design System.',
+      },
+    },
     {
       name: 'title',
       type: 'text',

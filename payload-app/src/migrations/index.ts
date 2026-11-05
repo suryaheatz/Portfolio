@@ -28,6 +28,7 @@ import * as caseStudiesCollection from './20261103_060000_case_studies_collectio
 import * as renamePagesMediaGroupTables from './20261104_000000_rename_pages_media_group_tables';
 import * as forceRenameMediaGroupTables from './20261104_200000_force_rename_media_group_tables';
 import * as fixMediaGroupAndCaseStudiesVSchema from './20261105_000000_fix_media_group_and_case_studies_v_schema';
+import * as addCaseStudyTemplateAndArticles from './20261105_010000_add_case_study_template_and_articles';
 
 export const migrations = [
   { up: migration_20261028_125058.up, down: migration_20261028_125058.down, name: '20261028_125058' },
@@ -50,4 +51,5 @@ export const migrations = [
   { up: renamePagesMediaGroupTables.up, down: renamePagesMediaGroupTables.down, name: '20261104_000000_rename_pages_media_group_tables' },
   { up: forceRenameMediaGroupTables.up, down: forceRenameMediaGroupTables.down, name: '20261104_200000_force_rename_media_group_tables' },
   { up: fixMediaGroupAndCaseStudiesVSchema.up, down: fixMediaGroupAndCaseStudiesVSchema.down, name: '20261105_000000_fix_media_group_and_case_studies_v_schema' },
+  { up: addCaseStudyTemplateAndArticles.up, down: addCaseStudyTemplateAndArticles.down, name: '20261105_010000_add_case_study_template_and_articles' },
 ];

@@ -265,11 +265,11 @@ export const BentoFourUp: Block = {
   ],
 }
 
-export const CaseStudyMediaGroup: Block = { slug: 'caseStudyMediaGroup', dbName: ({ tableName }) => `${(tableName ?? '').replace(/^_/, '').replace(/_v$/, '')}_blocks_cs_media_group`, imageURL: PV('case-study-media-group'), labels: {singular:'Case study image group',plural:'Case study image groups'}, fields: [
+export const CaseStudyMediaGroup: Block = { slug: 'caseStudyMediaGroup', dbName: ({ tableName }) => `${(tableName ?? '').replace(/^_/, '').replace(/_v$/, '')}_blocks_cs_media_group`, imageURL: PV('case-study-media-group'), labels: {singular:'Tooltip / Evidence & Media Gallery',plural:'Tooltip / Evidence & Media Galleries'}, fields: [
  {name:'sectionHeading',type:'text',required:true},
  {name:'sectionKey',type:'text',admin:{description:'Source section or chapter identity'}},
  {name:'layoutStyle',type:'select',defaultValue:'evidence',admin:{description:'Legacy layout fallback. New presentation choice below overrides this.'},options:[{label:'Evidence gallery',value:'evidence'},{label:'Grid',value:'grid'}]},
- {name:'presentation',type:'select',admin:{description:'Change visual layout without deleting captions or other image content.'},options:[
+ {name:'presentation',type:'select',defaultValue:'tooltip',admin:{description:'Change visual layout without deleting captions or other image content.'},options:[
  {label:'Evidence / tooltip gallery',value:'tooltip'},{label:'Adaptive grid',value:'adaptive'},{label:'Sequential slides',value:'slides'},{label:'Annotated image',value:'annotated'},{label:'Evolution sequence',value:'evolution'},{label:'Full-width figures',value:'figures'}]},
  {name:'gridVariant',type:'select',defaultValue:'two',admin:{condition:(_data,siblingData)=>siblingData?.presentation==='adaptive'},options:[
  {label:'Two-column',value:'two'},{label:'Three equal columns',value:'three'},{label:'Traditional grid',value:'traditional'},{label:'Three-column asymmetric',value:'asymmetric'}]},
@@ -278,8 +278,8 @@ export const CaseStudyMediaGroup: Block = { slug: 'caseStudyMediaGroup', dbName:
  {name:'showSectionHeading',type:'checkbox',defaultValue:true},
  {name:'showNumbers',type:'checkbox',defaultValue:false},
  {name:'images',type:'array',minRows:1,fields:[
- {name:'sourcePath',type:'text',required:true,admin:{description:'Original GitHub repository image path'}},
- {name:'sourceUrl',type:'text',required:true,admin:{description:'Temporary GitHub-backed image URL; replace with Media upload after validation'}},
+ {name:'sourcePath',type:'text',admin:{description:'Original GitHub repository image path (optional when Media upload is used)'}},
+ {name:'sourceUrl',type:'text',admin:{description:'Temporary GitHub-backed image URL (optional when Media upload is used)'}},
  {name:'alt',type:'textarea',admin:{description:'Accessibility text, maintained independently of display toggles'}},
  {name:'imageName',type:'text',admin:{description:'Internal asset label, never displayed by default'}},
  {name:'eyebrow',type:'text'},

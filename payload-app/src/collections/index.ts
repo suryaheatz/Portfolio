@@ -3,6 +3,7 @@ import { homeBlocks } from '../blocks/home'
 import { caseStudyBlocks } from '../blocks/case-study'
 
 export { CaseStudies } from './case-studies'
+export { Articles } from './articles'
 
 export const Media: CollectionConfig = {
   slug: 'media',

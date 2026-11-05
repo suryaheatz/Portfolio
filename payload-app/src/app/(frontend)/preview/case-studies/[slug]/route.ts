@@ -378,6 +378,71 @@ function render(b: Content): string {
     const mode = String(b.presentation || (b.layoutStyle === 'grid' ? 'adaptive' : 'tooltip'))
     const variant = String(b.gridVariant || 'two')
     const show = (v: unknown, fallback = false) => typeof v === 'boolean' ? v : fallback
+    const validItems = items.map((im) => {
+      const url = asset(im.media) || String(im.sourceUrl || '')
+      return (url.startsWith('https://') || url.startsWith('/')) ? { ...im, resolvedUrl: url } : null
+    }).filter(Boolean) as (Content & { resolvedUrl: string })[]
+
+    if (mode === 'tooltip' && validItems.length > 0) {
+      const firstUrl = validItems[0].resolvedUrl
+      const firstCap = String(validItems[0].caption || validItems[0].title || validItems[0].alt || '')
+      const totalStr = String(validItems.length).padStart(2, '0')
+      const tipImages = validItems.map((im, i) => {
+        const cap = String(im.caption || im.title || im.alt || '')
+        return `<img class="peg-tooltip__img${i === 0 ? ' peg-tooltip__img--current' : ''}" src="${esc(im.resolvedUrl)}" alt="${esc(im.alt || cap)}" data-cap="${esc(cap)}" data-idx="${i}" loading="lazy">`
+      }).join('')
+      const navThumbs = validItems.map((im, i) => {
+        const cap = String(im.caption || im.title || im.alt || '')
+        return `<button type="button" class="peg-nav__item${i === 0 ? ' peg-nav__item--selected' : ''}" data-nav-idx="${i}" aria-label="Select image ${i + 1}: ${esc(cap)}"><img class="peg-nav__img" src="${esc(im.resolvedUrl)}" alt="${esc(im.alt || cap)}" loading="lazy"></button>`
+      }).join('')
+      const itemPills = validItems.slice(0, 6).map((im, i) => {
+        const label = String(im.title || im.caption || im.imageName || `Artefact ${i + 1}`)
+        return `<span class="peg-pill">${esc(label.length > 42 ? label.slice(0, 40) + '...' : label)}</span>`
+      }).join('')
+      return `
+        <div class="section container" style="margin-top:40px">
+          <div class="peg-content" data-peg>
+            <div class="peg-pretitle">
+              ${b.sectionKey ? `<p class="cs-label">${esc(b.sectionKey)}</p>` : ''}
+            </div>
+            <div class="peg-text">
+              ${show(b.showSectionHeading, true) && b.sectionHeading ? `<h3 class="cs-h3">${esc(b.sectionHeading)}</h3>` : ''}
+              <div class="peg-pills">${itemPills}</div>
+              <button type="button" class="peg-trigger" data-peg-trigger>
+                <span class="peg-trigger__dot"></span>
+                <span>Hover to preview  -  Click to explore all ${validItems.length} artefacts -></span>
+              </button>
+            </div>
+            <div class="peg-tooltip" data-peg-tooltip aria-live="polite">
+              <div class="peg-tooltip__img-wrap" data-peg-tooltip-wrap>
+                ${tipImages}
+              </div>
+              <div class="peg-tooltip__meta">
+                <span class="peg-tooltip__counter" data-peg-counter>01 / ${totalStr}</span>
+                <span class="peg-tooltip__cap" data-peg-tip-cap>${esc(firstCap)}</span>
+                <span class="peg-tooltip__cta">View all ${validItems.length} -></span>
+              </div>
+            </div>
+            <div class="peg-gallery" data-peg-gallery role="dialog" aria-label="Evidence Gallery">
+              <div class="peg-gallery__bg" aria-hidden="true"><img src="${esc(firstUrl)}" alt=""></div>
+              <div class="peg-gallery__stage" data-peg-stage title="Click image to toggle fullscreen"></div>
+              <div class="peg-gallery__scrim"></div>
+              <div class="peg-gallery__title">
+                <span class="peg-gallery__counter" data-peg-gal-counter>01 / ${totalStr}</span>
+                <p class="peg-gallery__caption" data-peg-gal-cap>${esc(firstCap)}</p>
+              </div>
+              <div class="peg-gallery__controls">
+                <button type="button" class="peg-ctrl-btn" data-peg-prev aria-label="Previous image">&larr;</button>
+                <button type="button" class="peg-ctrl-btn" data-peg-next aria-label="Next image">&rarr;</button>
+                <button type="button" class="peg-ctrl-btn peg-ctrl-close" data-peg-close aria-label="Close gallery">&times;</button>
+              </div>
+            </div>
+            <div class="peg-nav" data-peg-nav>
+              ${navThumbs}
+            </div>
+          </div>
+        </div>`
+    }
     const entries = items.map((im, i) => {
       const url = asset(im.media) || String(im.sourceUrl || '')
       if (!url.startsWith('https://') && !url.startsWith('/')) return ''
@@ -432,7 +497,8 @@ export async function GET(_req: Request, context: { params: Promise<{ slug: stri
 
   const payload = await getPayload({ config })
   const csRes   = await payload.find({ collection: 'case-studies', where: { slug: { equals: slug } }, depth: 1, limit: 1, draft: true, overrideAccess: true })
-  const result  = csRes.docs.length ? csRes : await payload.find({ collection: 'pages', where: { slug: { equals: slug } }, depth: 1, limit: 1, draft: true, overrideAccess: true })
+  const artRes  = csRes.docs.length ? csRes : await payload.find({ collection: 'articles', where: { slug: { equals: slug } }, depth: 1, limit: 1, draft: true, overrideAccess: true })
+  const result  = artRes.docs.length ? artRes : await payload.find({ collection: 'pages', where: { slug: { equals: slug } }, depth: 1, limit: 1, draft: true, overrideAccess: true })
   const doc     = result.docs[0]
   const page: CasePage = doc ? { title: doc.title, layout: doc.layout as Content[] } : (sample[slug] ?? { title: slug === '_new' ? 'New Case Study' : slug, layout: sample.centronic.layout })
   const isSample = !doc
@@ -580,6 +646,48 @@ export async function GET(_req: Request, context: { params: Promise<{ slug: stri
     .asset-eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:11px;opacity:.7}
     .research-figure-caption-text h3{font-family:var(--font-display);font-size:18px;font-weight:400;margin:6px 0 4px;color:var(--ink)}
     .annotation-dot{position:absolute;transform:translate(-50%,-50%);background:var(--sun);color:#fff;border-radius:50%;width:28px;height:28px;text-align:center;line-height:28px;pointer-events:none;font-size:12px;font-weight:600}
+
+    /* -- SK-CASE-GALLERY-001 Progressive Evidence Gallery (Tooltip -> Cycling Preview -> Flip Gallery -> Fullscreen) -- */
+    .peg-content{display:grid;grid-template-columns:1fr 320px;grid-template-areas:"pretitle pretitle" "text tooltip" "gallery gallery" "nav nav";column-gap:var(--sp-12);row-gap:var(--sp-6);position:relative;align-items:start}
+    .peg-pretitle{grid-area:pretitle}
+    .peg-text{grid-area:text;display:flex;flex-direction:column;gap:var(--sp-4)}
+    .peg-pills{display:flex;flex-wrap:wrap;gap:var(--sp-2);margin-top:var(--sp-2)}
+    .peg-pill{font-family:var(--font-sans);font-size:12px;color:var(--ink-2);background:var(--surface);border:1px solid var(--rule);border-radius:999px;padding:4px 12px}
+    .peg-trigger{display:inline-flex;align-items:center;gap:10px;align-self:flex-start;margin-top:var(--sp-2);padding:10px 18px;border-radius:999px;border:1px solid var(--rule);background:var(--surface-chrome);color:var(--ink);font-family:var(--font-sans);font-size:13px;font-weight:500;cursor:pointer;transition:all .22s var(--ease-out)}
+    .peg-trigger:hover,.peg-trigger:focus-visible{border-color:var(--sun);color:var(--sun);background:var(--sun-muted)}
+    .peg-trigger__dot{width:7px;height:7px;border-radius:50%;background:var(--sun);flex-shrink:0}
+    .peg-tooltip{grid-area:tooltip;position:relative;align-self:start;background:var(--surface);border-radius:var(--r-lg);padding:var(--sp-4);border:1px solid var(--rule);opacity:0;transform:translateY(6px);pointer-events:none;transition:opacity .26s var(--ease-out),transform .26s var(--ease-out);cursor:pointer}
+    .peg-content.peg-hover .peg-tooltip{opacity:1;transform:translateY(0);pointer-events:auto}
+    .peg-tooltip__img-wrap{width:100%;height:220px;border-radius:var(--r-md);overflow:hidden;background:var(--bg);position:relative;display:grid;grid-template-areas:"img"}
+    .peg-tooltip__img{grid-area:img;width:100%;height:100%;object-fit:contain;object-position:center;opacity:0;transition:opacity .32s ease}
+    .peg-tooltip__img--current{opacity:1}
+    .peg-tooltip__meta{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-3);margin-top:var(--sp-3);font-family:var(--font-sans);font-size:12px;color:var(--ink-3)}
+    .peg-tooltip__counter{font-weight:600;color:var(--ink-2);flex-shrink:0}
+    .peg-tooltip__cap{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .peg-tooltip__cta{color:var(--sun);font-weight:500;flex-shrink:0}
+    .peg-gallery{grid-area:gallery;display:none;position:relative;border-radius:var(--r-lg);overflow:hidden;background:var(--surface);height:520px;border:1px solid var(--rule)}
+    .peg-gallery__bg{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+    .peg-gallery__bg img{width:100%;height:100%;object-fit:cover;object-position:center;transform:scale(1.08);filter:blur(32px) saturate(0.7);opacity:.55}
+    .peg-gallery__stage{position:relative;z-index:1;width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:var(--sp-8);cursor:zoom-in}
+    .peg-gallery__stage .peg-tooltip__img{display:block;width:100%;height:100%;object-fit:contain;object-position:center;opacity:1}
+    .peg-gallery__scrim{position:absolute;bottom:0;left:0;right:0;height:96px;background:linear-gradient(to top,rgba(17,17,16,.76) 0%,transparent 100%);z-index:2;pointer-events:none}
+    .peg-gallery__title{position:absolute;bottom:var(--sp-6);left:var(--sp-6);right:var(--sp-6);z-index:3;pointer-events:none;color:var(--bg);display:flex;align-items:baseline;gap:var(--sp-3)}
+    .peg-gallery__counter{font-family:var(--font-sans);font-size:12px;font-weight:600;color:rgba(245,244,240,.75);flex-shrink:0}
+    .peg-gallery__caption{font-family:var(--font-sans);font-size:13px;line-height:1.45;color:var(--bg);margin:0}
+    .peg-gallery__controls{position:absolute;top:var(--sp-4);right:var(--sp-4);z-index:4;display:flex;gap:var(--sp-2)}
+    .peg-ctrl-btn{width:36px;height:36px;border-radius:50%;border:1px solid rgba(245,244,240,.28);background:rgba(17,17,16,.55);backdrop-filter:blur(8px);color:var(--bg);font-size:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .18s ease}
+    .peg-ctrl-btn:hover{background:var(--sun);border-color:var(--sun)}
+    .peg-nav{grid-area:nav;display:none;gap:var(--sp-3);align-items:center;height:76px;overflow-x:auto;padding:4px 2px}
+    .peg-nav__item{height:64px;aspect-ratio:16/10;border-radius:var(--r-sm);overflow:hidden;border:none;padding:0;background:var(--surface);cursor:pointer;flex-shrink:0;opacity:.7;transition:opacity .18s ease}
+    .peg-nav__item:hover{opacity:1}
+    .peg-nav__item--selected{opacity:1;outline:2px solid var(--sun);outline-offset:2px}
+    .peg-nav__img{width:100%;height:100%;object-fit:cover;display:block}
+    .peg-content.peg-open .peg-text,.peg-content.peg-open .peg-tooltip{opacity:0;pointer-events:none;overflow:hidden;height:0;min-height:0;margin:0;padding:0;border:none}
+    .peg-content.peg-open .peg-gallery{display:block}
+    .peg-content.peg-open .peg-nav{display:flex}
+    .peg-gallery.peg-gallery--fullscreen{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;z-index:950!important;border-radius:0!important;background:var(--ink)!important;border:none!important}
+    .peg-gallery.peg-gallery--fullscreen .peg-gallery__stage{cursor:zoom-out}
+    @media(max-width:640px){.peg-content{grid-template-columns:1fr;grid-template-areas:"pretitle" "text" "gallery" "nav"}.peg-tooltip{display:none}.peg-gallery{height:340px}}
 
     /* -- Bento grid -- */
     .cs-bento { display: grid; gap: var(--bento-gap); width: 100%; }
@@ -818,6 +926,175 @@ function doRefresh(){
     slider.addEventListener('touchstart', function(e){ isDragging = true; setPos(e.touches[0].clientX); e.preventDefault() }, { passive: false })
     window.addEventListener('touchmove',  function(e){ if(isDragging) setPos(e.touches[0].clientX) })
     window.addEventListener('touchend',   function(){  isDragging = false })
+  })
+})()
+
+// -- SK-CASE-GALLERY-001 Progressive Evidence Gallery (Tooltip -> Cycling -> Flip Gallery -> Fullscreen) --
+;(function pegInit(){
+  if (typeof gsap !== 'undefined' && typeof Flip !== 'undefined') {
+    gsap.registerPlugin(Flip)
+  }
+  document.querySelectorAll('[data-peg]').forEach(function(root){
+    var trigger     = root.querySelector('[data-peg-trigger]')
+    var textCol     = root.querySelector('.peg-text')
+    var tooltip     = root.querySelector('[data-peg-tooltip]')
+    var tooltipWrap = root.querySelector('[data-peg-tooltip-wrap]')
+    var tipCounter  = root.querySelector('[data-peg-counter]')
+    var tipCap      = root.querySelector('[data-peg-tip-cap]')
+    var gallery     = root.querySelector('[data-peg-gallery]')
+    var stage       = root.querySelector('[data-peg-stage]')
+    var bgImg       = gallery ? gallery.querySelector('.peg-gallery__bg img') : null
+    var galCounter  = root.querySelector('[data-peg-gal-counter]')
+    var galCap      = root.querySelector('[data-peg-gal-cap]')
+    var btnPrev     = root.querySelector('[data-peg-prev]')
+    var btnNext     = root.querySelector('[data-peg-next]')
+    var btnClose    = root.querySelector('[data-peg-close]')
+    var imgs        = Array.from(root.querySelectorAll('.peg-tooltip__img'))
+    var navItems    = Array.from(root.querySelectorAll('.peg-nav__item'))
+    if (!imgs.length || !tooltipWrap || !gallery || !stage) return
+
+    var current = 0
+    var timer = null
+    var isOpen = false
+    var isFullscreen = false
+    var isAnimating = false
+    var totalStr = String(imgs.length).padStart(2, '0')
+
+    function updateMeta(idx) {
+      var numStr = String(idx + 1).padStart(2, '0') + ' / ' + totalStr
+      var capStr = imgs[idx].getAttribute('data-cap') || ''
+      if (tipCounter) tipCounter.textContent = numStr
+      if (tipCap)     tipCap.textContent     = capStr
+      if (galCounter) galCounter.textContent = numStr
+      if (galCap)     galCap.textContent     = capStr
+      if (bgImg)      bgImg.src              = imgs[idx].src
+      navItems.forEach(function(n, i){ n.classList.toggle('peg-nav__item--selected', i === idx) })
+    }
+
+    function showTooltipFrame(idx) {
+      imgs.forEach(function(im, i){ im.classList.toggle('peg-tooltip__img--current', i === idx) })
+      current = idx
+      updateMeta(idx)
+    }
+
+    function startCycle() {
+      stopCycle()
+      if (imgs.length <= 1) return
+      timer = setInterval(function(){
+        if (isOpen) return
+        var next = (current + 1) % imgs.length
+        showTooltipFrame(next)
+      }, 1800)
+    }
+
+    function stopCycle() {
+      if (timer) { clearInterval(timer); timer = null }
+    }
+
+    function onHoverEnter() {
+      if (isOpen) return
+      root.classList.add('peg-hover')
+      startCycle()
+    }
+
+    function onHoverLeave() {
+      if (isOpen) return
+      stopCycle()
+      root.classList.remove('peg-hover')
+    }
+
+    if (textCol) {
+      textCol.addEventListener('mouseenter', onHoverEnter)
+      textCol.addEventListener('mouseleave', onHoverLeave)
+    }
+    if (tooltip) {
+      tooltip.addEventListener('mouseenter', function(){ if (!isOpen) { root.classList.add('peg-hover'); stopCycle() } })
+      tooltip.addEventListener('mouseleave', onHoverLeave)
+    }
+
+    function openGallery() {
+      if (isOpen || isAnimating) return
+      stopCycle()
+      isOpen = true
+      var activeImg = imgs[current]
+      var state = (typeof Flip !== 'undefined') ? Flip.getState(activeImg, { simple: true }) : null
+      root.classList.remove('peg-hover')
+      root.classList.add('peg-open')
+      stage.appendChild(activeImg)
+      activeImg.classList.add('peg-tooltip__img--current')
+      updateMeta(current)
+      if (state && typeof Flip !== 'undefined') {
+        isAnimating = true
+        Flip.from(state, { duration: 0.55, ease: 'power3.inOut', scale: true, onComplete: function(){ isAnimating = false } })
+      }
+    }
+
+    function selectImage(idx) {
+      if (!isOpen || idx === current || isAnimating) return
+      var nextIdx = (idx + imgs.length) % imgs.length
+      var prevImg = imgs[current]
+      var nextImg = imgs[nextIdx]
+      var state = (typeof Flip !== 'undefined') ? Flip.getState(nextImg, { simple: true }) : null
+      tooltipWrap.appendChild(prevImg)
+      prevImg.classList.remove('peg-tooltip__img--current')
+      if (typeof gsap !== 'undefined') gsap.set(prevImg, { clearProps: 'all' })
+      current = nextIdx
+      stage.appendChild(nextImg)
+      nextImg.classList.add('peg-tooltip__img--current')
+      updateMeta(current)
+      if (state && typeof Flip !== 'undefined') {
+        isAnimating = true
+        Flip.from(state, { duration: 0.45, ease: 'power3.inOut', scale: true, onComplete: function(){ isAnimating = false } })
+      }
+    }
+
+    function toggleFullscreen() {
+      if (!isOpen || isAnimating) return
+      var activeImg = imgs[current]
+      var state = (typeof Flip !== 'undefined') ? Flip.getState(activeImg, { simple: true }) : null
+      isFullscreen = !isFullscreen
+      gallery.classList.toggle('peg-gallery--fullscreen', isFullscreen)
+      if (state && typeof Flip !== 'undefined') {
+        isAnimating = true
+        Flip.from(state, { duration: 0.55, ease: 'power3.inOut', scale: true, onComplete: function(){ isAnimating = false } })
+      }
+    }
+
+    function closeGallery() {
+      if (!isOpen) return
+      if (isFullscreen) {
+        toggleFullscreen()
+        return
+      }
+      stopCycle()
+      var activeImg = imgs[current]
+      tooltipWrap.appendChild(activeImg)
+      imgs.forEach(function(im, i){
+        if (typeof gsap !== 'undefined') gsap.set(im, { clearProps: 'all' })
+        im.classList.toggle('peg-tooltip__img--current', i === current)
+      })
+      gallery.classList.remove('peg-gallery--fullscreen')
+      root.classList.remove('peg-open', 'peg-hover')
+      isOpen = false
+      isFullscreen = false
+      isAnimating = false
+    }
+
+    if (trigger) trigger.addEventListener('click', openGallery)
+    if (tooltip) tooltip.addEventListener('click', openGallery)
+    if (stage)   stage.addEventListener('click', toggleFullscreen)
+    if (btnPrev) btnPrev.addEventListener('click', function(e){ e.stopPropagation(); selectImage(current - 1) })
+    if (btnNext) btnNext.addEventListener('click', function(e){ e.stopPropagation(); selectImage(current + 1) })
+    if (btnClose) btnClose.addEventListener('click', function(e){ e.stopPropagation(); closeGallery() })
+    navItems.forEach(function(btn, idx){
+      btn.addEventListener('click', function(){ selectImage(idx) })
+    })
+    window.addEventListener('keydown', function(e){
+      if (!isOpen) return
+      if (e.key === 'Escape') closeGallery()
+      if (e.key === 'ArrowLeft') selectImage(current - 1)
+      if (e.key === 'ArrowRight') selectImage(current + 1)
+    })
   })
 })()
 
