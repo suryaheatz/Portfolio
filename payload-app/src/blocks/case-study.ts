@@ -269,8 +269,8 @@ export const CaseStudyMediaGroup: Block = { slug: 'caseStudyMediaGroup', dbName:
  {name:'sectionHeading',type:'text',required:true},
  {name:'sectionKey',type:'text',admin:{description:'Source section or chapter identity'}},
  {name:'layoutStyle',type:'select',defaultValue:'evidence',admin:{description:'Legacy layout fallback. New presentation choice below overrides this.'},options:[{label:'Evidence gallery',value:'evidence'},{label:'Grid',value:'grid'}]},
- {name:'presentation',type:'select',defaultValue:'tooltip',admin:{description:'Change visual layout without deleting captions or other image content.'},options:[
- {label:'Evidence / tooltip gallery',value:'tooltip'},{label:'Adaptive grid',value:'adaptive'},{label:'Sequential slides',value:'slides'},{label:'Annotated image',value:'annotated'},{label:'Evolution sequence',value:'evolution'},{label:'Full-width figures',value:'figures'}]},
+ {name:'presentation',type:'select',defaultValue:'tooltip',admin:{description:'SK Design System sec 26 Media Pattern -- selects visual layout and updates the right-hand Live Preview blueprint.'},options:[
+ {label:'1. Evidence / Tooltip Gallery (Hover Cycling -> Flip Gallery -> Fullscreen | contain)',value:'tooltip'},{label:'2. Adaptive Grid (2-Col / 3-Col / Asymmetric | 400px height, contain)',value:'adaptive'},{label:'3. Sequential Slides (40% Text / 60% Image Split | 16:10 or 4:3, cover)',value:'slides'},{label:'4. Annotated Image (Uncropped Diagram + X%/Y% Hotspots | contain)',value:'annotated'},{label:'5. Evolution Sequence (Step-by-Step 01 -> 02 -> 03 Strip | contain)',value:'evolution'},{label:'6. Full-Width Figures (1080px Stacked Uncropped Figures | contain)',value:'figures'}]},
  {name:'gridVariant',type:'select',defaultValue:'two',admin:{condition:(_data,siblingData)=>siblingData?.presentation==='adaptive'},options:[
  {label:'Two-column',value:'two'},{label:'Three equal columns',value:'three'},{label:'Traditional grid',value:'traditional'},{label:'Three-column asymmetric',value:'asymmetric'}]},
  {name:'appearance',type:'select',defaultValue:'inherit',options:[{label:'Inherit section',value:'inherit'},{label:'Light',value:'light'},{label:'Dark',value:'dark'}]},
@@ -278,6 +278,7 @@ export const CaseStudyMediaGroup: Block = { slug: 'caseStudyMediaGroup', dbName:
  {name:'showSectionHeading',type:'checkbox',defaultValue:true},
  {name:'showNumbers',type:'checkbox',defaultValue:false},
  {name:'images',type:'array',minRows:1,fields:[
+ {name:'media',type:'upload',relationTo:'media',admin:{description:'Primary image upload from R2 Media Library.'}},
  {name:'sourcePath',type:'text',admin:{description:'Original GitHub repository image path (optional when Media upload is used)'}},
  {name:'sourceUrl',type:'text',admin:{description:'Temporary GitHub-backed image URL (optional when Media upload is used)'}},
  {name:'alt',type:'textarea',admin:{description:'Accessibility text, maintained independently of display toggles'}},
@@ -294,7 +295,9 @@ export const CaseStudyMediaGroup: Block = { slug: 'caseStudyMediaGroup', dbName:
  {name:'showCredit',type:'checkbox',defaultValue:false},
  {name:'annotations',type:'array',admin:{description:'Hotspot legend retained when switching layouts'},fields:[
  {name:'number',type:'number',required:true},{name:'x',type:'number',min:0,max:100,required:true},{name:'y',type:'number',min:0,max:100,required:true},{name:'heading',type:'text'},{name:'body',type:'textarea'}]},
- {name:'media',type:'upload',relationTo:'media'},
+ 
+   
+
  ]}
 ] }
 export const caseStudyBlocks: Block[] = [

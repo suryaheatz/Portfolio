@@ -48,7 +48,13 @@ function lexToHtml(v: unknown): string {
   const children = (root.children ?? []) as LexNode[]
   return children.map(walkLexNode).join('')
 }
-type CasePage = { title: string; layout?: Content[] }
+type CasePage = { title: string; template?: string; slides?: Content[]; layout?: Content[] }
+const bpSlot = (label: string, spec: string, height = '240px', dark = false) => `
+  <div class="bp-slot${dark ? ' bp-slot--dark' : ''}" style="min-height:${height}">
+    <span class="bp-badge">${esc(spec)}</span>
+    <strong class="bp-title">${esc(label)}</strong>
+    <span class="bp-sub">SK Design System Blueprint  -  Upload image in left panel to populate</span>
+  </div>`
 const asset = (v: unknown) =>
   v && typeof v === 'object' && 'url' in v && typeof (v as Record<string,unknown>).url === 'string'
     ? (v as Record<string,unknown>).url as string
@@ -181,7 +187,7 @@ function render(b: Content): string {
   /* -- Full-width figure -- */
   if (type === 'fullWidthFigure') {
     const src = asset(b.image)
-    if (!src) return ''
+    if (!src) return `<div class="section container" style="margin-top:40px">${bpSlot(String(b.captionLabel || 'Full-Width Figure'), '1080px Full Width  |  max-height: 480px  |  object-fit: contain (no cropping)', '320px')}</div>`
     const blur = b.background === 'blur'
     return `
       <figure class="cs-context-figure" style="position:relative;margin:40px 0">
@@ -203,7 +209,7 @@ function render(b: Content): string {
     const layoutClass = TYPED_BENTO_CLASS[type]
     const cellsHtml = cells.map((cell, i) => {
       const imgUrl = asset(cell.image)
-      if (!imgUrl) return ''
+      if (!imgUrl) return `<div class="cs-bento-cell">${bpSlot(`Bento Cell ${i + 1}`, '240px Row Height  |  24px Radius  |  object-fit: cover', '100%')}</div>`
       const cap = cell.caption ? `<div class="cs-bento-caption">${esc(String(cell.caption))}</div>` : ''
       return `<div class="cs-bento-cell" data-bento-index="${i}">
         <img src="${esc(imgUrl)}" alt="${esc(String(cell.altText || ''))}" loading="lazy">
@@ -244,7 +250,7 @@ function render(b: Content): string {
     const layoutClass = layoutClassMap[layout] ?? 'cs-bento--2'
     const cellsHtml = cells.map((cell, i) => {
       const imgUrl = asset(cell.image)
-      if (!imgUrl) return ''
+      if (!imgUrl) return `<div class="cs-bento-cell">${bpSlot(`Bento Cell ${i + 1}`, '240px Row Height  |  24px Radius  |  object-fit: cover', '100%')}</div>`
       const cap = cell.caption ? `<div class="cs-bento-caption">${esc(cell.caption)}</div>` : ''
       return `<div class="cs-bento-cell" data-bento-index="${i}">
         <img src="${esc(imgUrl)}" alt="${esc(cell.altText)}" loading="lazy">
@@ -276,7 +282,7 @@ function render(b: Content): string {
   if (type === 'beforeAfterSlider') {
     const beforeUrl = asset(b.beforeImage)
     const afterUrl  = asset(b.afterImage)
-    if (!beforeUrl || !afterUrl) return ''
+    if (!beforeUrl || !afterUrl) return `<div class="section container" style="margin-top:40px">${bpSlot('Before / After Comparison Slider', 'Upload both Before Image & After Image  |  480px Height  |  16:10 or 16:9  |  object-fit: cover', '340px')}</div>`
     const beforeLabel = esc(String(b.beforeLabel || 'Before'))
     const afterLabel  = esc(String(b.afterLabel  || 'After'))
     const cap = b.caption ? `<p class="ba-caption">${esc(String(b.caption))}</p>` : ''
@@ -303,7 +309,7 @@ function render(b: Content): string {
   /* -- Annotated media -- */
   if (type === 'annotatedMedia') {
     const imgUrl    = asset(b.image)
-    if (!imgUrl) return ''
+    if (!imgUrl) return `<div class="section container" style="margin-top:40px">${bpSlot('Annotated Media Stage', 'Full-Width Uncropped Image (object-fit: contain) + Numbered X%/Y% Hotspot Callouts', '320px')}</div>`
     const hotspots  = Array.isArray(b.hotspots) ? (b.hotspots as Content[]) : []
     const cap       = b.caption ? `<figcaption class="am-caption">${esc(String(b.caption))}</figcaption>` : ''
 
@@ -352,7 +358,6 @@ function render(b: Content): string {
   /* -- Slide layout -- */
   if (type === 'slideLayout') {
     const imgUrl = asset(b.image)
-    if (!imgUrl) return ''
     const variant  = String(b.variant || 'light')
     const varClass = variant === 'dark' ? 'sk-slide--dark' : 'sk-slide--light'
     const eyebrow  = b.eyebrow ? `<p class="cs-label">${esc(String(b.eyebrow))}</p>` : ''
@@ -477,7 +482,60 @@ function render(b: Content): string {
     const heading = show(b.showSectionHeading, true) && b.sectionHeading
       ? `<div class="cs-context-layout" style="margin-bottom:24px"><div class="cs-context-margin"><p class="cs-label">${esc(b.sectionKey)}</p></div><div class="cs-context-main"><h3 class="cs-h3">${esc(b.sectionHeading)}</h3></div></div>`
       : ''
-    const gridCols = variant === 'three' ? 'repeat(3,minmax(0,1fr))' : 'repeat(2,minmax(0,1fr))'
+    if (validItems.length === 0) {
+      const modeSpecs: Record<string, { label: string; spec: string }> = {
+        tooltip:   { label: '1. Evidence / Tooltip Gallery Blueprint', spec: 'Stationary 320x220px Hover Cycling Preview -> Click Flips to 16:10 Uncropped Gallery (object-fit: contain)' },
+        adaptive:  { label: `2. Adaptive Grid Blueprint (${variant})`, spec: '400px Figure Windows  |  16:10 or 4:3  |  object-fit: contain (no cropping)' },
+        slides:    { label: '3. Sequential Slides Blueprint', spec: '40% Text / 60% Image Split Cards  |  min-height: 500px  |  16:10 or 4:3  |  object-fit: cover' },
+        annotated: { label: '4. Annotated Image Blueprint', spec: 'Full-Width Uncropped Diagram (object-fit: contain) + Numbered X%/Y% Hotspot Callouts' },
+        evolution: { label: '5. Evolution Sequence Blueprint', spec: 'Step-by-Step 01 -> 02 -> 03 Process Progression  |  object-fit: contain' },
+        figures:   { label: '6. Full-Width Figures Blueprint', spec: '1080px Full Column Stacked Figures  |  460px Height  |  object-fit: contain' },
+      }
+      const ms = modeSpecs[mode] ?? modeSpecs.tooltip
+      const hdrHtml = show(b.showSectionHeading, true) && b.sectionHeading
+        ? `<div class="cs-context-layout" style="margin-bottom:24px"><div class="cs-context-margin"><p class="cs-label">${esc(b.sectionKey || mode)}</p></div><div class="cs-context-main"><h3 class="cs-h3">${esc(b.sectionHeading)}</h3></div></div>`
+        : ''
+      return `<div class="section container" style="margin-top:40px">${hdrHtml}${bpSlot(ms.label, ms.spec, '280px')}</div>`
+    }
+    if (mode === 'slides') {
+      const hdrHtml = show(b.showSectionHeading, true) && b.sectionHeading
+        ? `<div class="cs-context-layout" style="margin-bottom:24px"><div class="cs-context-margin"><p class="cs-label">${esc(b.sectionKey)}</p></div><div class="cs-context-main"><h3 class="cs-h3">${esc(b.sectionHeading)}</h3></div></div>`
+        : ''
+      const slidesHtml = validItems.map((im, i) => {
+        const isDark = String(b.appearance || 'inherit') === 'dark'
+        const alignImgLeft = String(b.slideAlignment || 'textLeft') === 'imageLeft'
+        const slideStyle = alignImgLeft ? 'grid-template-columns:3fr 2fr' : ''
+        const textCol = `<div class="sk-slide-text"><p class="cs-label">${esc(im.eyebrow || `0${i + 1}`)}</p><h3 class="sk-slide-heading">${esc(im.title || im.caption || b.sectionHeading || `Slide ${i + 1}`)}</h3>${im.description || im.caption ? `<div class="cs-body"><p>${text(im.description || im.caption)}</p></div>` : ''}</div>`
+        const imgCol = `<div class="sk-slide-image"><img src="${esc(im.resolvedUrl)}" alt="${esc(im.alt || im.caption || '')}" loading="lazy"></div>`
+        return `<div class="sk-slide ${isDark ? 'sk-slide--dark' : 'sk-slide--light'}" style="margin-bottom:24px;${slideStyle}">${alignImgLeft ? imgCol + textCol : textCol + imgCol}</div>`
+      }).join('')
+      return `<div class="section container" style="margin-top:40px">${hdrHtml}${slidesHtml}</div>`
+    }
+    if (mode === 'evolution') {
+      const hdrHtml = show(b.showSectionHeading, true) && b.sectionHeading
+        ? `<div class="cs-context-layout" style="margin-bottom:24px"><div class="cs-context-margin"><p class="cs-label">${esc(b.sectionKey)}</p></div><div class="cs-context-main"><h3 class="cs-h3">${esc(b.sectionHeading)}</h3></div></div>`
+        : ''
+      const stepsHtml = validItems.map((im, i) => `
+        <div class="evo-step">
+          <div class="evo-step__header">
+            <span class="evo-step__num">0${i + 1}</span>
+            <span class="evo-step__line"></span>
+          </div>
+          <figure class="research-figure">
+            <div class="research-figure-window" style="height:260px">
+              <img loading="lazy" src="${esc(im.resolvedUrl)}" alt="${esc(im.alt || im.caption || '')}">
+            </div>
+            <figcaption class="research-figure-caption">
+              <span class="research-figure-caption-text">
+                ${im.title ? `<h3>${esc(im.title)}</h3>` : ''}
+                ${im.caption ? `<p class="asset-caption">${esc(im.caption)}</p>` : ''}
+              </span>
+            </figcaption>
+          </figure>
+        </div>`).join('')
+      return `<div class="section container" style="margin-top:40px">${hdrHtml}<div class="evo-grid">${stepsHtml}</div></div>`
+    }
+    const gridCols = variant === 'three' ? 'repeat(3,minmax(0,1fr))' : variant === 'traditional' ? 'repeat(4,minmax(0,1fr))' : variant === 'asymmetric' ? '3fr 2fr' : 'repeat(2,minmax(0,1fr))'
     const gridStyle = ['tooltip','adaptive'].includes(mode)
       ? `display:grid;grid-template-columns:${gridCols};gap:16px`
       : 'display:block'
@@ -491,7 +549,7 @@ function render(b: Content): string {
   return ''
 }
 
-export async function GET(_req: Request, context: { params: Promise<{ slug: string }> }) {
+export async function GET(req: Request, context: { params: Promise<{ slug: string }> }) {
   const { slug } = await context.params
   // Allow any case study or page slug to render in Live Preview
 
@@ -499,10 +557,74 @@ export async function GET(_req: Request, context: { params: Promise<{ slug: stri
   const csRes   = await payload.find({ collection: 'case-studies', where: { slug: { equals: slug } }, depth: 1, limit: 1, draft: true, overrideAccess: true })
   const artRes  = csRes.docs.length ? csRes : await payload.find({ collection: 'articles', where: { slug: { equals: slug } }, depth: 1, limit: 1, draft: true, overrideAccess: true })
   const result  = artRes.docs.length ? artRes : await payload.find({ collection: 'pages', where: { slug: { equals: slug } }, depth: 1, limit: 1, draft: true, overrideAccess: true })
-  const doc     = result.docs[0]
-  const page: CasePage = doc ? { title: doc.title, layout: doc.layout as Content[] } : (sample[slug] ?? { title: slug === '_new' ? 'New Case Study' : slug, layout: sample.centronic.layout })
+  const reqUrl  = new URL(req.url)
+  const tplParam = reqUrl.searchParams.get('template')
+  const doc     = result.docs[0] as (Record<string, unknown> | undefined)
+  const activeTemplate = String(tplParam || doc?.template || (slug === 'haptix' ? 'narrative-slides' : 'narrative'))
+  const visualShowcaseSample: CasePage = {
+    title: doc ? String(doc.title) : 'Visual / Image-Only Showcase',
+    template: 'visual-showcase',
+    layout: [
+      { blockType: 'caseStudyHero', eyebrow: 'Visual Showcase  -  SK Design System', role: 'Industrial & Interaction Design', title: doc ? String(doc.title) : 'Visual Showcase Template Blueprint', chips: [{ label: 'Bento Grid' }, { label: 'Uncropped Figures' }], description: 'In Visual / Image-Only Showcase mode, prose Brief and Scope cards are omitted so visual work takes center stage.' },
+      { blockType: 'bentoThreeA', eyebrow: '01 / Visual Grid', title: 'Bento 3A Showcase (2 Top + 1 Wide Bottom)', subtitle: 'Upload 3 images in the left panel (240px row height, object-fit: cover)', cells: [{}, {}, {}] },
+      { blockType: 'fullWidthFigure', captionLabel: '02 / Hero Artefact', caption: 'Full-width 1080px uncropped figure (object-fit: contain)' },
+      { blockType: 'beforeAfterSlider', caption: '03 / Interactive Before & After Comparison' },
+    ],
+  }
+  const rawLayout = (doc?.layout as Content[] | undefined) ?? (activeTemplate === 'visual-showcase' ? visualShowcaseSample.layout : (sample[slug]?.layout ?? sample.centronic.layout)) ?? []
+  const filteredLayout = activeTemplate === 'visual-showcase'
+    ? rawLayout.filter(b => b.blockType !== 'caseStudyBrief' && b.blockType !== 'caseStudyScope')
+    : rawLayout
+  const finalLayout = (activeTemplate === 'visual-showcase' && filteredLayout.length <= 1)
+    ? [...filteredLayout, ...(visualShowcaseSample.layout ?? []).slice(1)]
+    : filteredLayout
+  const page: CasePage = {
+    title: doc ? String(doc.title) : (slug === '_new' ? 'New Case Study' : slug),
+    template: activeTemplate,
+    slides: Array.isArray(doc?.slides) ? (doc?.slides as Content[]) : [],
+    layout: finalLayout,
+  }
   const isSample = !doc
-  const body = (page.layout ?? []).map(b => render(b)).join('')
+  const slidesList = (page.slides && page.slides.length > 0) ? page.slides : [
+    { variant: 'light', eyebrow: 'Slide 01 / Blueprint', heading: 'Presentation Slide (Light Variant)', body: '40% editorial text on the left, 60% full-bleed visual on the right (16:10 or 4:3, object-fit: cover).' },
+    { variant: 'dark',  eyebrow: 'Slide 02 / Blueprint', heading: 'Presentation Slide (Dark Variant)',  body: 'Add slides in the "Presentation Slides Deck" array on the left to populate this interactive deck.' },
+  ]
+  const slidesDeckHtml = activeTemplate === 'narrative-slides' ? `
+    <div class="sk-switch-bar" id="switch">
+      <div class="container sk-switch-inner">
+        <span class="sk-switch-label">Format: Narrative + Presentation Deck</span>
+        <div class="sk-switch-tabs" role="tablist">
+          <button type="button" class="sk-switch-tab active" data-switch-target="case" role="tab" aria-selected="true">Case study</button>
+          <button type="button" class="sk-switch-tab" data-switch-target="slides" role="tab" aria-selected="false">Slides (${slidesList.length})</button>
+        </div>
+      </div>
+    </div>
+    <section id="p-slides" class="container" style="display:none;padding:48px var(--col-pad)">
+      <div class="sk-deck" data-deck>
+        ${slidesList.map((s, idx) => {
+          const sUrl = asset(s.image)
+          const isDark = String(s.variant || 'light') === 'dark'
+          return `<div class="sk-deck-slide${idx === 0 ? ' active' : ''}" data-deck-slide="${idx}">
+            <div class="sk-slide ${isDark ? 'sk-slide--dark' : 'sk-slide--light'}">
+              <div class="sk-slide-text">
+                ${s.eyebrow ? `<p class="cs-label">${esc(String(s.eyebrow))}</p>` : `<p class="cs-label">Slide 0${idx + 1}</p>`}
+                <h3 class="sk-slide-heading">${esc(String(s.heading || `Slide ${idx + 1}`))}</h3>
+                ${s.body ? `<div class="cs-body"><p>${text(s.body)}</p></div>` : ''}
+              </div>
+              <div class="sk-slide-image" style="${sUrl ? '' : 'padding:24px'}">
+                ${sUrl ? `<img src="${esc(sUrl)}" alt="${esc(String(s.imageAlt || s.heading || ''))}" loading="lazy">` : bpSlot(`Slide 0${idx + 1} Visual (60% Column)`, '16:10 or 4:3  |  min-height: 500px  |  object-fit: cover', '100%', isDark)}
+              </div>
+            </div>
+          </div>`
+        }).join('')}
+        <div class="sk-deck-bar">
+          <button type="button" class="preview-refresh sk-deck-btn" data-deck-prev>&larr; Previous slide</button>
+          <span class="sk-deck-count" data-deck-count>01 / ${String(slidesList.length).padStart(2, '0')}</span>
+          <button type="button" class="preview-refresh sk-deck-btn" data-deck-next>Next slide &rarr;</button>
+        </div>
+      </div>
+    </section>` : ''
+  const body = slidesDeckHtml + `<div id="p-case">` + (page.layout ?? []).map(b => render(b)).join('') + `</div>`
 
   const html = `<!doctype html>
 <html lang="en">
@@ -621,6 +743,29 @@ export async function GET(_req: Request, context: { params: Promise<{ slug: stri
     .cs-context-figure{margin-top:var(--sp-10);width:100%;border-radius:var(--r-lg);overflow:hidden;background:var(--surface)}
     .cs-context-figure img{display:block;width:100%;max-height:480px;object-fit:contain;object-position:center center}
     .cs-context-caption{padding:var(--sp-3) var(--sp-4) var(--sp-4);font-family:var(--font-sans);font-size:12px;line-height:1.5;color:var(--ink-3)}
+
+    /* -- SK Design System Blueprint Placeholders + Switcher + Evolution Grid -- */
+    .bp-slot{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--sp-3);padding:var(--sp-8);border-radius:var(--r-lg);border:1.5px dashed var(--rule);background:var(--surface);text-align:center;width:100%}
+    .bp-slot--dark{background:rgba(245,244,240,.06);border-color:var(--rule-dark)}
+    .bp-badge{display:inline-block;font-family:var(--font-sans);font-size:11px;font-weight:600;color:var(--sun);background:var(--sun-muted);border-radius:999px;padding:4px 12px}
+    .bp-title{font-family:var(--font-display);font-size:18px;font-weight:500;color:var(--ink)}
+    .bp-slot--dark .bp-title{color:var(--bg)}
+    .bp-sub{font-family:var(--font-sans);font-size:12px;color:var(--ink-3)}
+    .evo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:var(--sp-6)}
+    .evo-step{display:flex;flex-direction:column;gap:var(--sp-3)}
+    .evo-step__header{display:flex;align-items:center;gap:var(--sp-3)}
+    .evo-step__num{font-family:var(--font-display);font-size:14px;font-weight:600;color:var(--sun);background:var(--sun-muted);border-radius:999px;padding:2px 10px}
+    .evo-step__line{flex:1;height:1px;background:var(--rule)}
+    .sk-switch-bar{position:sticky;top:0;z-index:100;background:rgba(245,244,240,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--rule);padding:12px 0}
+    .sk-switch-inner{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-4)}
+    .sk-switch-label{font-family:var(--font-sans);font-size:12px;font-weight:500;color:var(--ink-2)}
+    .sk-switch-tabs{display:inline-flex;background:var(--surface);border:1px solid var(--rule);border-radius:999px;padding:3px;gap:4px}
+    .sk-switch-tab{border:none;background:transparent;padding:6px 16px;border-radius:999px;font-family:var(--font-sans);font-size:12px;font-weight:500;color:var(--ink-2);cursor:pointer;transition:all .18s var(--ease-out)}
+    .sk-switch-tab.active{background:var(--sun);color:#fff}
+    .sk-deck-slide{display:none}
+    .sk-deck-slide.active{display:block}
+    .sk-deck-bar{display:flex;align-items:center;justify-content:space-between;margin-top:var(--sp-6);padding-top:var(--sp-4);border-top:1px solid var(--rule)}
+    .sk-deck-count{font-family:var(--font-sans);font-size:12px;font-weight:600;color:var(--ink-2)}
 
     /* -- CS typography -- */
     .cs-label{display:inline-block;font-family:var(--font-sans);font-size:12px;font-weight:400;color:var(--ink-2);background:rgba(17,17,16,0.06);border-radius:20px;padding:3px 10px}
@@ -1095,6 +1240,42 @@ function doRefresh(){
       if (e.key === 'ArrowLeft') selectImage(current - 1)
       if (e.key === 'ArrowRight') selectImage(current + 1)
     })
+  })
+})()
+
+// -- Case Study / Slides Switcher + Presentation Deck --
+;(function deckInit(){
+  var switchTabs = Array.from(document.querySelectorAll('[data-switch-target]'))
+  var pCase      = document.getElementById('p-case')
+  var pSlides    = document.getElementById('p-slides')
+  switchTabs.forEach(function(tab){
+    tab.addEventListener('click', function(){
+      var target = tab.getAttribute('data-switch-target')
+      switchTabs.forEach(function(t){
+        var active = t === tab
+        t.classList.toggle('active', active)
+        t.setAttribute('aria-selected', active ? 'true' : 'false')
+      })
+      if (pCase && pSlides) {
+        pCase.style.display   = target === 'slides' ? 'none'  : 'block'
+        pSlides.style.display = target === 'slides' ? 'block' : 'none'
+      }
+    })
+  })
+  document.querySelectorAll('[data-deck]').forEach(function(deck){
+    var slides = Array.from(deck.querySelectorAll('[data-deck-slide]'))
+    var prev   = deck.querySelector('[data-deck-prev]')
+    var next   = deck.querySelector('[data-deck-next]')
+    var count  = deck.querySelector('[data-deck-count]')
+    if (!slides.length) return
+    var cur = 0
+    function go(i) {
+      cur = (i + slides.length) % slides.length
+      slides.forEach(function(s, idx){ s.classList.toggle('active', idx === cur) })
+      if (count) count.textContent = String(cur + 1).padStart(2, '0') + ' / ' + String(slides.length).padStart(2, '0')
+    }
+    if (prev) prev.addEventListener('click', function(){ go(cur - 1) })
+    if (next) next.addEventListener('click', function(){ go(cur + 1) })
   })
 })()
 
