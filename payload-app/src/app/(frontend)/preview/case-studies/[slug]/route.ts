@@ -102,23 +102,27 @@ function render(b: Content): string {
   if (type === 'caseStudyHero') {
     const chipTags = Array.isArray(b.chips)
       ? b.chips.map(c =>
-          `<span class="hero-dot"></span><span class="hero-tag">${text((c as Content).label)}</span>`
+          `<span class="hero-dot"></span><span class="hero-tag">${text((c as Content).label || 'Tag')}</span>`
         ).join('')
       : ''
     const heroUrl = asset(b.heroImage)
     const heroSection = heroUrl
       ? `<div class="hero-image-section"><img id="hero-img" src="${esc(heroUrl)}" alt="${esc(b.heroAlt)}"></div>`
-      : ''
+      : `<div class="container" style="margin-bottom:48px">${bpSlot('Hero Visual (Full-Bleed 16:9)', '16:9 Aspect Ratio  |  1920x1080px recommended  |  object-fit: cover', '320px')}</div>`
+    const eyebrowHtml = b.eyebrow ? text(b.eyebrow) : '<span style="opacity:.55">Domain / Client  -  Year</span>'
+    const roleHtml = b.role ? text(b.role) : '<span style="opacity:.55">Your Role (e.g. Senior UX Designer)</span>'
+    const titleHtml = b.title ? text(b.title) : '<span style="opacity:.45">Case Study Headline (Bricolage Grotesque)</span>'
+    const descHtml = lexToHtml(b.description) || '<p style="opacity:.55">Write a 1-2 sentence overview of the system, user context, and design outcome.</p>'
     return `
       <section class="hero-section container">
         <div class="hero-scroll-meta">
-          <span class="hero-tag">${text(b.eyebrow)}</span>
+          <span class="hero-tag">${eyebrowHtml}</span>
           <span class="hero-dot"></span>
-          <span class="hero-tag">${text(b.role)}</span>
+          <span class="hero-tag">${roleHtml}</span>
           ${chipTags}
         </div>
-        <h1 class="hero-scroll-text">${text(b.title)}</h1>
-        <div class="hero-subtitle">${lexToHtml(b.description)}</div>
+        <h1 class="hero-scroll-text">${titleHtml}</h1>
+        <div class="hero-subtitle">${descHtml}</div>
       </section>
       ${heroSection}`
   }
@@ -126,16 +130,18 @@ function render(b: Content): string {
   /* -- Brief -- */
   if (type === 'caseStudyBrief') {
     const supp = b.narrativeSub ? lexToHtml(b.narrativeSub) : ''
-    const meta = (b.eyebrow || b.heading) ? `
+    const headingText = b.heading ? esc(String(b.heading)) : 'The brief'
+    const meta = `
       <div class="brief-meta">
         ${b.eyebrow ? `<p class="cs-label">${esc(String(b.eyebrow))}</p>` : ''}
-        ${b.heading ? `<h2 class="brief-heading">${esc(String(b.heading))}</h2>` : ''}
-      </div>` : ''
+        <h2 class="brief-heading">${headingText}</h2>
+      </div>`
+    const bodyHtml = lexToHtml(b.narrativeBody) || '<p style="opacity:.48">Frame the core design challenge here -- what constraint changed, who the user or customer was, and what your design needed to prove.</p>'
     return `
       <section class="st-card st-brief">
         <div class="brief-centre">
           ${meta}
-          ${lexToHtml(b.narrativeBody)}
+          ${bodyHtml}
           ${supp}
         </div>
       </section>`
@@ -143,15 +149,18 @@ function render(b: Content): string {
 
   /* -- Scope -- */
   if (type === 'caseStudyScope') {
-    const facts = Array.isArray(b.facts)
-      ? b.facts.map(f =>
-          `<div class="scope-item"><div class="scope-key">${text((f as Content).label)}</div><div class="scope-val">${text((f as Content).value)}</div></div>`
-        ).join('')
-      : ''
+    const rawFacts = Array.isArray(b.facts) && b.facts.length > 0
+      ? (b.facts as Content[])
+      : [{ label: 'Where', value: '' }, { label: 'When', value: '' }, { label: 'My role', value: '' }]
+    const facts = rawFacts.map(f => {
+      const lbl = text(f.label || 'Label')
+      const val = f.value ? text(f.value) : `<span style="opacity:.45">[Enter ${esc(String(f.label || 'value'))}]</span>`
+      return `<div class="scope-item"><div class="scope-key">${lbl}</div><div class="scope-val">${val}</div></div>`
+    }).join('')
     const sketchUrl = asset(b.sketch)
     const sketch = sketchUrl
       ? `<figure class="scope-sketch"><img src="${esc(sketchUrl)}" alt="${esc(b.sketchAlt)}"></figure>`
-      : ''
+      : `<div style="padding:32px 0 48px">${bpSlot('Optional Scope Sketch / System Architecture Diagram', '16:9 or 21:9 Diagram  |  12px Radius  |  object-fit: contain', '180px', true)}</div>`
     return `
       <section class="st-card st-scope">
         <div class="container">
@@ -169,15 +178,18 @@ function render(b: Content): string {
     const fig = imgUrl
       ? `<figure class="cs-context-figure"><img src="${esc(imgUrl)}" alt="${esc(b.imageAlt)}"><figcaption class="cs-context-caption">${text(b.caption)}</figcaption></figure>`
       : ''
+    const eyebrowHtml = b.eyebrow ? text(b.eyebrow) : '<span style="opacity:.5">01 / Section</span>'
+    const headingHtml = b.heading ? text(b.heading) : '<span style="opacity:.48">Editorial Section Heading</span>'
+    const bodyHtml = lexToHtml(b.editorialBody) || '<p style="opacity:.5">Write your narrative paragraph here (Manrope 16px, 65ch comfortable reading measure).</p>'
     return `
       <div class="section container" style="margin-top:40px">
         <div class="cs-context-layout">
           <div class="cs-context-margin">
-            <p class="cs-label">${text(b.eyebrow)}</p>
+            <p class="cs-label">${eyebrowHtml}</p>
           </div>
           <div class="cs-context-main">
-            <h3 class="cs-h3">${text(b.heading)}</h3>
-            ${b.editorialBody ? `<div class="cs-body">${lexToHtml(b.editorialBody)}</div>` : ''}
+            <h3 class="cs-h3">${headingHtml}</h3>
+            <div class="cs-body">${bodyHtml}</div>
           </div>
         </div>
         ${fig}
@@ -309,7 +321,6 @@ function render(b: Content): string {
   /* -- Annotated media -- */
   if (type === 'annotatedMedia') {
     const imgUrl    = asset(b.image)
-    if (!imgUrl) return `<div class="section container" style="margin-top:40px">${bpSlot('Annotated Media Stage', 'Full-Width Uncropped Image (object-fit: contain) + Numbered X%/Y% Hotspot Callouts', '320px')}</div>`
     const hotspots  = Array.isArray(b.hotspots) ? (b.hotspots as Content[]) : []
     const cap       = b.caption ? `<figcaption class="am-caption">${esc(String(b.caption))}</figcaption>` : ''
 
@@ -317,20 +328,25 @@ function render(b: Content): string {
       const n = hs.number != null ? Number(hs.number) : i + 1
       const x = Math.max(0, Math.min(100, Number(hs.x ?? 50)))
       const y = Math.max(0, Math.min(100, Number(hs.y ?? 50)))
-      return `<button class="am-dot" style="left:${x}%;top:${y}%" aria-label="Hotspot ${n}">${n}</button>`
+      return `<button type="button" class="am-dot" style="left:${x}%;top:${y}%" aria-label="Hotspot ${n}">${n}</button>`
     }).join('\n          ')
 
-    const panels = hotspots.map((hs) => {
-      const heading = hs.heading ? `<p class="am-panel-heading">${esc(String(hs.heading))}</p>` : ''
-      const body    = hs.body    ? `<p class="am-panel-body">${esc(String(hs.body))}</p>`       : ''
+    const panels = hotspots.map((hs, i) => {
+      const n = hs.number != null ? Number(hs.number) : i + 1
+      const heading = `<p class="am-panel-heading">${esc(String(hs.heading || `Callout 0${n}`))}</p>`
+      const body    = `<p class="am-panel-body">${esc(String(hs.body || 'Click hotspot dot to inspect annotation details.'))}</p>`
       return `<div class="am-panel" role="tooltip">${heading}${body}</div>`
     }).join('\n          ')
+
+    const stageMedia = imgUrl
+      ? `<img class="am-image" src="${esc(imgUrl)}" alt="${esc(String(b.altText || ''))}" loading="lazy">`
+      : bpSlot('Annotated Media Stage (Live Hotspots Active)', 'Full-Width Uncropped Image (object-fit: contain) + Numbered X%/Y% Hotspot Callouts', '340px')
 
     return `
       <div class="section container" style="margin-top:40px">
         <figure class="am-figure">
-          <div class="am-stage" data-am>
-            <img class="am-image" src="${esc(imgUrl)}" alt="${esc(String(b.altText || ''))}" loading="lazy">
+          <div class="am-stage" data-am style="position:relative">
+            ${stageMedia}
             ${dots}
             ${panels}
           </div>
@@ -341,11 +357,10 @@ function render(b: Content): string {
 
   /* -- Pullquote -- */
   if (type === 'pullquote') {
-    const quoteHtml = lexToHtml(b.quote)
-    if (!quoteHtml) return ''
+    const quoteHtml = lexToHtml(b.quote) || '<p style="opacity:.55">"Highlight a key user insight, stakeholder quote, or design principle here."</p>'
     const variant  = String(b.variant || 'light')
     const varClass = variant === 'dark' ? 'pq-card--dark' : 'pq-card--light'
-    const attr     = b.attribution ? `<p class="pq-attr">${esc(String(b.attribution))}</p>` : ''
+    const attr     = b.attribution ? `<p class="pq-attr">${esc(String(b.attribution))}</p>` : '<p class="pq-attr" style="opacity:.5">Attribution  -  Role / Context</p>'
     return `
       <div class="section container">
         <div class="pq-card ${varClass}">
@@ -357,21 +372,26 @@ function render(b: Content): string {
 
   /* -- Slide layout -- */
   if (type === 'slideLayout') {
-    const imgUrl = asset(b.image)
+    const imgUrl   = asset(b.image)
     const variant  = String(b.variant || 'light')
     const varClass = variant === 'dark' ? 'sk-slide--dark' : 'sk-slide--light'
-    const eyebrow  = b.eyebrow ? `<p class="cs-label">${esc(String(b.eyebrow))}</p>` : ''
-    const body     = b.body ? `<div class="cs-body">${lexToHtml(b.body)}</div>` : ''
+    const isDark   = variant === 'dark'
+    const eyebrow  = `<p class="cs-label">${esc(String(b.eyebrow || '01 / Slide'))}</p>`
+    const heading  = esc(String(b.heading || 'Slide Headline (40% Left Column)'))
+    const body     = b.body ? `<div class="cs-body">${lexToHtml(b.body)}</div>` : '<div class="cs-body"><p style="opacity:.55">Concise slide narrative paired with a 60% visual column on the right.</p></div>'
+    const mediaHtml = imgUrl
+      ? `<img src="${esc(imgUrl)}" alt="${esc(String(b.altText || ''))}" loading="lazy">`
+      : bpSlot('Slide Image (60% Right Column)', '16:10 or 4:3  |  min-height: 500px  |  object-fit: cover', '100%', isDark)
     return `
       <div class="section container">
         <div class="sk-slide ${varClass}">
           <div class="sk-slide-text">
             ${eyebrow}
-            <h3 class="sk-slide-heading">${esc(String(b.heading || ''))}</h3>
+            <h3 class="sk-slide-heading">${heading}</h3>
             ${body}
           </div>
-          <div class="sk-slide-image">
-            <img src="${esc(imgUrl)}" alt="${esc(String(b.altText || ''))}" loading="lazy">
+          <div class="sk-slide-image" style="${imgUrl ? '' : 'padding:24px'}">
+            ${mediaHtml}
           </div>
         </div>
       </div>`
@@ -383,94 +403,194 @@ function render(b: Content): string {
     const mode = String(b.presentation || (b.layoutStyle === 'grid' ? 'adaptive' : 'tooltip'))
     const variant = String(b.gridVariant || 'two')
     const show = (v: unknown, fallback = false) => typeof v === 'boolean' ? v : fallback
-    const validItems = items.map((im) => {
+    const resolvedItems = (items.length > 0 ? items : [
+      { title: 'Artefact 01', caption: 'Upload image in left panel to populate this slot', annotations: [{ number: 1, x: 50, y: 50, heading: 'Sample Hotspot', body: 'Adjust X% and Y% in the left panel to move this callout.' }] },
+      { title: 'Artefact 02', caption: 'Second media slot in group' },
+    ]).map((im) => {
       const url = asset(im.media) || String(im.sourceUrl || '')
-      return (url.startsWith('https://') || url.startsWith('/')) ? { ...im, resolvedUrl: url } : null
-    }).filter(Boolean) as (Content & { resolvedUrl: string })[]
+      const hasUrl = url.startsWith('https://') || url.startsWith('/')
+      return { ...im, resolvedUrl: hasUrl ? url : '' }
+    }) as (Content & { resolvedUrl: string })[]
+    const validItems = resolvedItems.filter(im => Boolean(im.resolvedUrl))
 
-    if (mode === 'tooltip' && validItems.length > 0) {
-      const firstUrl = validItems[0].resolvedUrl
-      const firstCap = String(validItems[0].caption || validItems[0].title || validItems[0].alt || '')
-      const totalStr = String(validItems.length).padStart(2, '0')
-      const tipImages = validItems.map((im, i) => {
-        const cap = String(im.caption || im.title || im.alt || '')
-        return `<img class="peg-tooltip__img${i === 0 ? ' peg-tooltip__img--current' : ''}" src="${esc(im.resolvedUrl)}" alt="${esc(im.alt || cap)}" data-cap="${esc(cap)}" data-idx="${i}" loading="lazy">`
-      }).join('')
-      const navThumbs = validItems.map((im, i) => {
-        const cap = String(im.caption || im.title || im.alt || '')
-        return `<button type="button" class="peg-nav__item${i === 0 ? ' peg-nav__item--selected' : ''}" data-nav-idx="${i}" aria-label="Select image ${i + 1}: ${esc(cap)}"><img class="peg-nav__img" src="${esc(im.resolvedUrl)}" alt="${esc(im.alt || cap)}" loading="lazy"></button>`
-      }).join('')
-      const itemPills = validItems.slice(0, 6).map((im, i) => {
-        const label = String(im.title || im.caption || im.imageName || `Artefact ${i + 1}`)
+    if (mode === 'tooltip') {
+      if (validItems.length > 0) {
+        const firstUrl = validItems[0].resolvedUrl
+        const firstCap = String(validItems[0].caption || validItems[0].title || validItems[0].alt || '')
+        const totalStr = String(validItems.length).padStart(2, '0')
+        const tipImages = validItems.map((im, i) => {
+          const cap = String(im.caption || im.title || im.alt || '')
+          return `<img class="peg-tooltip__img${i === 0 ? ' peg-tooltip__img--current' : ''}" src="${esc(im.resolvedUrl)}" alt="${esc(im.alt || cap)}" data-cap="${esc(cap)}" data-idx="${i}" loading="lazy">`
+        }).join('')
+        const navThumbs = validItems.map((im, i) => {
+          const cap = String(im.caption || im.title || im.alt || '')
+          return `<button type="button" class="peg-nav__item${i === 0 ? ' peg-nav__item--selected' : ''}" data-nav-idx="${i}" aria-label="Select image ${i + 1}: ${esc(cap)}"><img class="peg-nav__img" src="${esc(im.resolvedUrl)}" alt="${esc(im.alt || cap)}" loading="lazy"></button>`
+        }).join('')
+        const itemPills = validItems.slice(0, 6).map((im, i) => {
+          const label = String(im.title || im.caption || im.imageName || `Artefact ${i + 1}`)
+          return `<span class="peg-pill">${esc(label.length > 42 ? label.slice(0, 40) + '...' : label)}</span>`
+        }).join('')
+        return `
+          <div class="section container" style="margin-top:40px">
+            <div class="peg-content" data-peg>
+              <div class="peg-pretitle">
+                <p class="cs-label">${esc(b.sectionKey || '01 / Evidence')}</p>
+              </div>
+              <div class="peg-text">
+                <h3 class="cs-h3">${esc(b.sectionHeading || 'Evidence & Tooltip Gallery')}</h3>
+                <div class="peg-pills">${itemPills}</div>
+                <button type="button" class="peg-trigger" data-peg-trigger>
+                  <span class="peg-trigger__dot"></span>
+                  <span>Hover to preview  -  Click to explore all ${validItems.length} artefacts -></span>
+                </button>
+              </div>
+              <div class="peg-tooltip" data-peg-tooltip aria-live="polite">
+                <div class="peg-tooltip__img-wrap" data-peg-tooltip-wrap>
+                  ${tipImages}
+                </div>
+                <div class="peg-tooltip__meta">
+                  <span class="peg-tooltip__counter" data-peg-counter>01 / ${totalStr}</span>
+                  <span class="peg-tooltip__cap" data-peg-tip-cap>${esc(firstCap)}</span>
+                  <span class="peg-tooltip__cta">View all ${validItems.length} -></span>
+                </div>
+              </div>
+              <div class="peg-gallery" data-peg-gallery role="dialog" aria-label="Evidence Gallery">
+                <div class="peg-gallery__bg" aria-hidden="true"><img src="${esc(firstUrl)}" alt=""></div>
+                <div class="peg-gallery__stage" data-peg-stage title="Click image to toggle fullscreen"></div>
+                <div class="peg-gallery__scrim"></div>
+                <div class="peg-gallery__title">
+                  <span class="peg-gallery__counter" data-peg-gal-counter>01 / ${totalStr}</span>
+                  <p class="peg-gallery__caption" data-peg-gal-cap>${esc(firstCap)}</p>
+                </div>
+                <div class="peg-gallery__controls">
+                  <button type="button" class="peg-ctrl-btn" data-peg-prev aria-label="Previous image">&larr;</button>
+                  <button type="button" class="peg-ctrl-btn" data-peg-next aria-label="Next image">&rarr;</button>
+                  <button type="button" class="peg-ctrl-btn peg-ctrl-close" data-peg-close aria-label="Close gallery">&times;</button>
+                </div>
+              </div>
+              <div class="peg-nav" data-peg-nav>
+                ${navThumbs}
+              </div>
+            </div>
+          </div>`
+      }
+      // Wireframe for Tooltip mode when no images uploaded yet
+      const wfPills = resolvedItems.slice(0, 6).map((im, i) => {
+        const label = String(im.title || im.caption || im.imageName || `Artefact 0${i + 1}`)
         return `<span class="peg-pill">${esc(label.length > 42 ? label.slice(0, 40) + '...' : label)}</span>`
       }).join('')
       return `
         <div class="section container" style="margin-top:40px">
-          <div class="peg-content" data-peg>
+          <div class="peg-content peg-hover">
             <div class="peg-pretitle">
-              ${b.sectionKey ? `<p class="cs-label">${esc(b.sectionKey)}</p>` : ''}
+              <p class="cs-label">${esc(b.sectionKey || '01 / Evidence')}</p>
             </div>
             <div class="peg-text">
-              ${show(b.showSectionHeading, true) && b.sectionHeading ? `<h3 class="cs-h3">${esc(b.sectionHeading)}</h3>` : ''}
-              <div class="peg-pills">${itemPills}</div>
-              <button type="button" class="peg-trigger" data-peg-trigger>
+              <h3 class="cs-h3">${esc(b.sectionHeading || 'Tooltip / Evidence Gallery (Wireframe)')}</h3>
+              <div class="peg-pills">${wfPills}</div>
+              <button type="button" class="peg-trigger">
                 <span class="peg-trigger__dot"></span>
-                <span>Hover to preview  -  Click to explore all ${validItems.length} artefacts -></span>
+                <span>Hover to cycle preview  -  Click to expand GSAP Flip gallery -></span>
               </button>
             </div>
-            <div class="peg-tooltip" data-peg-tooltip aria-live="polite">
-              <div class="peg-tooltip__img-wrap" data-peg-tooltip-wrap>
-                ${tipImages}
+            <div class="peg-tooltip" style="opacity:1;transform:none;pointer-events:auto">
+              <div style="padding:12px">
+                ${bpSlot('Stationary Hover Tooltip (320x220px)', '16:10 or 4:3  |  Cycles on hover -> Click flips to full gallery (contain)', '180px')}
               </div>
               <div class="peg-tooltip__meta">
-                <span class="peg-tooltip__counter" data-peg-counter>01 / ${totalStr}</span>
-                <span class="peg-tooltip__cap" data-peg-tip-cap>${esc(firstCap)}</span>
-                <span class="peg-tooltip__cta">View all ${validItems.length} -></span>
+                <span class="peg-tooltip__counter">01 / 0${resolvedItems.length}</span>
+                <span class="peg-tooltip__cap">${esc(String(resolvedItems[0]?.caption || 'Upload images in left panel'))}</span>
+                <span class="peg-tooltip__cta">View all -></span>
               </div>
-            </div>
-            <div class="peg-gallery" data-peg-gallery role="dialog" aria-label="Evidence Gallery">
-              <div class="peg-gallery__bg" aria-hidden="true"><img src="${esc(firstUrl)}" alt=""></div>
-              <div class="peg-gallery__stage" data-peg-stage title="Click image to toggle fullscreen"></div>
-              <div class="peg-gallery__scrim"></div>
-              <div class="peg-gallery__title">
-                <span class="peg-gallery__counter" data-peg-gal-counter>01 / ${totalStr}</span>
-                <p class="peg-gallery__caption" data-peg-gal-cap>${esc(firstCap)}</p>
-              </div>
-              <div class="peg-gallery__controls">
-                <button type="button" class="peg-ctrl-btn" data-peg-prev aria-label="Previous image">&larr;</button>
-                <button type="button" class="peg-ctrl-btn" data-peg-next aria-label="Next image">&rarr;</button>
-                <button type="button" class="peg-ctrl-btn peg-ctrl-close" data-peg-close aria-label="Close gallery">&times;</button>
-              </div>
-            </div>
-            <div class="peg-nav" data-peg-nav>
-              ${navThumbs}
             </div>
           </div>
         </div>`
     }
-    const entries = items.map((im, i) => {
-      const url = asset(im.media) || String(im.sourceUrl || '')
-      if (!url.startsWith('https://') && !url.startsWith('/')) return ''
+
+    const hdrHtml = show(b.showSectionHeading, true)
+      ? `<div class="cs-context-layout" style="margin-bottom:24px"><div class="cs-context-margin"><p class="cs-label">${esc(b.sectionKey || mode)}</p></div><div class="cs-context-main"><h3 class="cs-h3">${esc(b.sectionHeading || `${mode.charAt(0).toUpperCase() + mode.slice(1)} Media Section`)}</h3></div></div>`
+      : ''
+
+    if (mode === 'slides') {
+      const slidesHtml = resolvedItems.map((im, i) => {
+        const isDark = String(b.appearance || 'inherit') === 'dark'
+        const alignImgLeft = String(b.slideAlignment || 'textLeft') === 'imageLeft'
+        const slideStyle = alignImgLeft ? 'grid-template-columns:3fr 2fr' : ''
+        const textCol = `<div class="sk-slide-text"><p class="cs-label">${esc(im.eyebrow || `0${i + 1}`)}</p><h3 class="sk-slide-heading">${esc(im.title || im.caption || b.sectionHeading || `Slide 0${i + 1}`)}</h3><div class="cs-body"><p>${text(im.description || im.caption || '40% text column paired with 60% visual column.')}</p></div></div>`
+        const imgCol = im.resolvedUrl
+          ? `<div class="sk-slide-image"><img src="${esc(im.resolvedUrl)}" alt="${esc(im.alt || im.caption || '')}" loading="lazy"></div>`
+          : `<div class="sk-slide-image" style="padding:24px">${bpSlot(`Slide 0${i + 1} Visual (60% Column)`, '16:10 or 4:3  |  min-height: 500px  |  object-fit: cover', '100%', isDark)}</div>`
+        return `<div class="sk-slide ${isDark ? 'sk-slide--dark' : 'sk-slide--light'}" style="margin-bottom:24px;${slideStyle}">${alignImgLeft ? imgCol + textCol : textCol + imgCol}</div>`
+      }).join('')
+      return `<div class="section container" style="margin-top:40px">${hdrHtml}${slidesHtml}</div>`
+    }
+
+    if (mode === 'evolution') {
+      const evoItems = items.length >= 2 ? resolvedItems : [
+        ...resolvedItems,
+        { title: 'Step 03 / Final Form', caption: 'Add images to compare progression steps', resolvedUrl: '' },
+      ]
+      const stepsHtml = evoItems.map((im, i) => `
+        <div class="evo-step">
+          <div class="evo-step__header">
+            <span class="evo-step__num">0${i + 1}</span>
+            <span class="evo-step__line"></span>
+          </div>
+          <figure class="research-figure">
+            <div class="research-figure-window" style="height:260px">
+              ${im.resolvedUrl
+                ? `<img loading="lazy" src="${esc(im.resolvedUrl)}" alt="${esc(im.alt || im.caption || '')}">`
+                : bpSlot(`Evolution Step 0${i + 1}`, '260px Height  |  object-fit: contain (no cropping)', '100%')}
+            </div>
+            <figcaption class="research-figure-caption">
+              <span class="research-figure-caption-text">
+                <h3>${esc(im.title || `Step 0${i + 1}`)}</h3>
+                <p class="asset-caption">${esc(im.caption || 'Step progression description')}</p>
+              </span>
+            </figcaption>
+          </figure>
+        </div>`).join('')
+      return `<div class="section container" style="margin-top:40px">${hdrHtml}<div class="evo-grid">${stepsHtml}</div></div>`
+    }
+
+    const entries = resolvedItems.map((im, i) => {
       const visible = (field: string, fallback = false) => show(im['show' + field], fallback)
       const eyebrow = visible('Eyebrow') && im.eyebrow ? `<div class="asset-eyebrow">${esc(im.eyebrow)}</div>` : ''
       const title   = visible('Title')   && im.title   ? `<h3>${esc(im.title)}</h3>` : ''
-      const caption = visible('Caption', true) && im.caption ? `<p class="asset-caption">${esc(im.caption)}</p>` : ''
+      const caption = visible('Caption', true) ? `<p class="asset-caption">${esc(im.caption || (im.resolvedUrl ? '' : 'Caption / description updates here live'))}</p>` : ''
       const desc    = visible('Description') && im.description ? `<p class="cs-body" style="font-size:14px">${text(im.description)}</p>` : ''
       const credit  = visible('Credit') && im.credit ? `<small style="opacity:.6">${esc(im.credit)}</small>` : ''
       const number  = show(b.showNumbers) ? `<span class="research-figure-index">${i + 1}.</span>` : ''
       const annotations = Array.isArray(im.annotations) ? (im.annotations as Content[]) : []
-      const dots = mode === 'annotated' ? annotations.map(a => {
-        const x = Math.max(0, Math.min(100, Number(a.x) || 0))
-        const y = Math.max(0, Math.min(100, Number(a.y) || 0))
-        return `<span class="annotation-dot" style="left:${x}%;top:${y}%" title="${esc(a.heading || a.body)}">${esc(a.number)}</span>`
+      const dots = mode === 'annotated' ? annotations.map((a, aIdx) => {
+        const num = a.number != null && a.number !== '' ? a.number : aIdx + 1
+        const x = Math.max(0, Math.min(100, Number(a.x ?? 50)))
+        const y = Math.max(0, Math.min(100, Number(a.y ?? 50)))
+        return `<span class="annotation-dot" style="left:${x}%;top:${y}%" title="${esc(a.heading || a.body || `Hotspot ${num}`)}">${esc(num)}</span>`
       }).join('') : ''
-      const legend = mode === 'annotated' ? `<ol style="font-size:13px;padding-left:16px">${annotations.map(a => `<li><strong>${esc(a.number)}. ${esc(a.heading)}</strong> ${esc(a.body)}</li>`).join('')}</ol>` : ''
+      const legend = (mode === 'annotated' && annotations.length > 0)
+        ? `<ol style="font-size:13px;padding-left:16px;margin-top:8px">${annotations.map((a, aIdx) => {
+            const num = a.number != null && a.number !== '' ? a.number : aIdx + 1
+            return `<li><strong>${esc(num)}. ${esc(a.heading || `Annotation 0${aIdx + 1}`)}</strong> ${esc(a.body || '(Type heading & body in left panel)')}</li>`
+          }).join('')}</ol>`
+        : ''
+      const windowContent = im.resolvedUrl
+        ? `<a href="${esc(im.resolvedUrl)}" target="_blank" rel="noopener noreferrer"><img loading="lazy" src="${esc(im.resolvedUrl)}" alt="${esc(im.alt || '')}"></a>`
+        : bpSlot(
+            mode === 'annotated'
+              ? `Annotated Image 0${i + 1} (Live Hotspot Dots Active)`
+              : mode === 'figures'
+                ? `Full-Width Figure 0${i + 1} (1080px)`
+                : `Adaptive Grid Cell 0${i + 1} (${variant})`,
+            mode === 'annotated'
+              ? 'Uncropped Diagram (object-fit: contain) + Live X%/Y% Hotspot Dots'
+              : '400px Figure Window  |  16:10 or 4:3  |  object-fit: contain',
+            '100%'
+          )
       return `
         <figure class="research-figure">
           <div class="research-figure-window research-figure-window--mid" style="position:relative">
-            <a href="${esc(url)}" target="_blank" rel="noopener noreferrer">
-              <img loading="lazy" src="${esc(url)}" alt="${esc(im.alt)}">
-            </a>
+            ${windowContent}
             ${dots}
           </div>
           <figcaption class="research-figure-caption">
@@ -479,69 +599,14 @@ function render(b: Content): string {
           </figcaption>
         </figure>`
     }).join('')
-    const heading = show(b.showSectionHeading, true) && b.sectionHeading
-      ? `<div class="cs-context-layout" style="margin-bottom:24px"><div class="cs-context-margin"><p class="cs-label">${esc(b.sectionKey)}</p></div><div class="cs-context-main"><h3 class="cs-h3">${esc(b.sectionHeading)}</h3></div></div>`
-      : ''
-    if (validItems.length === 0) {
-      const modeSpecs: Record<string, { label: string; spec: string }> = {
-        tooltip:   { label: '1. Evidence / Tooltip Gallery Blueprint', spec: 'Stationary 320x220px Hover Cycling Preview -> Click Flips to 16:10 Uncropped Gallery (object-fit: contain)' },
-        adaptive:  { label: `2. Adaptive Grid Blueprint (${variant})`, spec: '400px Figure Windows  |  16:10 or 4:3  |  object-fit: contain (no cropping)' },
-        slides:    { label: '3. Sequential Slides Blueprint', spec: '40% Text / 60% Image Split Cards  |  min-height: 500px  |  16:10 or 4:3  |  object-fit: cover' },
-        annotated: { label: '4. Annotated Image Blueprint', spec: 'Full-Width Uncropped Diagram (object-fit: contain) + Numbered X%/Y% Hotspot Callouts' },
-        evolution: { label: '5. Evolution Sequence Blueprint', spec: 'Step-by-Step 01 -> 02 -> 03 Process Progression  |  object-fit: contain' },
-        figures:   { label: '6. Full-Width Figures Blueprint', spec: '1080px Full Column Stacked Figures  |  460px Height  |  object-fit: contain' },
-      }
-      const ms = modeSpecs[mode] ?? modeSpecs.tooltip
-      const hdrHtml = show(b.showSectionHeading, true) && b.sectionHeading
-        ? `<div class="cs-context-layout" style="margin-bottom:24px"><div class="cs-context-margin"><p class="cs-label">${esc(b.sectionKey || mode)}</p></div><div class="cs-context-main"><h3 class="cs-h3">${esc(b.sectionHeading)}</h3></div></div>`
-        : ''
-      return `<div class="section container" style="margin-top:40px">${hdrHtml}${bpSlot(ms.label, ms.spec, '280px')}</div>`
-    }
-    if (mode === 'slides') {
-      const hdrHtml = show(b.showSectionHeading, true) && b.sectionHeading
-        ? `<div class="cs-context-layout" style="margin-bottom:24px"><div class="cs-context-margin"><p class="cs-label">${esc(b.sectionKey)}</p></div><div class="cs-context-main"><h3 class="cs-h3">${esc(b.sectionHeading)}</h3></div></div>`
-        : ''
-      const slidesHtml = validItems.map((im, i) => {
-        const isDark = String(b.appearance || 'inherit') === 'dark'
-        const alignImgLeft = String(b.slideAlignment || 'textLeft') === 'imageLeft'
-        const slideStyle = alignImgLeft ? 'grid-template-columns:3fr 2fr' : ''
-        const textCol = `<div class="sk-slide-text"><p class="cs-label">${esc(im.eyebrow || `0${i + 1}`)}</p><h3 class="sk-slide-heading">${esc(im.title || im.caption || b.sectionHeading || `Slide ${i + 1}`)}</h3>${im.description || im.caption ? `<div class="cs-body"><p>${text(im.description || im.caption)}</p></div>` : ''}</div>`
-        const imgCol = `<div class="sk-slide-image"><img src="${esc(im.resolvedUrl)}" alt="${esc(im.alt || im.caption || '')}" loading="lazy"></div>`
-        return `<div class="sk-slide ${isDark ? 'sk-slide--dark' : 'sk-slide--light'}" style="margin-bottom:24px;${slideStyle}">${alignImgLeft ? imgCol + textCol : textCol + imgCol}</div>`
-      }).join('')
-      return `<div class="section container" style="margin-top:40px">${hdrHtml}${slidesHtml}</div>`
-    }
-    if (mode === 'evolution') {
-      const hdrHtml = show(b.showSectionHeading, true) && b.sectionHeading
-        ? `<div class="cs-context-layout" style="margin-bottom:24px"><div class="cs-context-margin"><p class="cs-label">${esc(b.sectionKey)}</p></div><div class="cs-context-main"><h3 class="cs-h3">${esc(b.sectionHeading)}</h3></div></div>`
-        : ''
-      const stepsHtml = validItems.map((im, i) => `
-        <div class="evo-step">
-          <div class="evo-step__header">
-            <span class="evo-step__num">0${i + 1}</span>
-            <span class="evo-step__line"></span>
-          </div>
-          <figure class="research-figure">
-            <div class="research-figure-window" style="height:260px">
-              <img loading="lazy" src="${esc(im.resolvedUrl)}" alt="${esc(im.alt || im.caption || '')}">
-            </div>
-            <figcaption class="research-figure-caption">
-              <span class="research-figure-caption-text">
-                ${im.title ? `<h3>${esc(im.title)}</h3>` : ''}
-                ${im.caption ? `<p class="asset-caption">${esc(im.caption)}</p>` : ''}
-              </span>
-            </figcaption>
-          </figure>
-        </div>`).join('')
-      return `<div class="section container" style="margin-top:40px">${hdrHtml}<div class="evo-grid">${stepsHtml}</div></div>`
-    }
+
     const gridCols = variant === 'three' ? 'repeat(3,minmax(0,1fr))' : variant === 'traditional' ? 'repeat(4,minmax(0,1fr))' : variant === 'asymmetric' ? '3fr 2fr' : 'repeat(2,minmax(0,1fr))'
-    const gridStyle = ['tooltip','adaptive'].includes(mode)
+    const gridStyle = mode === 'adaptive'
       ? `display:grid;grid-template-columns:${gridCols};gap:16px`
       : 'display:block'
     return `
       <div class="section container" style="margin-top:40px">
-        ${heading}
+        ${hdrHtml}
         <div class="research-figures" style="${gridStyle}">${entries}</div>
       </div>`
   }
@@ -549,29 +614,19 @@ function render(b: Content): string {
   return ''
 }
 
-export async function GET(req: Request, context: { params: Promise<{ slug: string }> }) {
-  const { slug } = await context.params
-  // Allow any case study or page slug to render in Live Preview
-
-  const payload = await getPayload({ config })
-  const csRes   = await payload.find({ collection: 'case-studies', where: { slug: { equals: slug } }, depth: 1, limit: 1, draft: true, overrideAccess: true })
-  const artRes  = csRes.docs.length ? csRes : await payload.find({ collection: 'articles', where: { slug: { equals: slug } }, depth: 1, limit: 1, draft: true, overrideAccess: true })
-  const result  = artRes.docs.length ? artRes : await payload.find({ collection: 'pages', where: { slug: { equals: slug } }, depth: 1, limit: 1, draft: true, overrideAccess: true })
-  const reqUrl  = new URL(req.url)
-  const tplParam = reqUrl.searchParams.get('template')
-  const doc     = result.docs[0] as (Record<string, unknown> | undefined)
+function buildPageBody(doc: Record<string, unknown> | undefined, slug: string, tplParam?: string | null) {
   const activeTemplate = String(tplParam || doc?.template || (slug === 'haptix' ? 'narrative-slides' : 'narrative'))
   const visualShowcaseSample: CasePage = {
-    title: doc ? String(doc.title) : 'Visual / Image-Only Showcase',
+    title: doc?.title ? String(doc.title) : 'Visual / Image-Only Showcase',
     template: 'visual-showcase',
     layout: [
-      { blockType: 'caseStudyHero', eyebrow: 'Visual Showcase  -  SK Design System', role: 'Industrial & Interaction Design', title: doc ? String(doc.title) : 'Visual Showcase Template Blueprint', chips: [{ label: 'Bento Grid' }, { label: 'Uncropped Figures' }], description: 'In Visual / Image-Only Showcase mode, prose Brief and Scope cards are omitted so visual work takes center stage.' },
+      { blockType: 'caseStudyHero', eyebrow: 'Visual Showcase  -  SK Design System', role: 'Industrial & Interaction Design', title: doc?.title ? String(doc.title) : 'Visual Showcase Template Blueprint', chips: [{ label: 'Bento Grid' }, { label: 'Uncropped Figures' }], description: 'In Visual / Image-Only Showcase mode, prose Brief and Scope cards are omitted so visual work takes center stage.' },
       { blockType: 'bentoThreeA', eyebrow: '01 / Visual Grid', title: 'Bento 3A Showcase (2 Top + 1 Wide Bottom)', subtitle: 'Upload 3 images in the left panel (240px row height, object-fit: cover)', cells: [{}, {}, {}] },
       { blockType: 'fullWidthFigure', captionLabel: '02 / Hero Artefact', caption: 'Full-width 1080px uncropped figure (object-fit: contain)' },
       { blockType: 'beforeAfterSlider', caption: '03 / Interactive Before & After Comparison' },
     ],
   }
-  const rawLayout = (doc?.layout as Content[] | undefined) ?? (activeTemplate === 'visual-showcase' ? visualShowcaseSample.layout : (sample[slug]?.layout ?? sample.centronic.layout)) ?? []
+  const rawLayout = (Array.isArray(doc?.layout) ? (doc?.layout as Content[]) : undefined) ?? (activeTemplate === 'visual-showcase' ? visualShowcaseSample.layout : (sample[slug]?.layout ?? sample.centronic.layout)) ?? []
   const filteredLayout = activeTemplate === 'visual-showcase'
     ? rawLayout.filter(b => b.blockType !== 'caseStudyBrief' && b.blockType !== 'caseStudyScope')
     : rawLayout
@@ -579,7 +634,7 @@ export async function GET(req: Request, context: { params: Promise<{ slug: strin
     ? [...filteredLayout, ...(visualShowcaseSample.layout ?? []).slice(1)]
     : filteredLayout
   const page: CasePage = {
-    title: doc ? String(doc.title) : (slug === '_new' ? 'New Case Study' : slug),
+    title: doc?.title ? String(doc.title) : (slug === '_new' ? 'New Case Study' : slug),
     template: activeTemplate,
     slides: Array.isArray(doc?.slides) ? (doc?.slides as Content[]) : [],
     layout: finalLayout,
@@ -609,7 +664,7 @@ export async function GET(req: Request, context: { params: Promise<{ slug: strin
               <div class="sk-slide-text">
                 ${s.eyebrow ? `<p class="cs-label">${esc(String(s.eyebrow))}</p>` : `<p class="cs-label">Slide 0${idx + 1}</p>`}
                 <h3 class="sk-slide-heading">${esc(String(s.heading || `Slide ${idx + 1}`))}</h3>
-                ${s.body ? `<div class="cs-body"><p>${text(s.body)}</p></div>` : ''}
+                ${s.body ? `<div class="cs-body"><p>${text(s.body)}</p></div>` : '<div class="cs-body"><p style="opacity:.55">Type slide body copy in the left panel (40% text column).</p></div>'}
               </div>
               <div class="sk-slide-image" style="${sUrl ? '' : 'padding:24px'}">
                 ${sUrl ? `<img src="${esc(sUrl)}" alt="${esc(String(s.imageAlt || s.heading || ''))}" loading="lazy">` : bpSlot(`Slide 0${idx + 1} Visual (60% Column)`, '16:10 or 4:3  |  min-height: 500px  |  object-fit: cover', '100%', isDark)}
@@ -625,6 +680,98 @@ export async function GET(req: Request, context: { params: Promise<{ slug: strin
       </div>
     </section>` : ''
   const body = slidesDeckHtml + `<div id="p-case">` + (page.layout ?? []).map(b => render(b)).join('') + `</div>`
+  return { page, isSample, activeTemplate, body }
+}
+
+const MEDIA_KEYS = new Set(['media', 'image', 'heroImage', 'sketch', 'beforeImage', 'afterImage', 'coverImage'])
+function collectMediaIds(node: unknown, out: Set<number>) {
+  if (!node || typeof node !== 'object') return
+  if (Array.isArray(node)) {
+    for (const item of node) collectMediaIds(item, out)
+    return
+  }
+  const obj = node as Record<string, unknown>
+  for (const [k, v] of Object.entries(obj)) {
+    if (MEDIA_KEYS.has(k) && (typeof v === 'number' || (typeof v === 'string' && /^\d+$/.test(v)))) {
+      out.add(Number(v))
+    } else if (v && typeof v === 'object') {
+      collectMediaIds(v, out)
+    }
+  }
+}
+function hydrateMediaIds(node: unknown, map: Map<number, Content>) {
+  if (!node || typeof node !== 'object') return
+  if (Array.isArray(node)) {
+    for (const item of node) hydrateMediaIds(item, map)
+    return
+  }
+  const obj = node as Record<string, unknown>
+  for (const [k, v] of Object.entries(obj)) {
+    if (MEDIA_KEYS.has(k) && (typeof v === 'number' || (typeof v === 'string' && /^\d+$/.test(v)))) {
+      const m = map.get(Number(v))
+      if (m) obj[k] = m
+    } else if (v && typeof v === 'object') {
+      hydrateMediaIds(v, map)
+    }
+  }
+}
+
+export async function POST(req: Request, context: { params: Promise<{ slug: string }> }) {
+  try {
+    const { slug } = await context.params
+    const reqUrl = new URL(req.url)
+    const tplParam = reqUrl.searchParams.get('template')
+    const json = (await req.json()) as { data?: Record<string, unknown> }
+    const data = json?.data ?? {}
+    const mediaIds = new Set<number>()
+    collectMediaIds(data, mediaIds)
+    if (mediaIds.size > 0) {
+      const payload = await getPayload({ config })
+      const mediaRes = await payload.find({
+        collection: 'media',
+        where: { id: { in: Array.from(mediaIds) } },
+        limit: 200,
+        depth: 0,
+        overrideAccess: true,
+      })
+      const mediaMap = new Map<number, Content>()
+      for (const m of mediaRes.docs) {
+        mediaMap.set(Number(m.id), m as unknown as Content)
+      }
+      hydrateMediaIds(data, mediaMap)
+    }
+    const { page, activeTemplate, body } = buildPageBody(data, slug, String(data.template || tplParam || ''))
+    return Response.json({ title: page.title, activeTemplate, bodyHtml: body })
+  } catch (err) {
+    return Response.json({ error: String(err) }, { status: 400 })
+  }
+}
+
+export async function GET(req: Request, context: { params: Promise<{ slug: string }> }) {
+  const { slug } = await context.params
+  const reqUrl   = new URL(req.url)
+  const tplParam = reqUrl.searchParams.get('template')
+  const idParam  = reqUrl.searchParams.get('id')
+  const colParam = reqUrl.searchParams.get('collection')
+
+  const payload = await getPayload({ config })
+  let doc: Record<string, unknown> | undefined
+  if (idParam && /^\d+$/.test(idParam)) {
+    const targetCol = colParam === 'articles' ? 'articles' : 'case-studies'
+    try {
+      const found = await payload.findByID({ collection: targetCol, id: Number(idParam), depth: 1, draft: true, overrideAccess: true })
+      if (found) doc = found as unknown as Record<string, unknown>
+    } catch {
+      // Fall back to slug lookup below
+    }
+  }
+  if (!doc) {
+    const csRes   = await payload.find({ collection: 'case-studies', where: { slug: { equals: slug } }, depth: 1, limit: 1, draft: true, overrideAccess: true })
+    const artRes  = csRes.docs.length ? csRes : await payload.find({ collection: 'articles', where: { slug: { equals: slug } }, depth: 1, limit: 1, draft: true, overrideAccess: true })
+    const result  = artRes.docs.length ? artRes : await payload.find({ collection: 'pages', where: { slug: { equals: slug } }, depth: 1, limit: 1, draft: true, overrideAccess: true })
+    doc = result.docs[0] as (Record<string, unknown> | undefined)
+  }
+  const { page, isSample, body } = buildPageBody(doc, slug, tplParam)
 
   const html = `<!doctype html>
 <html lang="en">
@@ -965,10 +1112,10 @@ export async function GET(req: Request, context: { params: Promise<{ slug: strin
   </nav>
 </header>
 
-<aside class="preview-notice container">
+<aside class="preview-notice container" id="previewNotice">
   ${isSample
-    ? 'Template preview -- enter a title and slug, then click Save Draft to preview your live CMS data here.'
-    : 'Live CMS data. Save Draft or Publish in Payload to see changes here. Animations are not shown in preview.'}
+    ? 'Live SK Design System Wireframe Preview -- changes in the left panel update here in real time.'
+    : 'Live Real-Time Preview -- edits to templates, slides, blocks, and annotations update here automatically.'}
 </aside>
 
 <div id="page-content">
@@ -980,279 +1127,267 @@ ${body}
 </footer>
 
 <script>
-// Signal to Payload admin that the preview frame is ready.
-(function(){
-  function ready(){ if(window.parent!==window){ window.parent.postMessage({type:'payload-live-preview-ready'},'*') } }
-  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded',ready) } else { ready() }
-  window.addEventListener('message',function(e){
-    if(e.data&&e.data.type==='payload-live-preview'){ window.location.reload() }
-  })
-})()
-
 function doRefresh(){
   var btn = document.getElementById('refreshBtn')
   if(btn){ btn.classList.add('spinning') }
   setTimeout(function(){ window.location.reload() }, 320)
 }
 
-// -- Bento: 3D tilt + Flip expand/close --
-(function bentoInit(){
-  if(typeof gsap === 'undefined') return
-  var cells = document.querySelectorAll('[data-bento] .cs-bento-cell')
-  var stage = document.getElementById('bento-stage')
-  var expandedCell = null
-  var origParent = null
-  var origNextSib = null
+window.__skActiveTab = 'case'
+window.__skActiveSlide = 0
 
-  cells.forEach(function(cell){
-    cell.addEventListener('mousemove', function(e){
-      if(cell.classList.contains('flip-expanded')) return
-      var r = cell.getBoundingClientRect()
-      var x = (e.clientX - r.left) / r.width - 0.5
-      var y = (e.clientY - r.top)  / r.height - 0.5
-      gsap.to(cell, {
-        rotationY: x * 16, rotationX: -y * 16,
-        transformPerspective: 800, duration: 0.3, ease: 'power2.out'
+window.__skInitAll = function(){
+  // -- Bento: 3D tilt + Flip expand/close --
+  ;(function bentoInit(){
+    if(typeof gsap === 'undefined') return
+    var cells = document.querySelectorAll('[data-bento] .cs-bento-cell')
+    var stage = document.getElementById('bento-stage')
+    var expandedCell = null
+    var origParent = null
+    var origNextSib = null
+
+    cells.forEach(function(cell){
+      cell.addEventListener('mousemove', function(e){
+        if(cell.classList.contains('flip-expanded')) return
+        var r = cell.getBoundingClientRect()
+        var x = (e.clientX - r.left) / r.width - 0.5
+        var y = (e.clientY - r.top)  / r.height - 0.5
+        gsap.to(cell, {
+          rotationY: x * 16, rotationX: -y * 16,
+          transformPerspective: 800, duration: 0.3, ease: 'power2.out'
+        })
+      })
+      cell.addEventListener('mouseleave', function(){
+        gsap.to(cell, { rotationY: 0, rotationX: 0, duration: 0.7, ease: 'elastic.out(1, 0.45)' })
       })
     })
-    cell.addEventListener('mouseleave', function(){
-      gsap.to(cell, { rotationY: 0, rotationX: 0, duration: 0.7, ease: 'elastic.out(1, 0.45)' })
-    })
-  })
 
-  if(typeof Flip === 'undefined' || !stage) return
-  document.querySelectorAll('.cs-bento-expand').forEach(function(btn){
-    btn.addEventListener('click', function(e){
-      e.stopPropagation()
-      var cell = btn.closest('.cs-bento-cell')
-      if(!cell) return
-      origParent = cell.parentNode
-      origNextSib = cell.nextSibling
-      var state = Flip.getState(cell)
-      cell.classList.add('flip-expanded')
-      stage.appendChild(cell)
-      stage.classList.add('active')
-      expandedCell = cell
+    if(typeof Flip === 'undefined' || !stage) return
+    document.querySelectorAll('.cs-bento-expand').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation()
+        var cell = btn.closest('.cs-bento-cell')
+        if(!cell) return
+        origParent = cell.parentNode
+        origNextSib = cell.nextSibling
+        var state = Flip.getState(cell)
+        cell.classList.add('flip-expanded')
+        stage.appendChild(cell)
+        stage.classList.add('active')
+        expandedCell = cell
+        Flip.from(state, { duration: 0.55, ease: 'power3.inOut', nested: true })
+      })
+    })
+
+    stage.onclick = function(){
+      if(!expandedCell || !origParent) return
+      var state = Flip.getState(expandedCell)
+      if(origNextSib) { origParent.insertBefore(expandedCell, origNextSib) }
+      else { origParent.appendChild(expandedCell) }
+      expandedCell.classList.remove('flip-expanded')
+      stage.classList.remove('active')
       Flip.from(state, { duration: 0.55, ease: 'power3.inOut', nested: true })
+      expandedCell = null; origParent = null; origNextSib = null
+    }
+  })()
+
+  // -- Before/after slider drag --
+  ;(function baInit(){
+    document.querySelectorAll('[data-ba]').forEach(function(slider){
+      var before  = slider.querySelector('.ba-before')
+      var handle  = slider.querySelector('.ba-handle')
+      if(!before || !handle) return
+      var isDragging = false
+
+      function setPos(x) {
+        var r   = slider.getBoundingClientRect()
+        var pct = Math.max(2, Math.min(98, ((x - r.left) / r.width) * 100))
+        before.style.clipPath   = 'inset(0 ' + (100 - pct) + '% 0 0)'
+        handle.style.left = pct + '%'
+      }
+
+      slider.addEventListener('mousedown', function(e){ isDragging = true; setPos(e.clientX); e.preventDefault() })
+      window.addEventListener('mousemove', function(e){ if(isDragging) setPos(e.clientX) })
+      window.addEventListener('mouseup',   function(){  isDragging = false })
+
+      slider.addEventListener('touchstart', function(e){ isDragging = true; setPos(e.touches[0].clientX); e.preventDefault() }, { passive: false })
+      window.addEventListener('touchmove',  function(e){ if(isDragging) setPos(e.touches[0].clientX) })
+      window.addEventListener('touchend',   function(){  isDragging = false })
     })
-  })
+  })()
 
-  stage.addEventListener('click', function(){
-    if(!expandedCell || !origParent) return
-    var state = Flip.getState(expandedCell)
-    if(origNextSib) { origParent.insertBefore(expandedCell, origNextSib) }
-    else { origParent.appendChild(expandedCell) }
-    expandedCell.classList.remove('flip-expanded')
-    stage.classList.remove('active')
-    Flip.from(state, { duration: 0.55, ease: 'power3.inOut', nested: true })
-    expandedCell = null; origParent = null; origNextSib = null
-  })
-})()
-
-// -- Before/after slider drag --
-;(function baInit(){
-  document.querySelectorAll('[data-ba]').forEach(function(slider){
-    var before  = slider.querySelector('.ba-before')
-    var handle  = slider.querySelector('.ba-handle')
-    if(!before || !handle) return
-    var isDragging = false
-
-    function setPos(x) {
-      var r   = slider.getBoundingClientRect()
-      var pct = Math.max(2, Math.min(98, ((x - r.left) / r.width) * 100))
-      before.style.clipPath   = 'inset(0 ' + (100 - pct) + '% 0 0)'
-      handle.style.left = pct + '%'
+  // -- SK-CASE-GALLERY-001 Progressive Evidence Gallery --
+  ;(function pegInit(){
+    if (typeof gsap !== 'undefined' && typeof Flip !== 'undefined') {
+      gsap.registerPlugin(Flip)
     }
+    document.querySelectorAll('[data-peg]').forEach(function(root){
+      var trigger     = root.querySelector('[data-peg-trigger]')
+      var textCol     = root.querySelector('.peg-text')
+      var tooltip     = root.querySelector('[data-peg-tooltip]')
+      var tooltipWrap = root.querySelector('[data-peg-tooltip-wrap]')
+      var tipCounter  = root.querySelector('[data-peg-counter]')
+      var tipCap      = root.querySelector('[data-peg-tip-cap]')
+      var gallery     = root.querySelector('[data-peg-gallery]')
+      var stage       = root.querySelector('[data-peg-stage]')
+      var bgImg       = gallery ? gallery.querySelector('.peg-gallery__bg img') : null
+      var galCounter  = root.querySelector('[data-peg-gal-counter]')
+      var galCap      = root.querySelector('[data-peg-gal-cap]')
+      var btnPrev     = root.querySelector('[data-peg-prev]')
+      var btnNext     = root.querySelector('[data-peg-next]')
+      var btnClose    = root.querySelector('[data-peg-close]')
+      var imgs        = Array.from(root.querySelectorAll('.peg-tooltip__img'))
+      var navItems    = Array.from(root.querySelectorAll('.peg-nav__item'))
+      if (!imgs.length || !tooltipWrap || !gallery || !stage) return
 
-    slider.addEventListener('mousedown', function(e){ isDragging = true; setPos(e.clientX); e.preventDefault() })
-    window.addEventListener('mousemove', function(e){ if(isDragging) setPos(e.clientX) })
-    window.addEventListener('mouseup',   function(){  isDragging = false })
+      var current = 0
+      var timer = null
+      var isOpen = false
+      var isFullscreen = false
+      var isAnimating = false
+      var totalStr = String(imgs.length).padStart(2, '0')
 
-    slider.addEventListener('touchstart', function(e){ isDragging = true; setPos(e.touches[0].clientX); e.preventDefault() }, { passive: false })
-    window.addEventListener('touchmove',  function(e){ if(isDragging) setPos(e.touches[0].clientX) })
-    window.addEventListener('touchend',   function(){  isDragging = false })
-  })
-})()
+      function updateMeta(idx) {
+        var numStr = String(idx + 1).padStart(2, '0') + ' / ' + totalStr
+        var capStr = imgs[idx].getAttribute('data-cap') || ''
+        if (tipCounter) tipCounter.textContent = numStr
+        if (tipCap)     tipCap.textContent     = capStr
+        if (galCounter) galCounter.textContent = numStr
+        if (galCap)     galCap.textContent     = capStr
+        if (bgImg)      bgImg.src              = imgs[idx].src
+        navItems.forEach(function(n, i){ n.classList.toggle('peg-nav__item--selected', i === idx) })
+      }
 
-// -- SK-CASE-GALLERY-001 Progressive Evidence Gallery (Tooltip -> Cycling -> Flip Gallery -> Fullscreen) --
-;(function pegInit(){
-  if (typeof gsap !== 'undefined' && typeof Flip !== 'undefined') {
-    gsap.registerPlugin(Flip)
-  }
-  document.querySelectorAll('[data-peg]').forEach(function(root){
-    var trigger     = root.querySelector('[data-peg-trigger]')
-    var textCol     = root.querySelector('.peg-text')
-    var tooltip     = root.querySelector('[data-peg-tooltip]')
-    var tooltipWrap = root.querySelector('[data-peg-tooltip-wrap]')
-    var tipCounter  = root.querySelector('[data-peg-counter]')
-    var tipCap      = root.querySelector('[data-peg-tip-cap]')
-    var gallery     = root.querySelector('[data-peg-gallery]')
-    var stage       = root.querySelector('[data-peg-stage]')
-    var bgImg       = gallery ? gallery.querySelector('.peg-gallery__bg img') : null
-    var galCounter  = root.querySelector('[data-peg-gal-counter]')
-    var galCap      = root.querySelector('[data-peg-gal-cap]')
-    var btnPrev     = root.querySelector('[data-peg-prev]')
-    var btnNext     = root.querySelector('[data-peg-next]')
-    var btnClose    = root.querySelector('[data-peg-close]')
-    var imgs        = Array.from(root.querySelectorAll('.peg-tooltip__img'))
-    var navItems    = Array.from(root.querySelectorAll('.peg-nav__item'))
-    if (!imgs.length || !tooltipWrap || !gallery || !stage) return
+      function showTooltipFrame(idx) {
+        imgs.forEach(function(im, i){ im.classList.toggle('peg-tooltip__img--current', i === idx) })
+        current = idx
+        updateMeta(idx)
+      }
 
-    var current = 0
-    var timer = null
-    var isOpen = false
-    var isFullscreen = false
-    var isAnimating = false
-    var totalStr = String(imgs.length).padStart(2, '0')
+      function startCycle() {
+        stopCycle()
+        if (imgs.length <= 1) return
+        timer = setInterval(function(){
+          if (isOpen) return
+          var next = (current + 1) % imgs.length
+          showTooltipFrame(next)
+        }, 1800)
+      }
 
-    function updateMeta(idx) {
-      var numStr = String(idx + 1).padStart(2, '0') + ' / ' + totalStr
-      var capStr = imgs[idx].getAttribute('data-cap') || ''
-      if (tipCounter) tipCounter.textContent = numStr
-      if (tipCap)     tipCap.textContent     = capStr
-      if (galCounter) galCounter.textContent = numStr
-      if (galCap)     galCap.textContent     = capStr
-      if (bgImg)      bgImg.src              = imgs[idx].src
-      navItems.forEach(function(n, i){ n.classList.toggle('peg-nav__item--selected', i === idx) })
-    }
+      function stopCycle() {
+        if (timer) { clearInterval(timer); timer = null }
+      }
 
-    function showTooltipFrame(idx) {
-      imgs.forEach(function(im, i){ im.classList.toggle('peg-tooltip__img--current', i === idx) })
-      current = idx
-      updateMeta(idx)
-    }
-
-    function startCycle() {
-      stopCycle()
-      if (imgs.length <= 1) return
-      timer = setInterval(function(){
+      function onHoverEnter() {
         if (isOpen) return
-        var next = (current + 1) % imgs.length
-        showTooltipFrame(next)
-      }, 1800)
-    }
-
-    function stopCycle() {
-      if (timer) { clearInterval(timer); timer = null }
-    }
-
-    function onHoverEnter() {
-      if (isOpen) return
-      root.classList.add('peg-hover')
-      startCycle()
-    }
-
-    function onHoverLeave() {
-      if (isOpen) return
-      stopCycle()
-      root.classList.remove('peg-hover')
-    }
-
-    if (textCol) {
-      textCol.addEventListener('mouseenter', onHoverEnter)
-      textCol.addEventListener('mouseleave', onHoverLeave)
-    }
-    if (tooltip) {
-      tooltip.addEventListener('mouseenter', function(){ if (!isOpen) { root.classList.add('peg-hover'); stopCycle() } })
-      tooltip.addEventListener('mouseleave', onHoverLeave)
-    }
-
-    function openGallery() {
-      if (isOpen || isAnimating) return
-      stopCycle()
-      isOpen = true
-      var activeImg = imgs[current]
-      var state = (typeof Flip !== 'undefined') ? Flip.getState(activeImg, { simple: true }) : null
-      root.classList.remove('peg-hover')
-      root.classList.add('peg-open')
-      stage.appendChild(activeImg)
-      activeImg.classList.add('peg-tooltip__img--current')
-      updateMeta(current)
-      if (state && typeof Flip !== 'undefined') {
-        isAnimating = true
-        Flip.from(state, { duration: 0.55, ease: 'power3.inOut', scale: true, onComplete: function(){ isAnimating = false } })
+        root.classList.add('peg-hover')
+        startCycle()
       }
-    }
 
-    function selectImage(idx) {
-      if (!isOpen || idx === current || isAnimating) return
-      var nextIdx = (idx + imgs.length) % imgs.length
-      var prevImg = imgs[current]
-      var nextImg = imgs[nextIdx]
-      var state = (typeof Flip !== 'undefined') ? Flip.getState(nextImg, { simple: true }) : null
-      tooltipWrap.appendChild(prevImg)
-      prevImg.classList.remove('peg-tooltip__img--current')
-      if (typeof gsap !== 'undefined') gsap.set(prevImg, { clearProps: 'all' })
-      current = nextIdx
-      stage.appendChild(nextImg)
-      nextImg.classList.add('peg-tooltip__img--current')
-      updateMeta(current)
-      if (state && typeof Flip !== 'undefined') {
-        isAnimating = true
-        Flip.from(state, { duration: 0.45, ease: 'power3.inOut', scale: true, onComplete: function(){ isAnimating = false } })
+      function onHoverLeave() {
+        if (isOpen) return
+        stopCycle()
+        root.classList.remove('peg-hover')
       }
-    }
 
-    function toggleFullscreen() {
-      if (!isOpen || isAnimating) return
-      var activeImg = imgs[current]
-      var state = (typeof Flip !== 'undefined') ? Flip.getState(activeImg, { simple: true }) : null
-      isFullscreen = !isFullscreen
-      gallery.classList.toggle('peg-gallery--fullscreen', isFullscreen)
-      if (state && typeof Flip !== 'undefined') {
-        isAnimating = true
-        Flip.from(state, { duration: 0.55, ease: 'power3.inOut', scale: true, onComplete: function(){ isAnimating = false } })
+      if (textCol) {
+        textCol.addEventListener('mouseenter', onHoverEnter)
+        textCol.addEventListener('mouseleave', onHoverLeave)
       }
-    }
+      if (tooltip) {
+        tooltip.addEventListener('mouseenter', function(){ if (!isOpen) { root.classList.add('peg-hover'); stopCycle() } })
+        tooltip.addEventListener('mouseleave', onHoverLeave)
+      }
 
-    function closeGallery() {
-      if (!isOpen) return
-      if (isFullscreen) {
-        toggleFullscreen()
-        return
+      function openGallery() {
+        if (isOpen || isAnimating) return
+        stopCycle()
+        isOpen = true
+        var activeImg = imgs[current]
+        var state = (typeof Flip !== 'undefined') ? Flip.getState(activeImg, { simple: true }) : null
+        root.classList.remove('peg-hover')
+        root.classList.add('peg-open')
+        stage.appendChild(activeImg)
+        activeImg.classList.add('peg-tooltip__img--current')
+        updateMeta(current)
+        if (state && typeof Flip !== 'undefined') {
+          isAnimating = true
+          Flip.from(state, { duration: 0.55, ease: 'power3.inOut', scale: true, onComplete: function(){ isAnimating = false } })
+        }
       }
-      stopCycle()
-      var activeImg = imgs[current]
-      tooltipWrap.appendChild(activeImg)
-      imgs.forEach(function(im, i){
-        if (typeof gsap !== 'undefined') gsap.set(im, { clearProps: 'all' })
-        im.classList.toggle('peg-tooltip__img--current', i === current)
+
+      function selectImage(idx) {
+        if (!isOpen || idx === current || isAnimating) return
+        var nextIdx = (idx + imgs.length) % imgs.length
+        var prevImg = imgs[current]
+        var nextImg = imgs[nextIdx]
+        var state = (typeof Flip !== 'undefined') ? Flip.getState(nextImg, { simple: true }) : null
+        tooltipWrap.appendChild(prevImg)
+        prevImg.classList.remove('peg-tooltip__img--current')
+        if (typeof gsap !== 'undefined') gsap.set(prevImg, { clearProps: 'all' })
+        current = nextIdx
+        stage.appendChild(nextImg)
+        nextImg.classList.add('peg-tooltip__img--current')
+        updateMeta(current)
+        if (state && typeof Flip !== 'undefined') {
+          isAnimating = true
+          Flip.from(state, { duration: 0.45, ease: 'power3.inOut', scale: true, onComplete: function(){ isAnimating = false } })
+        }
+      }
+
+      function toggleFullscreen() {
+        if (!isOpen || isAnimating) return
+        var activeImg = imgs[current]
+        var state = (typeof Flip !== 'undefined') ? Flip.getState(activeImg, { simple: true }) : null
+        isFullscreen = !isFullscreen
+        gallery.classList.toggle('peg-gallery--fullscreen', isFullscreen)
+        if (state && typeof Flip !== 'undefined') {
+          isAnimating = true
+          Flip.from(state, { duration: 0.55, ease: 'power3.inOut', scale: true, onComplete: function(){ isAnimating = false } })
+        }
+      }
+
+      function closeGallery() {
+        if (!isOpen) return
+        if (isFullscreen) {
+          toggleFullscreen()
+          return
+        }
+        stopCycle()
+        var activeImg = imgs[current]
+        tooltipWrap.appendChild(activeImg)
+        imgs.forEach(function(im, i){
+          if (typeof gsap !== 'undefined') gsap.set(im, { clearProps: 'all' })
+          im.classList.toggle('peg-tooltip__img--current', i === current)
+        })
+        gallery.classList.remove('peg-gallery--fullscreen')
+        root.classList.remove('peg-open', 'peg-hover')
+        isOpen = false
+        isFullscreen = false
+        isAnimating = false
+      }
+
+      if (trigger) trigger.addEventListener('click', openGallery)
+      if (tooltip) tooltip.addEventListener('click', openGallery)
+      if (stage)   stage.addEventListener('click', toggleFullscreen)
+      if (btnPrev) btnPrev.addEventListener('click', function(e){ e.stopPropagation(); selectImage(current - 1) })
+      if (btnNext) btnNext.addEventListener('click', function(e){ e.stopPropagation(); selectImage(current + 1) })
+      if (btnClose) btnClose.addEventListener('click', function(e){ e.stopPropagation(); closeGallery() })
+      navItems.forEach(function(btn, idx){
+        btn.addEventListener('click', function(){ selectImage(idx) })
       })
-      gallery.classList.remove('peg-gallery--fullscreen')
-      root.classList.remove('peg-open', 'peg-hover')
-      isOpen = false
-      isFullscreen = false
-      isAnimating = false
-    }
-
-    if (trigger) trigger.addEventListener('click', openGallery)
-    if (tooltip) tooltip.addEventListener('click', openGallery)
-    if (stage)   stage.addEventListener('click', toggleFullscreen)
-    if (btnPrev) btnPrev.addEventListener('click', function(e){ e.stopPropagation(); selectImage(current - 1) })
-    if (btnNext) btnNext.addEventListener('click', function(e){ e.stopPropagation(); selectImage(current + 1) })
-    if (btnClose) btnClose.addEventListener('click', function(e){ e.stopPropagation(); closeGallery() })
-    navItems.forEach(function(btn, idx){
-      btn.addEventListener('click', function(){ selectImage(idx) })
     })
-    window.addEventListener('keydown', function(e){
-      if (!isOpen) return
-      if (e.key === 'Escape') closeGallery()
-      if (e.key === 'ArrowLeft') selectImage(current - 1)
-      if (e.key === 'ArrowRight') selectImage(current + 1)
-    })
-  })
-})()
+  })()
 
-// -- Case Study / Slides Switcher + Presentation Deck --
-;(function deckInit(){
-  var switchTabs = Array.from(document.querySelectorAll('[data-switch-target]'))
-  var pCase      = document.getElementById('p-case')
-  var pSlides    = document.getElementById('p-slides')
-  switchTabs.forEach(function(tab){
-    tab.addEventListener('click', function(){
-      var target = tab.getAttribute('data-switch-target')
+  // -- Case Study / Slides Switcher + Presentation Deck --
+  ;(function deckInit(){
+    var switchTabs = Array.from(document.querySelectorAll('[data-switch-target]'))
+    var pCase      = document.getElementById('p-case')
+    var pSlides    = document.getElementById('p-slides')
+    function applyTab(target) {
+      window.__skActiveTab = target
       switchTabs.forEach(function(t){
-        var active = t === tab
+        var active = t.getAttribute('data-switch-target') === target
         t.classList.toggle('active', active)
         t.setAttribute('aria-selected', active ? 'true' : 'false')
       })
@@ -1260,68 +1395,133 @@ function doRefresh(){
         pCase.style.display   = target === 'slides' ? 'none'  : 'block'
         pSlides.style.display = target === 'slides' ? 'block' : 'none'
       }
-    })
-  })
-  document.querySelectorAll('[data-deck]').forEach(function(deck){
-    var slides = Array.from(deck.querySelectorAll('[data-deck-slide]'))
-    var prev   = deck.querySelector('[data-deck-prev]')
-    var next   = deck.querySelector('[data-deck-next]')
-    var count  = deck.querySelector('[data-deck-count]')
-    if (!slides.length) return
-    var cur = 0
-    function go(i) {
-      cur = (i + slides.length) % slides.length
-      slides.forEach(function(s, idx){ s.classList.toggle('active', idx === cur) })
-      if (count) count.textContent = String(cur + 1).padStart(2, '0') + ' / ' + String(slides.length).padStart(2, '0')
     }
-    if (prev) prev.addEventListener('click', function(){ go(cur - 1) })
-    if (next) next.addEventListener('click', function(){ go(cur + 1) })
-  })
-})()
-
-// -- Annotated media hotspots --
-;(function amInit(){
-  function positionPanel(stage, dot, panel) {
-    var sw  = stage.offsetWidth
-    var sh  = stage.offsetHeight
-    var dx  = parseFloat(dot.style.left)  / 100 * sw
-    var dy  = parseFloat(dot.style.top)   / 100 * sh
-    var pw  = 260
-    var ph  = panel.offsetHeight || 80
-
-    var left = dx + 20
-    var top  = dy - 20
-    if (left + pw > sw - 8) left = dx - pw - 20
-    if (top + ph > sh - 8)  top  = sh - ph - 8
-    if (top < 8)            top  = 8
-    if (left < 8)           left = 8
-
-    panel.style.left = left + 'px'
-    panel.style.top  = top  + 'px'
-  }
-
-  document.querySelectorAll('[data-am]').forEach(function(stage){
-    var dots   = Array.from(stage.querySelectorAll('.am-dot'))
-    var panels = Array.from(stage.querySelectorAll('.am-panel'))
-
-    dots.forEach(function(dot, i){
-      dot.addEventListener('click', function(e){
-        e.stopPropagation()
-        var isOpen = dot.classList.contains('active')
-        dots.forEach(function(d){ d.classList.remove('active') })
-        panels.forEach(function(p){ p.classList.remove('active') })
-        if (!isOpen && panels[i]) {
-          dot.classList.add('active')
-          panels[i].classList.add('active')
-          positionPanel(stage, dot, panels[i])
-        }
+    if (switchTabs.length && window.__skActiveTab === 'slides') {
+      applyTab('slides')
+    }
+    switchTabs.forEach(function(tab){
+      tab.addEventListener('click', function(){
+        applyTab(tab.getAttribute('data-switch-target') || 'case')
       })
     })
-
-    stage.addEventListener('click', function(){
-      dots.forEach(function(d){ d.classList.remove('active') })
-      panels.forEach(function(p){ p.classList.remove('active') })
+    document.querySelectorAll('[data-deck]').forEach(function(deck){
+      var slides = Array.from(deck.querySelectorAll('[data-deck-slide]'))
+      var prev   = deck.querySelector('[data-deck-prev]')
+      var next   = deck.querySelector('[data-deck-next]')
+      var count  = deck.querySelector('[data-deck-count]')
+      if (!slides.length) return
+      var cur = Math.min(window.__skActiveSlide || 0, slides.length - 1)
+      function go(i) {
+        cur = (i + slides.length) % slides.length
+        window.__skActiveSlide = cur
+        slides.forEach(function(s, idx){ s.classList.toggle('active', idx === cur) })
+        if (count) count.textContent = String(cur + 1).padStart(2, '0') + ' / ' + String(slides.length).padStart(2, '0')
+      }
+      go(cur)
+      if (prev) prev.addEventListener('click', function(){ go(cur - 1) })
+      if (next) next.addEventListener('click', function(){ go(cur + 1) })
     })
+  })()
+
+  // -- Annotated media hotspots --
+  ;(function amInit(){
+    function positionPanel(stage, dot, panel) {
+      var sw  = stage.offsetWidth
+      var sh  = stage.offsetHeight
+      var dx  = parseFloat(dot.style.left)  / 100 * sw
+      var dy  = parseFloat(dot.style.top)   / 100 * sh
+      var pw  = 260
+      var ph  = panel.offsetHeight || 80
+
+      var left = dx + 20
+      var top  = dy - 20
+      if (left + pw > sw - 8) left = dx - pw - 20
+      if (top + ph > sh - 8)  top  = sh - ph - 8
+      if (top < 8)            top  = 8
+      if (left < 8)           left = 8
+
+      panel.style.left = left + 'px'
+      panel.style.top  = top  + 'px'
+    }
+
+    document.querySelectorAll('[data-am]').forEach(function(stage){
+      var dots   = Array.from(stage.querySelectorAll('.am-dot'))
+      var panels = Array.from(stage.querySelectorAll('.am-panel'))
+
+      dots.forEach(function(dot, i){
+        dot.addEventListener('click', function(e){
+          e.stopPropagation()
+          var isOpen = dot.classList.contains('active')
+          dots.forEach(function(d){ d.classList.remove('active') })
+          panels.forEach(function(p){ p.classList.remove('active') })
+          if (!isOpen && panels[i]) {
+            dot.classList.add('active')
+            panels[i].classList.add('active')
+            positionPanel(stage, dot, panels[i])
+          }
+        })
+      })
+
+      stage.addEventListener('click', function(){
+        dots.forEach(function(d){ d.classList.remove('active') })
+        panels.forEach(function(p){ p.classList.remove('active') })
+      })
+    })
+  })()
+}
+
+window.__skInitAll()
+
+// Signal to Payload 3.92.1 LivePreviewProvider that the preview frame is ready,
+// and render live form changes in real time without waiting for manual Save Draft.
+;(function(){
+  function sendReady(){
+    if(window.parent !== window){
+      window.parent.postMessage({ type: 'payload-live-preview', ready: true }, '*')
+      window.parent.postMessage({ type: 'payload-live-preview-ready' }, '*')
+    }
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', sendReady)
+  } else {
+    sendReady()
+  }
+  setTimeout(sendReady, 250)
+  setTimeout(sendReady, 900)
+
+  var debounceTimer = null
+  var prevSlidesCount = -1
+  window.addEventListener('message', function(e){
+    if(!e.data || typeof e.data !== 'object') return
+    if(e.data.type === 'payload-live-preview' && e.data.data && typeof e.data.data === 'object'){
+      var liveData = e.data.data
+      if (Array.isArray(liveData.slides) && liveData.slides.length !== prevSlidesCount) {
+        if (prevSlidesCount >= 0 && liveData.slides.length > 0) {
+          window.__skActiveTab = 'slides'
+          window.__skActiveSlide = liveData.slides.length - 1
+        }
+        prevSlidesCount = liveData.slides.length
+      }
+      if(debounceTimer) clearTimeout(debounceTimer)
+      debounceTimer = setTimeout(function(){
+        fetch(window.location.pathname + window.location.search, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ data: liveData })
+        })
+        .then(function(r){ return r.ok ? r.json() : null })
+        .then(function(res){
+          if(res && typeof res.bodyHtml === 'string'){
+            var container = document.getElementById('page-content')
+            if(container){
+              container.innerHTML = res.bodyHtml
+              window.__skInitAll()
+            }
+          }
+        })
+        .catch(function(){})
+      }, 90)
+    }
   })
 })()
 </script>

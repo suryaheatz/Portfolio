@@ -150,9 +150,9 @@ export const AnnotatedMedia: Block = {
       minRows: 1,
       maxRows: 12,
       fields: [
-        { name: 'x',       type: 'number', required: true, min: 0, max: 100, admin: { description: 'Horizontal position 0-100%' } },
-        { name: 'y',       type: 'number', required: true, min: 0, max: 100, admin: { description: 'Vertical position 0-100%' } },
-        { name: 'number',  type: 'number', admin: { description: 'Display number (auto-sequenced if blank)' } },
+        { name: 'x',       type: 'number', required: true, defaultValue: 50, min: 0, max: 100, admin: { description: 'Horizontal position 0-100%' } },
+        { name: 'y',       type: 'number', required: true, defaultValue: 50, min: 0, max: 100, admin: { description: 'Vertical position 0-100%' } },
+        { name: 'number',  type: 'number', defaultValue: 1, admin: { description: 'Display number (auto-sequenced if blank)' } },
         { name: 'heading', type: 'text', required: true },
         { name: 'body',    type: 'textarea' },
       ],
@@ -294,7 +294,7 @@ export const CaseStudyMediaGroup: Block = { slug: 'caseStudyMediaGroup', dbName:
  {name:'showDescription',type:'checkbox',defaultValue:false},
  {name:'showCredit',type:'checkbox',defaultValue:false},
  {name:'annotations',type:'array',admin:{description:'Hotspot legend retained when switching layouts'},fields:[
- {name:'number',type:'number',required:true},{name:'x',type:'number',min:0,max:100,required:true},{name:'y',type:'number',min:0,max:100,required:true},{name:'heading',type:'text'},{name:'body',type:'textarea'}]},
+ {name:'number',type:'number',required:true,defaultValue:1},{name:'x',type:'number',min:0,max:100,required:true,defaultValue:50},{name:'y',type:'number',min:0,max:100,required:true,defaultValue:50},{name:'heading',type:'text'},{name:'body',type:'textarea'}]},
  
    
 

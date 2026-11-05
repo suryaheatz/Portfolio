@@ -3,20 +3,21 @@ import { caseStudyBlocks } from '../blocks/case-study'
 
 /**
  * CaseStudies collection -- dedicated home for all case study documents.
- * Step 1: Choose one of the 3 SK Design System templates (locked once saved unless explicitly unlocked).
- * Step 2: Form fields and right-hand Live Preview adapt to the chosen template.
+ * - Autosave is enabled so clicking "Create New" immediately opens the 50/50 Live Preview split screen.
+ * - Template selector is unlocked on all new/draft case studies and locked once published (unless unlocked via sidebar toggle).
  */
 export const CaseStudies: CollectionConfig = {
   slug: 'case-studies',
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'slug', 'template', 'updatedAt'],
-    description: 'Portfolio case study documents. Choose one of the 3 SK Design System case study formats.',
+    defaultColumns: ['title', 'slug', 'template', '_status', 'updatedAt'],
+    description: 'Portfolio case study documents. Choose one of the 3 SK Design System case study formats -- the right-hand Live Preview updates in real time.',
     livePreview: {
-      url: ({ data }: { data?: { slug?: string; template?: string } }) => {
+      url: ({ data }: { data?: { id?: string | number; slug?: string; template?: string } }) => {
         const slug = data?.slug || '_new'
         const tpl = data?.template || 'narrative'
-        return `/preview/case-studies/${encodeURIComponent(slug)}?template=${encodeURIComponent(tpl)}`
+        const idParam = data?.id ? `&id=${encodeURIComponent(String(data.id))}` : ''
+        return `/preview/case-studies/${encodeURIComponent(slug)}?template=${encodeURIComponent(tpl)}${idParam}`
       },
       breakpoints: [
         { label: 'Mobile',  name: 'mobile',  width: 375,  height: 812 },
@@ -24,17 +25,35 @@ export const CaseStudies: CollectionConfig = {
       ],
     },
   },
-  versions: { drafts: true },
+  versions: {
+    drafts: {
+      autosave: {
+        interval: 600,
+      },
+      validate: false,
+    },
+  },
   hooks: {
+    beforeValidate: [
+      ({ data, operation }) => {
+        if (operation === 'create' && data) {
+          if (!data.title) data.title = 'Untitled Case Study'
+          if (!data.slug) data.slug = `case-study-${Date.now().toString(36)}`
+        }
+        return data
+      },
+    ],
     beforeChange: [
       ({ data, originalDoc, operation }) => {
-        if (operation === 'update' && originalDoc?.template && data?.template && data.template !== originalDoc.template) {
+        const isLockedDoc =
+          originalDoc?._status === 'published' ||
+          originalDoc?.slug === 'centronic' ||
+          originalDoc?.slug === 'haptix'
+        if (operation === 'update' && isLockedDoc && originalDoc?.template && data?.template && data.template !== originalDoc.template) {
           if (!data.unlockTemplate) {
-            // Preserve original template if not explicitly unlocked
             data.template = originalDoc.template
           }
         }
-        // Always reset the one-time unlock toggle after save so it stays locked afterward
         if (data && 'unlockTemplate' in data) {
           data.unlockTemplate = false
         }
@@ -51,6 +70,11 @@ export const CaseStudies: CollectionConfig = {
       access: {
         update: ({ id, data }) => {
           if (!id) return true
+          const isPublishedOrCore =
+            data?._status === 'published' ||
+            data?.slug === 'centronic' ||
+            data?.slug === 'haptix'
+          if (!isPublishedOrCore) return true
           return Boolean(data?.unlockTemplate)
         },
       },
@@ -60,7 +84,7 @@ export const CaseStudies: CollectionConfig = {
         { label: '3. Visual / Image-Only Showcase (Hero + Bento, Galleries & Sliders -- No Brief/Scope Cards)', value: 'visual-showcase' },
       ],
       admin: {
-        description: 'Step 1: Select the SK Design System format. Once a Case Study is saved, this template is locked to protect content mapping (use the sidebar toggle to unlock if needed).',
+        description: 'Step 1: Select the SK Design System format. Switching this dropdown immediately updates the right-hand Live Preview. Locked once published (use the sidebar toggle to unlock).',
       },
     },
     {
@@ -69,14 +93,15 @@ export const CaseStudies: CollectionConfig = {
       defaultValue: false,
       admin: {
         position: 'sidebar',
-        condition: (data) => Boolean(data?.id),
-        description: 'Safety lock: Check this box only if you intentionally want to unlock and switch the Case Study template above.',
+        condition: (data) => Boolean(data?.id && (data?._status === 'published' || data?.slug === 'centronic' || data?.slug === 'haptix')),
+        description: 'Safety lock: Check this box only if you intentionally want to unlock and switch the Case Study template on a published case study.',
       },
     },
     {
       name: 'title',
       type: 'text',
       required: true,
+      defaultValue: 'Untitled Case Study',
       admin: { description: 'Case study title -- also used as the page <title>.' },
     },
     {
@@ -84,6 +109,7 @@ export const CaseStudies: CollectionConfig = {
       type: 'text',
       required: true,
       unique: true,
+      defaultValue: () => `case-study-${Date.now().toString(36)}`,
       admin: {
         description: 'URL slug -- lowercase, hyphenated. e.g. "centronic" or "haptix".',
       },
@@ -146,7 +172,7 @@ export const CaseStudies: CollectionConfig = {
       type: 'blocks',
       blocks: caseStudyBlocks,
       admin: {
-        description: 'Page content blocks. Empty image slots automatically display SK Design System Blueprint placeholders with image ratio specs in the right-hand Live Preview.',
+        description: 'Case study blocks. You can reorder or remove any block (including Hero, Brief, or Scope via the "..." menu on each block) and see the right-hand Live Preview update immediately.',
       },
       defaultValue: () => [
         {

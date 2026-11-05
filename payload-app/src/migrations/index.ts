@@ -30,6 +30,7 @@ import * as forceRenameMediaGroupTables from './20261104_200000_force_rename_med
 import * as fixMediaGroupAndCaseStudiesVSchema from './20261105_000000_fix_media_group_and_case_studies_v_schema';
 import * as addCaseStudyTemplateAndArticles from './20261105_010000_add_case_study_template_and_articles';
 import * as addCaseStudySlidesAndTemplateLock from './20261105_020000_add_case_study_slides_and_template_lock';
+import * as enableAutosaveLivePreview from './20261105_030000_enable_autosave_live_preview';
 
 export const migrations = [
   { up: migration_20261028_125058.up, down: migration_20261028_125058.down, name: '20261028_125058' },
@@ -54,4 +55,5 @@ export const migrations = [
   { up: fixMediaGroupAndCaseStudiesVSchema.up, down: fixMediaGroupAndCaseStudiesVSchema.down, name: '20261105_000000_fix_media_group_and_case_studies_v_schema' },
   { up: addCaseStudyTemplateAndArticles.up, down: addCaseStudyTemplateAndArticles.down, name: '20261105_010000_add_case_study_template_and_articles' },
   { up: addCaseStudySlidesAndTemplateLock.up, down: addCaseStudySlidesAndTemplateLock.down, name: '20261105_020000_add_case_study_slides_and_template_lock' },
+  { up: enableAutosaveLivePreview.up, down: enableAutosaveLivePreview.down, name: '20261105_030000_enable_autosave_live_preview' },
 ];

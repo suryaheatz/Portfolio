@@ -10,12 +10,13 @@ export const Articles: CollectionConfig = {
   slug: 'articles',
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'slug', 'category', 'updatedAt'],
-    description: 'Free-form articles, essays, and explorations. Insert any SK Design System block in any order.',
+    defaultColumns: ['title', 'slug', 'category', '_status', 'updatedAt'],
+    description: 'Free-form articles, essays, and explorations. Insert any SK Design System block in any order -- the right-hand Live Preview updates in real time.',
     livePreview: {
-      url: ({ data }: { data?: { slug?: string } }) => {
-        const slug = data?.slug
-        return `/preview/case-studies/${encodeURIComponent(slug || '_new')}?collection=articles`
+      url: ({ data }: { data?: { id?: string | number; slug?: string } }) => {
+        const slug = data?.slug || '_new'
+        const idParam = data?.id ? `&id=${encodeURIComponent(String(data.id))}` : ''
+        return `/preview/case-studies/${encodeURIComponent(slug)}?collection=articles${idParam}`
       },
       breakpoints: [
         { label: 'Mobile',  name: 'mobile',  width: 375,  height: 812 },
@@ -23,12 +24,31 @@ export const Articles: CollectionConfig = {
       ],
     },
   },
-  versions: { drafts: true },
+  versions: {
+    drafts: {
+      autosave: {
+        interval: 600,
+      },
+      validate: false,
+    },
+  },
+  hooks: {
+    beforeValidate: [
+      ({ data, operation }) => {
+        if (operation === 'create' && data) {
+          if (!data.title) data.title = 'Untitled Article'
+          if (!data.slug) data.slug = `article-${Date.now().toString(36)}`
+        }
+        return data
+      },
+    ],
+  },
   fields: [
     {
       name: 'title',
       type: 'text',
       required: true,
+      defaultValue: 'Untitled Article',
       admin: { description: 'Article title -- also used as the page <title>.' },
     },
     {
@@ -36,6 +56,7 @@ export const Articles: CollectionConfig = {
       type: 'text',
       required: true,
       unique: true,
+      defaultValue: () => `article-${Date.now().toString(36)}`,
       admin: { description: 'URL slug -- lowercase, hyphenated. e.g. "designing-haptic-controls".' },
     },
     {
