@@ -124,6 +124,9 @@ export const CaseStudies: CollectionConfig = {
       fields: [
         {
           type: 'row',
+          admin: {
+            condition: (data) => data?.template === 'narrative-slides',
+          },
           fields: [
             {
               name: 'variant',
@@ -138,19 +141,25 @@ export const CaseStudies: CollectionConfig = {
             {
               name: 'eyebrow',
               type: 'text',
-              admin: { width: '50%', description: 'e.g. "01 / The Hardware" or Hero Eyebrow' },
+              admin: { width: '50%', description: 'e.g. "01 / The Hardware"' },
             },
           ],
         },
         {
           name: 'heading',
           type: 'text',
-          admin: { description: 'Slide headline (Template 2) or optional frame title (Template 3).' },
+          admin: {
+            condition: (data) => data?.template === 'narrative-slides',
+            description: 'Slide headline (Bricolage Grotesque display).',
+          },
         },
         {
           name: 'body',
           type: 'textarea',
-          admin: { description: 'Concise slide narrative (Template 2 left 40% column).' },
+          admin: {
+            condition: (data) => data?.template === 'narrative-slides',
+            description: 'Concise slide narrative (left 40% column).',
+          },
         },
         {
           name: 'image',
@@ -161,7 +170,7 @@ export const CaseStudies: CollectionConfig = {
         {
           name: 'imageAlt',
           type: 'text',
-          admin: { description: 'Accessibility alt text for the image.' },
+          admin: { description: 'Optional accessibility alt text for the image.' },
         },
       ],
     },

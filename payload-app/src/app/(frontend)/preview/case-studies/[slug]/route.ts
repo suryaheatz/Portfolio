@@ -691,18 +691,8 @@ function buildVisualShowcaseHtml(
     }
   }
 
-  const firstSlide = slides[0]
-  const heroEyebrow = String(
-    firstSlide?.eyebrow ||
-    heroBlock?.eyebrow ||
-    'Brand Identity  -  Visual System  -  SK Design System'
-  )
-  const rawDocTitle = doc?.title ? String(doc.title) : ''
-  const heroTitle = String(
-    firstSlide?.heading ||
-    heroBlock?.title ||
-    (rawDocTitle && rawDocTitle !== 'Untitled Case Study' ? rawDocTitle : 'Acheter du Neuf')
-  )
+  const rawDocTitle = doc?.title ? String(doc.title).trim() : ''
+  const sidebarTitle = rawDocTitle || pageTitle || 'Visual Showcase'
 
   const blueprintMeta = [
     { painterIdx: 0, ratioClass: 'vs-frame-16-9', label: '01 / Hero Deliverable (16:9)' },
@@ -728,21 +718,13 @@ function buildVisualShowcaseHtml(
 
   const totalStr = String(frames.length).padStart(2, '0')
   const mainCardsHtml = frames.map((f, i) => {
-    const isHero = i === 0
     const mediaEl = f.url
       ? `<img class="vs-frame-img" src="${esc(f.url)}" alt="${esc(f.alt || f.title || `Frame ${i + 1}`)}" loading="${i < 2 ? 'eager' : 'lazy'}">`
       : `<canvas class="vs-frame ${f.ratioClass || 'vs-frame-16-9'}" data-vs-canvas="${f.painterIdx ?? (i % 7)}" id="vs-c-${i}"></canvas>
          <span class="vs-bp-pill">${esc(f.title || `Blueprint Frame 0${i + 1}`)}  -  Add image in left panel</span>`
-    const heroOverlay = isHero ? `
-      <div class="vs-hero-scrim"></div>
-      <div class="vs-hero-meta">
-        <span class="vs-eyebrow" id="vs-ey">${esc(heroEyebrow)}</span>
-        <h1 class="vs-hero-title" id="vs-ht">${esc(heroTitle)}</h1>
-      </div>` : ''
     return `
-      <section class="vs-card${isHero ? ' vs-hero' : ''}" data-vs-sec="${i}" id="vs-s${i}"${i > 0 ? ' data-vs-reveal' : ''}>
+      <section class="vs-card" data-vs-sec="${i}" id="vs-s${i}">
         ${mediaEl}
-        ${heroOverlay}
       </section>`
   }).join('')
 
@@ -762,7 +744,7 @@ function buildVisualShowcaseHtml(
         ${extraBlocksHtml ? `<div class="vs-extra-blocks">${extraBlocksHtml}</div>` : ''}
       </main>
       <aside class="vs-sidebar" aria-label="Continuous Image Strip Navigator">
-        <div class="vs-sidebar-label">01 / ${esc(heroTitle.toUpperCase())}</div>
+        <div class="vs-sidebar-label">${esc(sidebarTitle.toUpperCase())}</div>
         <div class="vs-sidebar-sub">
           <span id="vs-active-count">01 / ${totalStr}</span>
           <span>Scroll / Scrub</span>
