@@ -1,22 +1,13 @@
 import * as migration_20261028_125058 from './20261028_125058';
 import * as migration_20261029_000000_r2_media_objectkey from './20261029_000000_r2_media_objectkey';
-
 import * as migration_20261029_160000_case_study_blocks from './20261029_160000_case_study_blocks';
-
 import * as migration_20261029_210000_case_media_source from './20261029_210000_case_media_source';
-
 import * as migration_20261030_010000_media_import_pilot from './20261030_010000_media_import_pilot';
-
 import * as migration_20261030_020000_import_all_case_media from './20261030_020000_import_all_case_media';
-
 import * as mediaPresentation from './20261030_030000_media_presentation';
-
 import * as repairCasePages from './20261030_040000_repair_payload_page_documents';
-
 import * as layoutReadAudit from './20261030_060000_layout_read_audit';
-
 import * as nestedCascade from './20261030_090000_fix_nested_block_cascade';
-
 import * as newBlockTables from './20261102_000000_new_block_tables';
 import * as fixRichTextBody from './20261103_000000_fix_richtext_body_migration';
 import * as bentoSplitBlocks from './20261103_010000_bento_split_blocks';
@@ -31,10 +22,12 @@ import * as fixMediaGroupAndCaseStudiesVSchema from './20261105_000000_fix_media
 import * as addCaseStudyTemplateAndArticles from './20261105_010000_add_case_study_template_and_articles';
 import * as addCaseStudySlidesAndTemplateLock from './20261105_020000_add_case_study_slides_and_template_lock';
 import * as enableAutosaveLivePreview from './20261105_030000_enable_autosave_live_preview';
+import * as addHomePageGlobal from './20261109_000000_add_home_page_global';
 
 export const migrations = [
   { up: migration_20261028_125058.up, down: migration_20261028_125058.down, name: '20261028_125058' },
-  { up: migration_20261029_000000_r2_media_objectkey.up, down: migration_20261029_000000_r2_media_objectkey.down, name: '20261029_000000_r2_media_objectkey' },  { up: migration_20261029_160000_case_study_blocks.up, down: migration_20261029_160000_case_study_blocks.down, name: '20261029_160000_case_study_blocks' },
+  { up: migration_20261029_000000_r2_media_objectkey.up, down: migration_20261029_000000_r2_media_objectkey.down, name: '20261029_000000_r2_media_objectkey' },
+  { up: migration_20261029_160000_case_study_blocks.up, down: migration_20261029_160000_case_study_blocks.down, name: '20261029_160000_case_study_blocks' },
   { up: migration_20261029_210000_case_media_source.up, down: migration_20261029_210000_case_media_source.down, name: '20261029_210000_case_media_source' },
   { up: migration_20261030_010000_media_import_pilot.up, down: migration_20261030_010000_media_import_pilot.down, name: '20261030_010000_media_import_pilot' },
   { up: migration_20261030_020000_import_all_case_media.up, down: migration_20261030_020000_import_all_case_media.down, name: '20261030_020000_import_all_case_media' },
@@ -56,4 +49,5 @@ export const migrations = [
   { up: addCaseStudyTemplateAndArticles.up, down: addCaseStudyTemplateAndArticles.down, name: '20261105_010000_add_case_study_template_and_articles' },
   { up: addCaseStudySlidesAndTemplateLock.up, down: addCaseStudySlidesAndTemplateLock.down, name: '20261105_020000_add_case_study_slides_and_template_lock' },
   { up: enableAutosaveLivePreview.up, down: enableAutosaveLivePreview.down, name: '20261105_030000_enable_autosave_live_preview' },
+  { up: addHomePageGlobal.up, down: addHomePageGlobal.down, name: '20261109_000000_add_home_page_global' },
 ];

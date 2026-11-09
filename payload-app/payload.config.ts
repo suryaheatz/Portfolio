@@ -6,6 +6,8 @@ import sharp from 'sharp'
 import { Users } from './src/collections/users'
 import { Media, Pages, CaseStudies, Articles } from './src/collections'
 import { SiteHeader, SiteFooter } from './src/globals/site'
+import { HomePage } from './src/globals/home'
+import { AtlasContent } from './src/globals/atlas'
 
 export default buildConfig({
   secret: process.env.PAYLOAD_SECRET || '',
@@ -21,7 +23,7 @@ export default buildConfig({
   sharp,
   admin: { user: 'users' },
   collections: [Users, Media, CaseStudies, Articles, Pages],
-  globals: [SiteHeader, SiteFooter],
+  globals: [HomePage, AtlasContent, SiteHeader, SiteFooter],
   plugins: [
     s3Storage({
       collections: {

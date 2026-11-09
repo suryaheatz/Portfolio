@@ -10,6 +10,16 @@ export const AtlasContent: GlobalConfig = {
   slug: 'atlasContent',
   label: 'About Me / SK Atlas',
   versions: { drafts: true },
+  admin: {
+    description: 'About Me editorial Bento page and SK Atlas configuration.',
+    livePreview: {
+      url: () => '/preview/about',
+      breakpoints: [
+        { label: 'Mobile',  name: 'mobile',  width: 375,  height: 812 },
+        { label: 'Desktop', name: 'desktop', width: 1440, height: 900 },
+      ],
+    },
+  },
   fields: [
     {
       name: 'sourceData',
