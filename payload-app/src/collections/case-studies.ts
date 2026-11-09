@@ -15,9 +15,8 @@ export const CaseStudies: CollectionConfig = {
     livePreview: {
       url: ({ data }: { data?: { id?: string | number; slug?: string; template?: string } }) => {
         const slug = data?.slug || '_new'
-        const tpl = data?.template || 'narrative'
-        const idParam = data?.id ? `&id=${encodeURIComponent(String(data.id))}` : ''
-        return `/preview/case-studies/${encodeURIComponent(slug)}?template=${encodeURIComponent(tpl)}${idParam}`
+        const idParam = data?.id ? `?id=${encodeURIComponent(String(data.id))}` : ''
+        return `/preview/case-studies/${encodeURIComponent(slug)}${idParam}`
       },
       breakpoints: [
         { label: 'Mobile',  name: 'mobile',  width: 375,  height: 812 },
@@ -81,7 +80,7 @@ export const CaseStudies: CollectionConfig = {
       options: [
         { label: '1. Standard Narrative (Hero -> Brief -> Scope + Case Study Blocks)', value: 'narrative' },
         { label: '2. Narrative + Presentation Deck (Sticky "Case Study / Slides" Switcher)', value: 'narrative-slides' },
-        { label: '3. Visual / Image-Only Showcase (Hero + Bento, Galleries & Sliders -- No Brief/Scope Cards)', value: 'visual-showcase' },
+        { label: '3. Visual / Image-Only Showcase (Continuous Zero-Gap Image Strip + Right-Side Interactive Slider)', value: 'visual-showcase' },
       ],
       admin: {
         description: 'Step 1: Select the SK Design System format. Switching this dropdown immediately updates the right-hand Live Preview. Locked once published (use the sidebar toggle to unlock).',
@@ -117,10 +116,10 @@ export const CaseStudies: CollectionConfig = {
     {
       name: 'slides',
       type: 'array',
-      label: 'Presentation Slides Deck (Top "Slides" Tab)',
+      label: 'Presentation Slides Deck / Visual Showcase Image Strip',
       admin: {
-        condition: (data) => data?.template === 'narrative-slides',
-        description: 'Powers the interactive presentation deck in the top "Case study | Slides" switcher (Haptix format). Each slide uses a 40% text / 60% image split (16:10 or 4:3 image, object-fit: cover).',
+        condition: (data) => data?.template === 'narrative-slides' || data?.template === 'visual-showcase',
+        description: 'In Template 2 (Narrative + Presentation Deck): powers the interactive "Slides" deck in the top switcher. In Template 3 (Visual / Image-Only Showcase): each item attaches a seamless zero-gap image to the Continuous Visual Strip and Right-Side Interactive Thumbnail Slider.',
       },
       fields: [
         {
@@ -139,31 +138,30 @@ export const CaseStudies: CollectionConfig = {
             {
               name: 'eyebrow',
               type: 'text',
-              admin: { width: '50%', description: 'e.g. "01 / The Hardware"' },
+              admin: { width: '50%', description: 'e.g. "01 / The Hardware" or Hero Eyebrow' },
             },
           ],
         },
         {
           name: 'heading',
           type: 'text',
-          required: true,
-          admin: { description: 'Slide headline (Bricolage Grotesque display).' },
+          admin: { description: 'Slide headline (Template 2) or optional frame title (Template 3).' },
         },
         {
           name: 'body',
           type: 'textarea',
-          admin: { description: 'Concise slide narrative (left 40% column).' },
+          admin: { description: 'Concise slide narrative (Template 2 left 40% column).' },
         },
         {
           name: 'image',
           type: 'upload',
           relationTo: 'media',
-          admin: { description: 'Slide visual (right 60% column, min-height 500px, object-fit: cover -- best for 16:10 or 4:3 renders).' },
+          admin: { description: 'Upload slide visual (Template 2) or seamless continuous strip image (Template 3).' },
         },
         {
           name: 'imageAlt',
           type: 'text',
-          admin: { description: 'Accessibility alt text for the slide image.' },
+          admin: { description: 'Accessibility alt text for the image.' },
         },
       ],
     },

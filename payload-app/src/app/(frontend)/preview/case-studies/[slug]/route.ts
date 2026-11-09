@@ -614,47 +614,209 @@ function render(b: Content): string {
   return ''
 }
 
-function buildPageBody(doc: Record<string, unknown> | undefined, slug: string, tplParam?: string | null) {
-  const activeTemplate = String(tplParam || doc?.template || (slug === 'haptix' ? 'narrative-slides' : 'narrative'))
-  const visualShowcaseSample: CasePage = {
-    title: doc?.title ? String(doc.title) : 'Visual / Image-Only Showcase',
-    template: 'visual-showcase',
-    layout: [
-      { blockType: 'caseStudyHero', eyebrow: 'Visual Showcase  -  SK Design System', role: 'Industrial & Interaction Design', title: doc?.title ? String(doc.title) : 'Visual Showcase Template Blueprint', chips: [{ label: 'Bento Grid' }, { label: 'Uncropped Figures' }], description: 'In Visual / Image-Only Showcase mode, prose Brief and Scope cards are omitted so visual work takes center stage.' },
-      { blockType: 'bentoThreeA', eyebrow: '01 / Visual Grid', title: 'Bento 3A Showcase (2 Top + 1 Wide Bottom)', subtitle: 'Upload 3 images in the left panel (240px row height, object-fit: cover)', cells: [{}, {}, {}] },
-      { blockType: 'fullWidthFigure', captionLabel: '02 / Hero Artefact', caption: 'Full-width 1080px uncropped figure (object-fit: contain)' },
-      { blockType: 'beforeAfterSlider', caption: '03 / Interactive Before & After Comparison' },
-    ],
+function buildVisualShowcaseHtml(
+  doc: Record<string, unknown> | undefined,
+  pageTitle: string,
+  slides: Content[],
+  layout: Content[],
+  extraBlocksHtml: string
+): string {
+  type StripFrame = {
+    url: string
+    eyebrow?: string
+    title?: string
+    caption?: string
+    alt?: string
+    painterIdx?: number
+    ratioClass?: string
   }
-  const rawLayout = (Array.isArray(doc?.layout) ? (doc?.layout as Content[]) : undefined) ?? (activeTemplate === 'visual-showcase' ? visualShowcaseSample.layout : (sample[slug]?.layout ?? sample.centronic.layout)) ?? []
+  const uploaded: StripFrame[] = []
+  const seenUrls = new Set<string>()
+  const pushFrame = (f: StripFrame) => {
+    if (!f.url || seenUrls.has(f.url)) return
+    seenUrls.add(f.url)
+    uploaded.push(f)
+  }
+
+  for (const s of slides) {
+    const u = asset(s.image)
+    if (u) {
+      pushFrame({
+        url: u,
+        eyebrow: s.eyebrow ? String(s.eyebrow) : undefined,
+        title: s.heading ? String(s.heading) : undefined,
+        caption: s.body ? String(s.body) : undefined,
+        alt: String(s.imageAlt || s.heading || ''),
+      })
+    }
+  }
+
+  let heroBlock: Content | undefined
+  for (const b of layout) {
+    const t = String(b.blockType ?? '')
+    if (t === 'caseStudyHero') {
+      heroBlock = b
+      const u = asset(b.heroImage)
+      if (u) {
+        pushFrame({
+          url: u,
+          eyebrow: b.eyebrow ? String(b.eyebrow) : undefined,
+          title: b.title ? String(b.title) : undefined,
+          alt: String(b.heroAlt || b.title || ''),
+        })
+      }
+    } else if (t === 'fullWidthFigure') {
+      const u = asset(b.image)
+      if (u) {
+        pushFrame({
+          url: u,
+          eyebrow: b.captionLabel ? String(b.captionLabel) : undefined,
+          title: b.caption ? String(b.caption) : undefined,
+          alt: String(b.alt || b.caption || ''),
+        })
+      }
+    } else if (t === 'mediaSection' && Array.isArray(b.images)) {
+      for (const im of b.images as Content[]) {
+        const u = asset(im.media)
+        if (u) {
+          pushFrame({
+            url: u,
+            eyebrow: im.eyebrow ? String(im.eyebrow) : undefined,
+            title: im.title ? String(im.title) : undefined,
+            caption: im.caption ? String(im.caption) : undefined,
+            alt: String(im.alt || im.title || ''),
+          })
+        }
+      }
+    }
+  }
+
+  const firstSlide = slides[0]
+  const heroEyebrow = String(
+    firstSlide?.eyebrow ||
+    heroBlock?.eyebrow ||
+    'Brand Identity  -  Visual System  -  SK Design System'
+  )
+  const rawDocTitle = doc?.title ? String(doc.title) : ''
+  const heroTitle = String(
+    firstSlide?.heading ||
+    heroBlock?.title ||
+    (rawDocTitle && rawDocTitle !== 'Untitled Case Study' ? rawDocTitle : 'Acheter du Neuf')
+  )
+
+  const blueprintMeta = [
+    { painterIdx: 0, ratioClass: 'vs-frame-16-9', label: '01 / Hero Deliverable (16:9)' },
+    { painterIdx: 1, ratioClass: 'vs-frame-16-9', label: '02 / Brand Identity System (16:9)' },
+    { painterIdx: 2, ratioClass: 'vs-frame-4-3',  label: '03 / Desktop Interface Mockup (4:3)' },
+    { painterIdx: 3, ratioClass: 'vs-frame-16-9', label: '04 / Environmental Poster (16:9)' },
+    { painterIdx: 4, ratioClass: 'vs-frame-3-2',  label: '05 / Editorial Print Frame (3:2)' },
+    { painterIdx: 5, ratioClass: 'vs-frame-16-9', label: '06 / Social Grid System (16:9)' },
+    { painterIdx: 6, ratioClass: 'vs-frame-16-9', label: '07 / Digital Screen Display (16:9)' },
+  ]
+
+  const frames: StripFrame[] = [...uploaded]
+  if (frames.length === 0) {
+    for (const bp of blueprintMeta) {
+      frames.push({ url: '', painterIdx: bp.painterIdx, ratioClass: bp.ratioClass, title: bp.label })
+    }
+  } else if (frames.length < 4) {
+    for (let i = frames.length; i < 5; i++) {
+      const bp = blueprintMeta[i] || blueprintMeta[1]
+      frames.push({ url: '', painterIdx: bp.painterIdx, ratioClass: bp.ratioClass, title: bp.label })
+    }
+  }
+
+  const totalStr = String(frames.length).padStart(2, '0')
+  const mainCardsHtml = frames.map((f, i) => {
+    const isHero = i === 0
+    const mediaEl = f.url
+      ? `<img class="vs-frame-img" src="${esc(f.url)}" alt="${esc(f.alt || f.title || `Frame ${i + 1}`)}" loading="${i < 2 ? 'eager' : 'lazy'}">`
+      : `<canvas class="vs-frame ${f.ratioClass || 'vs-frame-16-9'}" data-vs-canvas="${f.painterIdx ?? (i % 7)}" id="vs-c-${i}"></canvas>
+         <span class="vs-bp-pill">${esc(f.title || `Blueprint Frame 0${i + 1}`)}  -  Add image in left panel</span>`
+    const heroOverlay = isHero ? `
+      <div class="vs-hero-scrim"></div>
+      <div class="vs-hero-meta">
+        <span class="vs-eyebrow" id="vs-ey">${esc(heroEyebrow)}</span>
+        <h1 class="vs-hero-title" id="vs-ht">${esc(heroTitle)}</h1>
+      </div>` : ''
+    return `
+      <section class="vs-card${isHero ? ' vs-hero' : ''}" data-vs-sec="${i}" id="vs-s${i}"${i > 0 ? ' data-vs-reveal' : ''}>
+        ${mediaEl}
+        ${heroOverlay}
+      </section>`
+  }).join('')
+
+  const thumbsHtml = frames.map((f, i) => {
+    const thumbMedia = f.url
+      ? `<img src="${esc(f.url)}" alt="${esc(f.alt || `Thumb ${i + 1}`)}" loading="lazy">`
+      : `<canvas data-vs-thumb-canvas="${f.painterIdx ?? (i % 7)}" id="vs-t-${i}"></canvas>`
+    return `<div class="vs-thumb${i === 0 ? ' active' : ''}" data-vs-for="${i}" title="Frame ${String(i + 1).padStart(2, '0')}">${thumbMedia}</div>`
+  }).join('')
+
+  return `
+    <div class="vs-shell" id="vs-shell" data-vs-shell>
+      <main class="vs-main" id="vs-main">
+        <div class="vs-strip" id="vs-strip">
+          ${mainCardsHtml}
+        </div>
+        ${extraBlocksHtml ? `<div class="vs-extra-blocks">${extraBlocksHtml}</div>` : ''}
+      </main>
+      <aside class="vs-sidebar" aria-label="Continuous Image Strip Navigator">
+        <div class="vs-sidebar-label">01 / ${esc(heroTitle.toUpperCase())}</div>
+        <div class="vs-sidebar-sub">
+          <span id="vs-active-count">01 / ${totalStr}</span>
+          <span>Scroll / Scrub</span>
+        </div>
+        <div class="vs-thumbs-wrap" id="vs-thumbs-wrap">
+          <div class="vs-thumbs" id="vs-thumbs">
+            ${thumbsHtml}
+          </div>
+          <div class="vs-slider-box" id="vs-slider-box" aria-hidden="true"></div>
+        </div>
+      </aside>
+    </div>`
+}
+
+function buildPageBody(doc: Record<string, unknown> | undefined, slug: string, tplParam?: string | null) {
+  const docSlides = Array.isArray(doc?.slides) ? (doc?.slides as Content[]) : []
+  const rawTpl = String(tplParam || doc?.template || (slug === 'haptix' ? 'narrative-slides' : 'narrative'))
+  const activeTemplate = (rawTpl === 'narrative' && docSlides.length > 0) ? 'narrative-slides' : rawTpl
+  const rawLayout = (Array.isArray(doc?.layout) ? (doc?.layout as Content[]) : undefined) ?? (activeTemplate === 'visual-showcase' ? [] : (sample[slug]?.layout ?? sample.centronic.layout)) ?? []
   const filteredLayout = activeTemplate === 'visual-showcase'
     ? rawLayout.filter(b => b.blockType !== 'caseStudyBrief' && b.blockType !== 'caseStudyScope')
     : rawLayout
-  const finalLayout = (activeTemplate === 'visual-showcase' && filteredLayout.length <= 1)
-    ? [...filteredLayout, ...(visualShowcaseSample.layout ?? []).slice(1)]
-    : filteredLayout
   const page: CasePage = {
     title: doc?.title ? String(doc.title) : (slug === '_new' ? 'New Case Study' : slug),
     template: activeTemplate,
-    slides: Array.isArray(doc?.slides) ? (doc?.slides as Content[]) : [],
-    layout: finalLayout,
+    slides: docSlides,
+    layout: filteredLayout,
   }
   const isSample = !doc
-  const slidesList = (page.slides && page.slides.length > 0) ? page.slides : [
+
+  if (activeTemplate === 'visual-showcase') {
+    const nonHeroBlocks = filteredLayout.filter(b => b.blockType !== 'caseStudyHero')
+    const extraBlocksHtml = nonHeroBlocks.map(b => render(b)).join('')
+    const body = buildVisualShowcaseHtml(doc, page.title, docSlides, filteredLayout, extraBlocksHtml)
+    return { page, isSample, activeTemplate, body }
+  }
+
+  const hasUserSlides = docSlides.length > 0
+  const defaultTab = hasUserSlides ? 'slides' : 'case'
+  const slidesList = hasUserSlides ? docSlides : [
     { variant: 'light', eyebrow: 'Slide 01 / Blueprint', heading: 'Presentation Slide (Light Variant)', body: '40% editorial text on the left, 60% full-bleed visual on the right (16:10 or 4:3, object-fit: cover).' },
     { variant: 'dark',  eyebrow: 'Slide 02 / Blueprint', heading: 'Presentation Slide (Dark Variant)',  body: 'Add slides in the "Presentation Slides Deck" array on the left to populate this interactive deck.' },
   ]
   const slidesDeckHtml = activeTemplate === 'narrative-slides' ? `
-    <div class="sk-switch-bar" id="switch">
+    <div class="sk-switch-bar" id="switch" data-default-tab="${defaultTab}">
       <div class="container sk-switch-inner">
         <span class="sk-switch-label">Format: Narrative + Presentation Deck</span>
         <div class="sk-switch-tabs" role="tablist">
-          <button type="button" class="sk-switch-tab active" data-switch-target="case" role="tab" aria-selected="true">Case study</button>
-          <button type="button" class="sk-switch-tab" data-switch-target="slides" role="tab" aria-selected="false">Slides (${slidesList.length})</button>
+          <button type="button" class="sk-switch-tab${defaultTab === 'case' ? ' active' : ''}" data-switch-target="case" role="tab" aria-selected="${defaultTab === 'case' ? 'true' : 'false'}">Case study</button>
+          <button type="button" class="sk-switch-tab${defaultTab === 'slides' ? ' active' : ''}" data-switch-target="slides" role="tab" aria-selected="${defaultTab === 'slides' ? 'true' : 'false'}">Slides (${slidesList.length})</button>
         </div>
       </div>
     </div>
-    <section id="p-slides" class="container" style="display:none;padding:48px var(--col-pad)">
+    <section id="p-slides" class="container" style="display:${defaultTab === 'slides' ? 'block' : 'none'};padding:48px var(--col-pad)">
       <div class="sk-deck" data-deck>
         ${slidesList.map((s, idx) => {
           const sUrl = asset(s.image)
@@ -679,7 +841,8 @@ function buildPageBody(doc: Record<string, unknown> | undefined, slug: string, t
         </div>
       </div>
     </section>` : ''
-  const body = slidesDeckHtml + `<div id="p-case">` + (page.layout ?? []).map(b => render(b)).join('') + `</div>`
+  const caseDisplay = (activeTemplate === 'narrative-slides' && defaultTab === 'slides') ? 'style="display:none"' : ''
+  const body = slidesDeckHtml + `<div id="p-case" ${caseDisplay}>` + (page.layout ?? []).map(b => render(b)).join('') + `</div>`
   return { page, isSample, activeTemplate, body }
 }
 
@@ -771,7 +934,7 @@ export async function GET(req: Request, context: { params: Promise<{ slug: strin
     const result  = artRes.docs.length ? artRes : await payload.find({ collection: 'pages', where: { slug: { equals: slug } }, depth: 1, limit: 1, draft: true, overrideAccess: true })
     doc = result.docs[0] as (Record<string, unknown> | undefined)
   }
-  const { page, isSample, body } = buildPageBody(doc, slug, tplParam)
+  const { page, isSample, body } = buildPageBody(doc, slug, String(doc?.template || tplParam || ''))
 
   const html = `<!doctype html>
 <html lang="en">
@@ -781,7 +944,7 @@ export async function GET(req: Request, context: { params: Promise<{ slug: strin
   <title>${esc(page.title)}  - CMS Preview</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;400;500;600&family=Manrope:wght@300;400;500;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;400;500;600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=DM+Serif+Display:ital@0;1&family=Manrope:wght@300;400;500;600&display=swap">
   <style>
     /* -- SK Design System tokens (inlined -- no public/ in payload-app) -- */
     :root {
@@ -1070,6 +1233,225 @@ export async function GET(req: Request, context: { params: Promise<{ slug: strin
     .sk-slide-image { position: relative; overflow: hidden; }
     .sk-slide-image img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
 
+    /* -- Template 03: Visual / Image-Only Showcase (Continuous Zero-Gap Strip + Right-Side Interactive Slider) -- */
+    .vs-shell {
+      --vs-bg: #141412;
+      --vs-surface: #1c1b18;
+      --vs-ink: #f0efe9;
+      --vs-ink-2: #a8a8a0;
+      --vs-ink-3: #686862;
+      --vs-rule: #2a2926;
+      --vs-accent: #E8490F;
+      display: flex;
+      align-items: stretch;
+      height: calc(100vh - 96px);
+      min-height: 620px;
+      overflow: hidden;
+      background: var(--vs-bg);
+      color: var(--vs-ink);
+      font-family: 'DM Sans', var(--font-sans);
+    }
+    .vs-main {
+      flex: 1 1 auto;
+      min-width: 0;
+      height: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: relative;
+      padding: 28px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .vs-main::-webkit-scrollbar { width: 0; }
+    .vs-strip {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      width: 100%;
+      border-radius: 10px;
+      overflow: hidden;
+      background: var(--vs-surface);
+      flex-shrink: 0;
+    }
+    .vs-card {
+      position: relative;
+      width: 100%;
+      border-radius: 0;
+      overflow: hidden;
+      background: var(--vs-surface);
+      flex-shrink: 0;
+      margin: 0;
+      line-height: 0;
+    }
+    .vs-hero { aspect-ratio: 16 / 9; }
+    .vs-frame, .vs-frame-img {
+      width: 100%;
+      display: block;
+      margin: 0;
+    }
+    .vs-hero .vs-frame-img {
+      height: 100%;
+      object-fit: cover;
+    }
+    .vs-frame-16-9 { aspect-ratio: 16 / 9; }
+    .vs-frame-4-3  { aspect-ratio: 4 / 3; }
+    .vs-frame-3-2  { aspect-ratio: 3 / 2; }
+    .vs-hero-scrim {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(14,13,12,0.88) 0%, rgba(14,13,12,0.30) 45%, transparent 70%);
+      pointer-events: none;
+    }
+    .vs-hero-meta {
+      position: absolute;
+      bottom: 28px;
+      left: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      line-height: 1.2;
+      z-index: 2;
+    }
+    .vs-eyebrow {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--vs-ink-2);
+    }
+    .vs-hero-title {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-style: italic;
+      font-size: clamp(24px, 3.2vw, 42px);
+      line-height: 1.05;
+      color: var(--vs-ink);
+      font-weight: 400;
+    }
+    .vs-bp-pill {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(20,20,18,0.78);
+      border: 1px solid rgba(232,73,15,0.45);
+      color: #f0efe9;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      line-height: 1.3;
+      pointer-events: none;
+      backdrop-filter: blur(4px);
+    }
+    .vs-sidebar {
+      flex: 0 0 200px;
+      width: 200px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      background: var(--vs-surface);
+      border-left: 1px solid var(--vs-rule);
+      padding: 20px 12px;
+      gap: 8px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      user-select: none;
+    }
+    .vs-sidebar::-webkit-scrollbar { width: 2px; }
+    .vs-sidebar::-webkit-scrollbar-thumb { background: var(--vs-rule); border-radius: 99px; }
+    .vs-sidebar-label {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--vs-ink-3);
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--vs-rule);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .vs-sidebar-sub {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+      color: var(--vs-ink-3);
+      margin-bottom: 4px;
+      font-variant-numeric: tabular-nums;
+    }
+    .vs-thumbs-wrap {
+      position: relative;
+      width: 100%;
+    }
+    .vs-thumbs {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    .vs-thumb {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: 0;
+      overflow: hidden;
+      cursor: ns-resize;
+      opacity: 0.38;
+      transition: opacity 200ms ease;
+      flex-shrink: 0;
+      line-height: 0;
+    }
+    .vs-thumb:first-child { border-radius: 5px 5px 0 0; }
+    .vs-thumb:last-child  { border-radius: 0 0 5px 5px; }
+    .vs-thumb:hover { opacity: 0.65; }
+    .vs-thumb.active { opacity: 1; }
+    .vs-thumb::after {
+      content: '';
+      position: absolute;
+      left: 0; top: 18%; bottom: 18%;
+      width: 3px;
+      background: var(--vs-accent);
+      border-radius: 0 2px 2px 0;
+      opacity: 0;
+      z-index: 2;
+      transform: scaleY(0.5);
+      transition: opacity 180ms ease, transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1);
+      pointer-events: none;
+    }
+    .vs-thumb.active::after {
+      opacity: 1;
+      transform: scaleY(1);
+    }
+    .vs-thumb canvas, .vs-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      pointer-events: none;
+    }
+    .vs-slider-box {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 48px;
+      border: 1.5px solid var(--vs-accent);
+      border-radius: 5px;
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.5), inset 0 0 12px rgba(232,73,15,0.16);
+      pointer-events: none;
+      z-index: 3;
+      transition: top 90ms linear, height 160ms ease;
+    }
+    .vs-extra-blocks {
+      background: var(--bg);
+      color: var(--ink);
+      border-radius: 12px;
+      padding: 24px 0 48px;
+    }
+
     /* -- Responsive -- */
     @media(max-width:640px){
       .container{padding:0 var(--col-pad-m)}
@@ -1088,6 +1470,12 @@ export async function GET(req: Request, context: { params: Promise<{ slug: strin
       .sk-slide{grid-template-columns:1fr}
       .sk-slide-image{height:280px;position:relative}
       .sk-slide-text{padding:var(--sp-12) var(--col-pad-m)}
+      .vs-shell{flex-direction:column;height:auto}
+      .vs-main{padding:12px;height:auto}
+      .vs-sidebar{flex:0 0 72px;width:100%;height:72px;flex-direction:row;align-items:center;border-left:none;border-top:1px solid var(--vs-rule)}
+      .vs-sidebar-label,.vs-sidebar-sub,.vs-slider-box{display:none}
+      .vs-thumbs{flex-direction:row;gap:6px}
+      .vs-thumb{width:76px;flex-shrink:0}
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
@@ -1381,11 +1769,16 @@ window.__skInitAll = function(){
 
   // -- Case Study / Slides Switcher + Presentation Deck --
   ;(function deckInit(){
+    var switchBar  = document.getElementById('switch')
     var switchTabs = Array.from(document.querySelectorAll('[data-switch-target]'))
     var pCase      = document.getElementById('p-case')
     var pSlides    = document.getElementById('p-slides')
-    function applyTab(target) {
+    var storageKey = 'sk_preview_tab_' + window.location.pathname
+    function applyTab(target, persist) {
       window.__skActiveTab = target
+      if (persist) {
+        try { sessionStorage.setItem(storageKey, target) } catch(e) {}
+      }
       switchTabs.forEach(function(t){
         var active = t.getAttribute('data-switch-target') === target
         t.classList.toggle('active', active)
@@ -1396,12 +1789,22 @@ window.__skInitAll = function(){
         pSlides.style.display = target === 'slides' ? 'block' : 'none'
       }
     }
-    if (switchTabs.length && window.__skActiveTab === 'slides') {
-      applyTab('slides')
+    if (switchTabs.length) {
+      var savedTab = null
+      try { savedTab = sessionStorage.getItem(storageKey) } catch(e) {}
+      var defaultTab = switchBar ? switchBar.getAttribute('data-default-tab') : null
+      var initialTab = window.__skUserForcedTab || savedTab || defaultTab || window.__skActiveTab || 'case'
+      if (defaultTab === 'slides' && !window.__skUserClickedTab) {
+        initialTab = 'slides'
+      }
+      applyTab(initialTab, false)
     }
     switchTabs.forEach(function(tab){
       tab.addEventListener('click', function(){
-        applyTab(tab.getAttribute('data-switch-target') || 'case')
+        var chosen = tab.getAttribute('data-switch-target') || 'case'
+        window.__skUserClickedTab = true
+        window.__skUserForcedTab = chosen
+        applyTab(chosen, true)
       })
     })
     document.querySelectorAll('[data-deck]').forEach(function(deck){
@@ -1421,6 +1824,230 @@ window.__skInitAll = function(){
       if (prev) prev.addEventListener('click', function(){ go(cur - 1) })
       if (next) next.addEventListener('click', function(){ go(cur + 1) })
     })
+  })()
+
+  // -- Template 03: Visual Showcase (Continuous Zero-Gap Strip + Right-Side Interactive Slider) --
+  ;(function vsInit(){
+    var shell = document.getElementById('vs-shell')
+    var mainEl = document.getElementById('vs-main')
+    if (!shell || !mainEl) return
+
+    function px(canvas) {
+      var dpr = Math.min(window.devicePixelRatio || 1, 2)
+      var rect = canvas.getBoundingClientRect()
+      var w = rect.width  || canvas.offsetWidth  || 800
+      var h = rect.height || canvas.offsetHeight || 450
+      canvas.width  = w * dpr
+      canvas.height = h * dpr
+      var ctx = canvas.getContext('2d')
+      ctx.scale(dpr, dpr)
+      return { ctx: ctx, w: w, h: h }
+    }
+
+    function roundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath()
+      ctx.moveTo(x + r, y)
+      ctx.lineTo(x + w - r, y)
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r)
+      ctx.lineTo(x + w, y + h - r)
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h)
+      ctx.lineTo(x + r, y + h)
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r)
+      ctx.lineTo(x, y + r)
+      ctx.quadraticCurveTo(x, y, x + r, y)
+      ctx.closePath()
+    }
+
+    function drawHero(canvas) {
+      var c = px(canvas), ctx = c.ctx, w = c.w, h = c.h
+      var sky = ctx.createLinearGradient(0, 0, 0, h * 0.6)
+      sky.addColorStop(0, '#4a8fc2'); sky.addColorStop(1, '#7db8d8')
+      ctx.fillStyle = sky; ctx.fillRect(0, 0, w, h)
+      ctx.fillStyle = '#2d5a1b'; ctx.fillRect(0, h * 0.6, w, h * 0.4)
+      ctx.fillStyle = '#f4f0e8'; ctx.fillRect(w * 0.22, h * 0.28, w * 0.56, h * 0.42)
+      ctx.beginPath()
+      ctx.moveTo(w * 0.18, h * 0.28); ctx.lineTo(w * 0.5, h * 0.06); ctx.lineTo(w * 0.82, h * 0.28)
+      ctx.closePath()
+      ctx.fillStyle = '#2c3e50'; ctx.fill()
+      ;[[0.30,0.36],[0.44,0.36],[0.30,0.50],[0.44,0.50],[0.60,0.36]].forEach(function(pt){
+        ctx.fillStyle = '#9ab8d4'; ctx.fillRect(w * pt[0], h * pt[1], w * 0.08, h * 0.10)
+        ctx.strokeStyle = '#c8baa8'; ctx.lineWidth = 1; ctx.strokeRect(w * pt[0], h * pt[1], w * 0.08, h * 0.10)
+      })
+      ctx.fillStyle = '#1a2832'; ctx.fillRect(w * 0.45, h * 0.52, w * 0.10, h * 0.18)
+      ;[[0.10,0.45],[0.84,0.42]].forEach(function(pt){
+        ctx.beginPath(); ctx.arc(w * pt[0], h * pt[1], w * 0.055, 0, Math.PI * 2)
+        ctx.fillStyle = '#2d6e1a'; ctx.fill()
+        ctx.fillStyle = '#1a3d10'; ctx.fillRect(w * pt[0] - w * 0.012, h * pt[1] + w * 0.04, w * 0.024, h * 0.18)
+      })
+      ctx.fillStyle = 'rgba(14,16,22,0.22)'; ctx.fillRect(0, 0, w, h)
+    }
+
+    function drawLogo(canvas) {
+      var c = px(canvas), ctx = c.ctx, w = c.w, h = c.h
+      var bg = ctx.createLinearGradient(0, 0, 0, h)
+      bg.addColorStop(0, '#d8e8f5'); bg.addColorStop(1, '#edf4fb')
+      ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h)
+      var S = Math.min(w, h) * 0.18, ix = (w - S) / 2, iy = h * 0.22
+      ctx.fillStyle = '#1a3a5c'; roundRect(ctx, ix, iy, S, S, S * 0.18); ctx.fill()
+      ctx.fillStyle = '#f0efe9'
+      ctx.beginPath()
+      ctx.moveTo(ix + S * 0.2, iy + S * 0.62); ctx.lineTo(ix + S * 0.2, iy + S * 0.38)
+      ctx.lineTo(ix + S * 0.5, iy + S * 0.18); ctx.lineTo(ix + S * 0.8, iy + S * 0.38)
+      ctx.lineTo(ix + S * 0.8, iy + S * 0.62); ctx.closePath(); ctx.fill()
+      ctx.fillStyle = '#1a3a5c'; ctx.fillRect(ix + S * 0.38, iy + S * 0.42, S * 0.24, S * 0.20)
+      ctx.textAlign = 'center'
+      ctx.font = '700 ' + (h * 0.072) + "px 'DM Sans',sans-serif"
+      ctx.fillStyle = '#1a3a5c'; ctx.fillText('ACHETER du NEUF', w / 2, iy + S + h * 0.10)
+      ctx.font = '300 ' + (h * 0.032) + "px 'DM Sans',sans-serif"
+      ctx.fillStyle = '#4a6a82'; ctx.fillText('Comparateur en immobilier neuf', w / 2, iy + S + h * 0.16)
+    }
+
+    function drawWebMockup(canvas) {
+      var c = px(canvas), ctx = c.ctx, w = c.w, h = c.h
+      ctx.fillStyle = '#f2f0ee'; ctx.fillRect(0, 0, w, h)
+      var mw = w * 0.70, mh = h * 0.72, mx = (w - mw) / 2, my = h * 0.07
+      ctx.fillStyle = '#1d1c1a'; roundRect(ctx, mx, my, mw, mh, mw * 0.025); ctx.fill()
+      var sw = mw * 0.95, sh = mh * 0.90, sx = mx + (mw - sw) / 2, sy = my + (mh - sh) / 2
+      ctx.fillStyle = '#e8f2fb'; ctx.fillRect(sx, sy, sw, sh)
+      ctx.fillStyle = '#1a3a5c'; ctx.fillRect(sx, sy, sw, sh * 0.10)
+      ctx.fillStyle = '#E8490F'; roundRect(ctx, sx + sw * 0.36, sy + sh * 0.42, sw * 0.28, sh * 0.08, sh * 0.02); ctx.fill()
+      ctx.fillStyle = '#2a2927'
+      ctx.fillRect(mx + mw * 0.44, my + mh, mw * 0.12, h * 0.06)
+      ctx.fillRect(mx + mw * 0.28, my + mh + h * 0.06, mw * 0.44, h * 0.02)
+    }
+
+    function drawBillboard(canvas) {
+      var c = px(canvas), ctx = c.ctx, w = c.w, h = c.h
+      var bg = ctx.createLinearGradient(0, 0, 0, h)
+      bg.addColorStop(0, '#5a9fd4'); bg.addColorStop(1, '#7db8dc')
+      ctx.fillStyle = bg; ctx.fillRect(0, 0, w, h)
+      var bw = w * 0.28, bh = h * 0.78, bx = (w - bw) / 2, by = h * 0.08
+      ctx.fillStyle = 'rgba(255,255,255,0.16)'; ctx.fillRect(bx, by, bw, bh)
+      ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 1.5; ctx.strokeRect(bx, by, bw, bh)
+      ctx.fillStyle = '#E8490F'; roundRect(ctx, bx + bw * 0.15, by + bh * 0.62, bw * 0.7, bh * 0.08, 4); ctx.fill()
+    }
+
+    function drawPoster(canvas) {
+      var c = px(canvas), ctx = c.ctx, w = c.w, h = c.h
+      var wall = ctx.createLinearGradient(0, 0, w, h)
+      wall.addColorStop(0, '#2a2520'); wall.addColorStop(1, '#1e1a16')
+      ctx.fillStyle = wall; ctx.fillRect(0, 0, w, h)
+      ctx.fillStyle = '#0f0e0c'; roundRect(ctx, w * 0.18, h * 0.08, w * 0.64, h * 0.84, 4); ctx.fill()
+      var px2 = w * 0.21, py2 = h * 0.11, pw = w * 0.58, ph2 = h * 0.78
+      var pg2 = ctx.createLinearGradient(px2, py2, px2 + pw, py2 + ph2)
+      pg2.addColorStop(0, '#1c3a58'); pg2.addColorStop(1, '#0c2038')
+      ctx.fillStyle = pg2; ctx.fillRect(px2, py2, pw, ph2)
+      ctx.fillStyle = '#E8490F'; ctx.fillRect(px2 + pw * 0.06, py2 + ph2 * 0.72, pw * 0.35, ph2 * 0.05)
+    }
+
+    function drawSocial(canvas) {
+      var c = px(canvas), ctx = c.ctx, w = c.w, h = c.h
+      ctx.fillStyle = '#f0ece6'; ctx.fillRect(0, 0, w, h)
+      var gw = w * 0.88, gh = h * 0.88, gx = (w - gw) / 2, gy = (h - gh) / 2
+      var cols = 3, gap = 10, cw = (gw - (cols - 1) * gap) / cols, ch = cw
+      var colors = [['#c8dce8','#8ab0d0'], ['#d4c8e0','#a090c0'], ['#c8d8c0','#90b088']]
+      for (var i = 0; i < cols; i++) {
+        var cx = gx + i * (cw + gap), cy = gy + (gh - ch) / 2
+        ctx.fillStyle = 'white'; roundRect(ctx, cx, cy, cw, ch, 6); ctx.fill()
+        var pg3 = ctx.createLinearGradient(cx, cy, cx + cw, cy + ch * 0.65)
+        pg3.addColorStop(0, colors[i][0]); pg3.addColorStop(1, colors[i][1])
+        ctx.fillStyle = pg3; ctx.fillRect(cx, cy, cw, ch * 0.65)
+      }
+      ctx.fillStyle = '#1a3a5c'; ctx.fillRect(0, 0, w, h * 0.07)
+    }
+
+    function drawScreen(canvas) {
+      var c = px(canvas), ctx = c.ctx, w = c.w, h = c.h
+      var bg2 = ctx.createLinearGradient(0, 0, w, h)
+      bg2.addColorStop(0, '#1c2836'); bg2.addColorStop(1, '#0e1824')
+      ctx.fillStyle = bg2; ctx.fillRect(0, 0, w, h)
+      ctx.fillStyle = '#12202e'; roundRect(ctx, w * 0.06, h * 0.06, w * 0.88, h * 0.82, w * 0.018); ctx.fill()
+      var sc_x = w * 0.07, sc_y = h * 0.07, sc_w = w * 0.86, sc_h = h * 0.80
+      ctx.fillStyle = '#d8e8f5'; ctx.fillRect(sc_x, sc_y, sc_w, sc_h)
+      ctx.fillStyle = '#E8490F'; roundRect(ctx, sc_x + sc_w * 0.35, sc_y + sc_h * 0.42, sc_w * 0.30, sc_h * 0.12, sc_h * 0.04); ctx.fill()
+    }
+
+    var painters = [drawHero, drawLogo, drawWebMockup, drawBillboard, drawPoster, drawSocial, drawScreen]
+    function drawAllCanvases() {
+      shell.querySelectorAll('[data-vs-canvas]').forEach(function(cv){
+        var idx = Number(cv.getAttribute('data-vs-canvas') || 0) % painters.length
+        painters[idx](cv)
+      })
+      shell.querySelectorAll('[data-vs-thumb-canvas]').forEach(function(cv){
+        var idx = Number(cv.getAttribute('data-vs-thumb-canvas') || 0) % painters.length
+        painters[idx](cv)
+      })
+    }
+    requestAnimationFrame(drawAllCanvases)
+    window.addEventListener('resize', drawAllCanvases)
+
+    var sections = Array.from(shell.querySelectorAll('[data-vs-sec]'))
+    var thumbEls = Array.from(shell.querySelectorAll('.vs-thumb'))
+    var thumbsWrap = document.getElementById('vs-thumbs-wrap')
+    var sliderBox = document.getElementById('vs-slider-box')
+    var countEl = document.getElementById('vs-active-count')
+    var activeIdx = -1
+
+    function setActive(i) {
+      if (i < 0 || i >= thumbEls.length) return
+      activeIdx = i
+      thumbEls.forEach(function(t, j){ t.classList.toggle('active', j === i) })
+      if (countEl) {
+        countEl.textContent = String(i + 1).padStart(2, '0') + ' / ' + String(thumbEls.length).padStart(2, '0')
+      }
+      var activeThumb = thumbEls[i]
+      if (activeThumb && sliderBox) {
+        sliderBox.style.top = activeThumb.offsetTop + 'px'
+        sliderBox.style.height = activeThumb.offsetHeight + 'px'
+      }
+    }
+
+    function updateSpy() {
+      if (!sections.length) return
+      var scrollTop = mainEl.scrollTop
+      var mid = scrollTop + mainEl.clientHeight / 2
+      var bestIdx = 0, bestDist = Infinity
+      sections.forEach(function(s, i){
+        var top = s.offsetTop
+        var bot = top + s.offsetHeight
+        var dist = mid < top ? top - mid : mid > bot ? mid - bot : 0
+        if (dist < bestDist) { bestDist = dist; bestIdx = i }
+      })
+      setActive(bestIdx)
+    }
+
+    mainEl.addEventListener('scroll', updateSpy, { passive: true })
+    requestAnimationFrame(updateSpy)
+    setTimeout(updateSpy, 180)
+
+    // Interactive click + continuous drag scrubbing on the right-hand thumbnail strip
+    var isScrubbing = false
+    function scrubToClientY(clientY, smooth) {
+      if (!thumbsWrap || !sections.length) return
+      var rect = thumbsWrap.getBoundingClientRect()
+      if (!rect.height) return
+      var ratio = Math.max(0, Math.min(0.999, (clientY - rect.top) / rect.height))
+      var idx = Math.min(sections.length - 1, Math.floor(ratio * sections.length))
+      var target = sections[idx]
+      if (target) {
+        setActive(idx)
+        mainEl.scrollTo({ top: target.offsetTop, behavior: smooth ? 'smooth' : 'auto' })
+      }
+    }
+
+    if (thumbsWrap) {
+      thumbsWrap.addEventListener('mousedown', function(e){
+        isScrubbing = true
+        scrubToClientY(e.clientY, true)
+        e.preventDefault()
+      })
+      window.addEventListener('mousemove', function(e){
+        if (isScrubbing) scrubToClientY(e.clientY, false)
+      })
+      window.addEventListener('mouseup', function(){
+        isScrubbing = false
+      })
+    }
   })()
 
   // -- Annotated media hotspots --
@@ -1490,17 +2117,36 @@ window.__skInitAll()
   setTimeout(sendReady, 900)
 
   var debounceTimer = null
-  var prevSlidesCount = -1
+  var prevSlidesSigs = null
   window.addEventListener('message', function(e){
     if(!e.data || typeof e.data !== 'object') return
     if(e.data.type === 'payload-live-preview' && e.data.data && typeof e.data.data === 'object'){
       var liveData = e.data.data
-      if (Array.isArray(liveData.slides) && liveData.slides.length !== prevSlidesCount) {
-        if (prevSlidesCount >= 0 && liveData.slides.length > 0) {
+      if (Array.isArray(liveData.slides)) {
+        var curSigs = liveData.slides.map(function(s){
+          if (!s || typeof s !== 'object') return ''
+          var imgVal = s.image && typeof s.image === 'object' ? (s.image.id || s.image.url || '') : (s.image || '')
+          return [s.variant || '', s.eyebrow || '', s.heading || '', s.body || '', imgVal, s.imageAlt || ''].join('|')
+        })
+        if (prevSlidesSigs !== null) {
+          var changedIdx = -1
+          if (curSigs.length !== prevSlidesSigs.length) {
+            changedIdx = Math.max(0, curSigs.length - 1)
+          } else {
+            for (var si = 0; si < curSigs.length; si++) {
+              if (curSigs[si] !== prevSlidesSigs[si]) { changedIdx = si; break }
+            }
+          }
+          if (changedIdx >= 0 && curSigs.length > 0) {
+            window.__skActiveTab = 'slides'
+            window.__skUserForcedTab = 'slides'
+            window.__skActiveSlide = changedIdx
+            try { sessionStorage.setItem('sk_preview_tab_' + window.location.pathname, 'slides') } catch(err) {}
+          }
+        } else if (curSigs.length > 0 && !window.__skUserClickedTab) {
           window.__skActiveTab = 'slides'
-          window.__skActiveSlide = liveData.slides.length - 1
         }
-        prevSlidesCount = liveData.slides.length
+        prevSlidesSigs = curSigs
       }
       if(debounceTimer) clearTimeout(debounceTimer)
       debounceTimer = setTimeout(function(){
