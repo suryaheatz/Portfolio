@@ -17,6 +17,76 @@ const assetUrl = (v: unknown): string =>
     ? String((v as Rec).url)
     : ''
 
+const arToLabel = (ar: string): string => ar.replace(/\s+/g, '')
+
+function parseMetadataText(raw: unknown): Array<[string, unknown]> {
+  const text = String(raw ?? '').trim()
+  if (!text) return []
+  const parsePart = (part: string): unknown => {
+    const trimmed = part.trim()
+    const m = /^\[([^\]]+)\]\((https?:\/\/[^)]+)\)$/.exec(trimmed)
+    if (m) return { t: m[1], u: m[2] }
+    return trimmed
+  }
+  return text
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line): [string, unknown] | null => {
+      const idx = line.indexOf(':')
+      if (idx === -1) return ['Note', parsePart(line)]
+      const label = line.slice(0, idx).trim() || 'Item'
+      const rest = line.slice(idx + 1).trim()
+      const parts = rest.split('|').map((p) => p.trim()).filter(Boolean)
+      if (parts.length <= 1) {
+        const single = parsePart(parts[0] || '')
+        return [label, typeof single === 'object' ? [single] : single]
+      }
+      return [label, parts.map(parsePart)]
+    })
+    .filter((r): r is [string, unknown] => r !== null)
+}
+
+function parseStoryText(raw: unknown): string[] {
+  const text = String(raw ?? '').trim()
+  if (!text) return []
+  return text
+    .split(/\r?\n\s*\r?\n/)
+    .map((p) => p.replace(/\r?\n/g, ' ').trim())
+    .filter(Boolean)
+}
+
+function buildAtlasNode(n: Rec, idx: number, isPractice: boolean): Rec {
+  const num = String(idx + 1).padStart(2, '0')
+  const ar = String(n.aspectRatio || '16 / 9')
+  const imgUrl = assetUrl(n.image)
+  const art = imgUrl || String(n.placeholderArt || 'shards')
+  const summary = String(n.summary ?? '').trim()
+  const story = parseStoryText(n.storyText)
+  const rows = parseMetadataText(n.metadataText)
+  const mediaCaption = String(n.mediaCaption ?? '').trim()
+
+  const content: Rec = {}
+  if (summary) content.summary = summary
+  if (story.length) content.story = story
+  if (rows.length) content.rows = rows
+  if (mediaCaption) content.mediaCaption = mediaCaption
+
+  const base: Rec = {
+    id: String(n.nodeId || (isPractice ? `node-${num}` : `node-${num}`)),
+    name: String(n.name || `Node ${num}`),
+    art,
+    ar,
+    arLabel: arToLabel(ar),
+    column: Number(n.gridColumn || (2 + idx * 3)),
+    span: Number(n.gridSpan || 1),
+    row: Number(n.gridRow || 7),
+    content: Object.keys(content).length > 0 ? content : undefined,
+  }
+  if (isPractice) base.n = num
+  return base
+}
+
 export async function GET(_req: Request, context: { params: Promise<{ page: string }> }) {
   const { page } = await context.params
   if (page !== 'home' && page !== 'about') return new Response('Not found', { status: 404 })
@@ -29,7 +99,7 @@ export async function GET(_req: Request, context: { params: Promise<{ page: stri
     payload.findGlobal({ slug: 'siteHeader', depth: 1 }).catch(() => null),
     payload.findGlobal({ slug: 'siteFooter', depth: 0 }).catch(() => null),
     page === 'home' ? payload.findGlobal({ slug: 'homePage', depth: 1 }).catch(() => null) : Promise.resolve(null),
-    page === 'about' ? payload.findGlobal({ slug: 'atlasContent', depth: 0 }).catch(() => null) : Promise.resolve(null),
+    page === 'about' ? payload.findGlobal({ slug: 'atlasContent', depth: 1 }).catch(() => null) : Promise.resolve(null),
   ])
 
   const current = page === 'home' ? '/preview/home' : '/preview/about'
@@ -241,9 +311,104 @@ export async function GET(_req: Request, context: { params: Promise<{ page: stri
     } catch { return match }
   })
 
-  if (page === 'about' && atlas?.sourceData) {
-    html = html.replace(/<script type="application\/json" id="atlas-data">[\s\S]*?<\/script>/,
-      `<script type="application/json" id="atlas-data">${jsonForScript(atlas.sourceData)}</script>`)
+  if (page === 'about') {
+    // 1. Upgrade svg(art, slice) in about.html so uploaded image URLs render as <img> in node discs, hover previews, and detail panels
+    html = html.replace(
+      `const svg = (art, slice) => '<svg viewBox="0 0 104 104"' + (slice ? ' preserveAspectRatio="xMidYMid slice"' : '') + ' aria-hidden="true" focusable="false">' + ART[art] + '</svg>';`,
+      `const svg = (art, slice) => /^(https?:|\\/|data:)/.test(String(art || '')) ? '<img src="' + String(art).replace(/"/g, '&quot;') + '" alt="" style="width:100%;height:100%;object-fit:cover;display:block">' : '<svg viewBox="0 0 104 104"' + (slice ? ' preserveAspectRatio="xMidYMid slice"' : '') + ' aria-hidden="true" focusable="false">' + (ART[art] || ART.shards) + '</svg>';`
+    )
+    // 2. Support custom mediaCaption in Detail Panel when present
+    html = html.replace(
+      `pn.media.innerHTML = svg(n.art, true); pn.cap.textContent = 'Placeholder media · ' + n.arLabel;`,
+      `pn.media.innerHTML = svg(n.art, true); pn.cap.textContent = (ct && ct.mediaCaption) ? ct.mediaCaption : (/^(https?:|\\/)/.test(String(n.art || '')) ? n.name + '  -  ' + n.arLabel : 'Placeholder media  -  ' + n.arLabel);`
+    )
+    // 3. Expose live preview updater inside the SK Atlas closure
+    html = html.replace(
+      `syncRail();`,
+      `syncRail();
+  window.__skAtlasLiveUpdate = function(catId, nodeIndex, updatedNodes, openNodeDetail) {
+    if (catId === 'practice') {
+      data.practice.nodes = updatedNodes;
+      P0.nodes = updatedNodes;
+      updatedNodes.forEach(function(un, idx) {
+        if (P0.mods[idx]) {
+          var nm = P0.mods[idx].querySelector('.node__name');
+          if (nm) nm.textContent = un.name;
+          var im = P0.mods[idx].querySelector('.node__img');
+          if (im) im.innerHTML = svg(un.art);
+        }
+      });
+    } else if (data.layouts && data.layouts[catId]) {
+      data.layouts[catId].nodes = updatedNodes;
+      data.layouts[catId].links = updatedNodes.slice(0, -1).map(function(_, idx){ return [idx, idx + 1, 'h']; });
+      if (S.cat === catId && S.layer && netOf.has(S.layer)) {
+        var activeL = netOf.get(S.layer);
+        activeL.nodes = updatedNodes.map(function(un, idx) {
+          return { n: String(idx + 1).padStart(2, '0'), name: un.name, art: un.art, ar: un.ar, arLabel: un.arLabel, content: un.content };
+        });
+        updatedNodes.forEach(function(un, idx) {
+          if (activeL.mods && activeL.mods[idx]) {
+            var nm = activeL.mods[idx].querySelector('.node__name');
+            if (nm) nm.textContent = un.name;
+            var im = activeL.mods[idx].querySelector('.node__img');
+            if (im) im.innerHTML = svg(un.art);
+          }
+        });
+      }
+    }
+    if (S.cat !== catId) {
+      var railBtn = document.querySelector('.rail__item[data-category="' + catId + '"]');
+      if (railBtn) railBtn.click();
+    }
+    settled();
+    if (typeof nodeIndex === 'number' && nodeIndex >= 0) {
+      if (S.open && S.node === nodeIndex) {
+        fillPanel(nodeIndex);
+      } else if (openNodeDetail) {
+        setTimeout(function() {
+          var C = curSet();
+          if (C && C.els && C.els[nodeIndex]) openPanel(nodeIndex, C.els[nodeIndex]);
+        }, S.cat !== catId ? 450 : 20);
+      }
+    } else if (S.open && typeof S.node === 'number') {
+      fillPanel(S.node);
+    }
+  };`
+    )
+
+    if (atlas) {
+      const a = atlas as unknown as Rec
+      html = html.replace(/<script type="application\/json" id="atlas-data">([\s\S]*?)<\/script>/, (_m, rawJson) => {
+        let baseData: Rec = {}
+        try {
+          baseData = (a.sourceData && typeof a.sourceData === 'object' ? structuredClone(a.sourceData) : JSON.parse(rawJson)) as Rec
+        } catch {
+          baseData = {}
+        }
+        if (Array.isArray(a.practiceNodes) && a.practiceNodes.length > 0) {
+          const pNodes = (a.practiceNodes as Rec[]).map((n, i) => buildAtlasNode(n, i, true))
+          baseData.practice = { ...(baseData.practice as Rec || {}), nodes: pNodes }
+        }
+        const layouts = (baseData.layouts && typeof baseData.layouts === 'object' ? baseData.layouts : {}) as Rec
+        const catMap: Array<[string, string]> = [
+          ['teach',       'teachNodes'],
+          ['play',        'playNodes'],
+          ['explore',     'exploreNodes'],
+          ['recognition', 'recognitionNodes'],
+          ['freelance',   'freelanceNodes'],
+        ]
+        for (const [catKey, fieldKey] of catMap) {
+          const arr = a[fieldKey]
+          if (Array.isArray(arr) && arr.length > 0) {
+            const cNodes = (arr as Rec[]).map((n, i) => buildAtlasNode(n, i, false))
+            const links = cNodes.slice(0, -1).map((_, i) => [i, i + 1, 'h'])
+            layouts[catKey] = { ...(layouts[catKey] as Rec || {}), nodes: cNodes, links }
+          }
+        }
+        baseData.layouts = layouts
+        return `<script type="application/json" id="atlas-data">${jsonForScript(baseData)}</script>`
+      })
+    }
   }
 
   // Inject floating CMS Preview Bar + Payload Live Preview postMessage listener
@@ -287,6 +452,8 @@ export async function GET(_req: Request, context: { params: Promise<{ page: stri
 <div id="sk-cms-bar">
   <span>SK Live Preview (${escapeHTML(page.toUpperCase())})</span>
   ${page === 'home' ? `<button type="button" id="sk-jump-intro" onclick="window.__skToggleIntro()">Skip WebGL Intro -> Page</button>` : ''}
+  <a href="/preview/home">Home</a>
+  <a href="/preview/about">About</a>
   <a href="/preview/case-studies/centronic">Centronic</a>
   <a href="/preview/case-studies/haptix">Haptix</a>
   <button type="button" onclick="window.location.reload()">Refresh</button>
@@ -334,11 +501,124 @@ export async function GET(_req: Request, context: { params: Promise<{ page: stri
   setTimeout(sendReady, 300);
   setTimeout(sendReady, 1000);
 
+  function parseMetaClient(raw) {
+    var text = String(raw || '').trim();
+    if (!text) return [];
+    function parsePart(p) {
+      var tr = p.trim();
+      var m = /^\\[([^\\]]+)\\]\\((https?:\\/\\/[^)]+)\\)$/.exec(tr);
+      if (m) return { t: m[1], u: m[2] };
+      return tr;
+    }
+    return text.split(/\\r?\\n/).map(function(l){ return l.trim(); }).filter(Boolean).map(function(line){
+      var idx = line.indexOf(':');
+      if (idx === -1) return ['Note', parsePart(line)];
+      var label = line.slice(0, idx).trim() || 'Item';
+      var rest = line.slice(idx + 1).trim();
+      var parts = rest.split('|').map(function(p){ return p.trim(); }).filter(Boolean);
+      if (parts.length <= 1) {
+        var s = parsePart(parts[0] || '');
+        return [label, typeof s === 'object' ? [s] : s];
+      }
+      return [label, parts.map(parsePart)];
+    });
+  }
+
+  function parseStoryClient(raw) {
+    var text = String(raw || '').trim();
+    if (!text) return [];
+    return text.split(/\\r?\\n\\s*\\r?\\n/).map(function(p){ return p.replace(/\\r?\\n/g, ' ').trim(); }).filter(Boolean);
+  }
+
+  function buildNodesClient(arr, isPractice) {
+    return (arr || []).map(function(n, idx){
+      var num = String(idx + 1).padStart(2, '0');
+      var ar = String(n.aspectRatio || '16 / 9');
+      var imgUrl = (n.image && typeof n.image === 'object' && n.image.url) ? n.image.url : '';
+      var art = imgUrl || String(n.placeholderArt || 'shards');
+      var ct = {};
+      if (n.summary && String(n.summary).trim()) ct.summary = String(n.summary).trim();
+      var st = parseStoryClient(n.storyText);
+      if (st.length) ct.story = st;
+      var rw = parseMetaClient(n.metadataText);
+      if (rw.length) ct.rows = rw;
+      if (n.mediaCaption && String(n.mediaCaption).trim()) ct.mediaCaption = String(n.mediaCaption).trim();
+      return {
+        id: String(n.nodeId || ('node-' + num)),
+        n: num,
+        name: String(n.name || ('Node ' + num)),
+        art: art,
+        ar: ar,
+        arLabel: ar.replace(/\\s+/g, ''),
+        column: Number(n.gridColumn || (2 + idx * 3)),
+        span: Number(n.gridSpan || 1),
+        row: Number(n.gridRow || 7),
+        content: Object.keys(ct).length ? ct : undefined
+      };
+    });
+  }
+
   var prevSkip = skipOnLoad;
+  var prevAtlasSnap = null;
   window.addEventListener('message', function(e){
     if(!e.data || typeof e.data !== 'object') return;
     if(e.data.type === 'payload-live-preview' && e.data.data && typeof e.data.data === 'object'){
       var d = e.data.data;
+
+      // About / SK Atlas live updates
+      if (typeof window.__skAtlasLiveUpdate === 'function') {
+        var catFields = [
+          ['practice',    'practiceNodes'],
+          ['teach',       'teachNodes'],
+          ['play',        'playNodes'],
+          ['explore',     'exploreNodes'],
+          ['recognition', 'recognitionNodes'],
+          ['freelance',   'freelanceNodes']
+        ];
+        var nextSnap = {};
+        var changedCat = null;
+        var changedIdx = -1;
+        var openDetail = false;
+        catFields.forEach(function(pair){
+          var cId = pair[0], fKey = pair[1];
+          if (Array.isArray(d[fKey])) {
+            nextSnap[cId] = d[fKey].map(function(item){
+              return JSON.stringify({
+                name: item.name,
+                summary: item.summary,
+                storyText: item.storyText,
+                metadataText: item.metadataText,
+                mediaCaption: item.mediaCaption,
+                aspectRatio: item.aspectRatio,
+                placeholderArt: item.placeholderArt
+              });
+            });
+            if (prevAtlasSnap && prevAtlasSnap[cId]) {
+              nextSnap[cId].forEach(function(str, idx){
+                if (prevAtlasSnap[cId][idx] !== str) {
+                  changedCat = cId;
+                  changedIdx = idx;
+                  try {
+                    var oldObj = prevAtlasSnap[cId][idx] ? JSON.parse(prevAtlasSnap[cId][idx]) : {};
+                    var newObj = JSON.parse(str);
+                    if (oldObj.summary !== newObj.summary || oldObj.storyText !== newObj.storyText || oldObj.metadataText !== newObj.metadataText || oldObj.mediaCaption !== newObj.mediaCaption) {
+                      openDetail = true;
+                    }
+                  } catch(err){}
+                }
+              });
+            }
+          }
+        });
+        prevAtlasSnap = nextSnap;
+        if (changedCat) {
+          var fName = changedCat + 'Nodes';
+          var built = buildNodesClient(d[fName], changedCat === 'practice');
+          window.__skAtlasLiveUpdate(changedCat, changedIdx, built, openDetail);
+        }
+      }
+
+      // Home page live updates
       if (typeof d.skipIntroInPreview === 'boolean' && d.skipIntroInPreview !== prevSkip) {
         prevSkip = d.skipIntroInPreview;
         if (d.skipIntroInPreview) window.__skJumpToPage(false);
