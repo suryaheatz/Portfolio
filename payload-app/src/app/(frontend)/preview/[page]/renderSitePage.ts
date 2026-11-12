@@ -376,10 +376,6 @@ export async function renderSitePage(page: 'home' | 'about', isPreview: boolean)
       `const svg = (art, slice) => /^(https?:|\\/|data:)/.test(String(art || '')) ? '<img src="' + String(art).replace(/"/g, '&quot;') + '" alt="" style="width:100%;height:100%;object-fit:cover;display:block">' : '<svg viewBox="0 0 104 104"' + (slice ? ' preserveAspectRatio="xMidYMid slice"' : '') + ' aria-hidden="true" focusable="false">' + (ART[art] || ART.shards) + '</svg>';`
     )
     html = html.replace(
-      `pn.media.innerHTML = svg(n.art, true); pn.cap.textContent = 'Placeholder media · ' + n.arLabel;`,
-      `pn.media.innerHTML = svg(n.art, true); pn.cap.textContent = (ct && ct.mediaCaption) ? ct.mediaCaption : (/^(https?:|\\/)/.test(String(n.art || '')) ? n.name + '  -  ' + n.arLabel : 'Placeholder media  -  ' + n.arLabel);`
-    )
-    html = html.replace(
       `syncRail();`,
       `syncRail();
   window.__skAtlasLiveUpdate = function(catId, nodeIndex, updatedNodes, openNodeDetail) {

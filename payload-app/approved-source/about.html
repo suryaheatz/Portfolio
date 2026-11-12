@@ -334,11 +334,11 @@
   .grid--pv { z-index:5; pointer-events:none; }
   .pv { position:absolute; inset:0; pointer-events:none; }                                   /* overlay; each preview layer is placed inside the category's preview region by pickZone() */
   .pvz { display:none; }
-  .pv__layer { position:absolute; left:0; top:0; clip-path:inset(0 0 0 100%); overflow:hidden; will-change:clip-path; border-radius:var(--r-sm); }
-  .pv__layer--sum { display:flex; flex-direction:column; }
+  .pv__layer { position:absolute; left:0; top:0; clip-path:inset(0 0 0 100%); opacity:0; background:var(--bg); overflow:hidden; will-change:clip-path,opacity; border-radius:var(--r-sm); }
+  .pv__layer--sum { display:flex; flex-direction:column; background:var(--bg); }
   .pv__pic { position:relative; flex:none; overflow:hidden; border-radius:var(--r-sm); }
-  .pv__layer--sum .pv__cap { position:static; padding:10px 0 4px; background:none; }
-  .pv__sum { margin:0; font:400 var(--text-body-sm)/1.5 var(--font-sans); color:var(--ink-2); }
+  .pv__layer--sum .pv__cap { position:static; padding:10px 0 4px; background:var(--bg); }
+  .pv__sum { margin:0; font:400 var(--text-body-sm)/1.5 var(--font-sans); color:var(--ink-2); background:var(--bg); }
   .pv__id { color:#BC3A0B; font-weight:600; }
   .pv__layer.is-narrow .pv__cap span:last-child { display:none; }
   .pv__img { position:absolute; left:-10%; top:0; width:120%; height:100%; will-change:transform; }
@@ -1742,7 +1742,7 @@ if (document.readyState === 'complete') initFooter(); else addEventListener('loa
   const arOf = v => { const [a, b] = String(v).split('/').map(parseFloat); return a / (b || 1); };
   function buildPv() {
     const C = curSet(); gsap.killTweensOf([...layers, ...pvImgs]); clearTimeout(pvT);
-    pvBox.innerHTML = C.nodes.map(n => '<div class="pv__layer' + (n.content && n.content.summary ? ' pv__layer--sum' : '') + '" data-ar="' + arOf(n.ar) + '">' + (n.content && n.content.summary ? '<div class="pv__pic">' : '') + '<div class="pv__img">' + svg(n.art, true) + '</div>' + (n.content && n.content.summary ? '</div>' : '') + '<div class="pv__cap"><span><b class="pv__id">' + n.n + '</b> · ' + n.name + '</span><span>Placeholder media · ' + n.arLabel + '</span></div>' + (n.content && n.content.summary ? '<p class="pv__sum">' + esc(n.content.summary) + '</p>' : '') + '</div>').join('');
+    pvBox.innerHTML = C.nodes.map(n => '<div class="pv__layer' + (n.content && n.content.summary ? ' pv__layer--sum' : '') + '" data-ar="' + arOf(n.ar) + '">' + (n.content && n.content.summary ? '<div class="pv__pic">' : '') + '<div class="pv__img">' + svg(n.art, true) + '</div>' + (n.content && n.content.summary ? '</div>' : '') + '<div class="pv__cap"><span><b class="pv__id">' + n.n + '</b> · ' + n.name + '</span></div>' + (n.content && n.content.summary ? '<p class="pv__sum">' + esc(n.content.summary) + '</p>' : '') + '</div>').join('');
     layers = $$('.pv__layer', pvBox); pvImgs = $$('.pv__img', pvBox); S.pv = null;
   }
   const regionProbes = {}; Object.entries(data.previewRegions).forEach(([cat, z]) => { const e = document.createElement('i'); e.className = 'pvz'; e.dataset.cat = cat; e.style.cssText = 'grid-column:' + z.column + ' / span ' + z.span + ';grid-row:' + z.row + ' / span ' + z.rows + ';display:block;visibility:hidden;pointer-events:none'; pvGrid.appendChild(e); regionProbes[cat] = e; });
@@ -1761,27 +1761,33 @@ if (document.readyState === 'complete') initFooter(); else addEventListener('loa
   }
   function settled() { buildPv(); pickZone(); }
 
-  /* hover preview: horizontally clipped reveal. Enters from the right, exits to the left. Layers are reused and killed before each re-drive. */
+  /* hover preview: horizontally clipped reveal. Switching between nodes immediately clears previous layers so text and images never overlap. */
   const HID = 'inset(0 0 0 100%)', SHOWN = 'inset(0 0 0 0%)', GONE = 'inset(0 100% 0 0)';
   const pvMod = (i, on) => { const m = curSet().mods[i]; if (m) m.classList.toggle('is-pv', on); };
   function previewIn(i) {
     if (S.pv === i || S.open || S.tl || !deskq.matches || !layers[i]) return;
-    const prev = S.pv; S.pv = i;
-    if (prev !== null) previewOut(prev);
+    S.pv = i;
+    layers.forEach((other, k) => {
+      if (k !== i) {
+        pvMod(k, false);
+        gsap.killTweensOf([other, pvImgs[k]]);
+        gsap.set(other, { clipPath: HID, opacity: 0, zIndex: 1 });
+      }
+    });
     pvMod(i, true);
     const l = layers[i], im = pvImgs[i]; gsap.killTweensOf([l, im]);
-    gsap.set(l, { clipPath: HID }); gsap.set(im, { xPercent: 14 });
-    gsap.to(l, { clipPath: SHOWN, duration: D(0.75), ease: 'expo.out' });
-    gsap.to(im, { xPercent: 0, duration: D(0.9), ease: 'expo.out' });
+    gsap.set(l, { clipPath: HID, opacity: 1, zIndex: 2 }); gsap.set(im, { xPercent: 10 });
+    gsap.to(l, { clipPath: SHOWN, duration: D(0.42), ease: 'expo.out' });
+    gsap.to(im, { xPercent: 0, duration: D(0.5), ease: 'expo.out' });
   }
   function previewOut(i) {
     pvMod(i, false); const l = layers[i], im = pvImgs[i]; if (!l) return; gsap.killTweensOf([l, im]);
-    gsap.to(l, { clipPath: GONE, duration: D(0.55), ease: 'power3.inOut', onComplete: () => gsap.set(l, { clipPath: HID }) });
-    gsap.to(im, { xPercent: -14, duration: D(0.6), ease: 'power3.inOut' });
+    gsap.to(l, { clipPath: GONE, opacity: 0, duration: D(0.32), ease: 'power3.out', onComplete: () => gsap.set(l, { clipPath: HID, opacity: 0 }) });
+    gsap.to(im, { xPercent: -10, duration: D(0.32), ease: 'power3.out' });
   }
   let pvT = 0;
-  const previewHide = () => { clearTimeout(pvT); pvT = setTimeout(() => { if (S.pv !== null) { previewOut(S.pv); S.pv = null; } }, 90); };   // a quick hop to the next node cancels this
-  const previewKill = keep => { clearTimeout(pvT); layers.forEach(l => { if (l === keep) return; gsap.killTweensOf(l); gsap.set(l, { clipPath: HID }); }); $$('.mod.is-pv').forEach(m => m.classList.remove('is-pv')); S.pv = null; };
+  const previewHide = () => { clearTimeout(pvT); pvT = setTimeout(() => { if (S.pv !== null) { previewOut(S.pv); S.pv = null; } }, 70); };   // a quick hop to the next node cancels this
+  const previewKill = keep => { clearTimeout(pvT); layers.forEach(l => { if (l === keep) return; gsap.killTweensOf(l); gsap.set(l, { clipPath: HID, opacity: 0 }); }); $$('.mod.is-pv').forEach(m => m.classList.remove('is-pv')); S.pv = null; };
 
   /* ── detail panel ── */
   function fillPanel(i) {
@@ -1791,7 +1797,9 @@ if (document.readyState === 'complete') initFooter(); else addEventListener('loa
     pn.flag.hidden = !!ct; const story = ct && ct.story ? ct.story : [], head = ct ? [ct.summary].concat(story).filter(Boolean) : [];
     pn.copy.hidden = !!ct && !head.length; pn.copy.innerHTML = ct ? head.map(esc).join('<br><br>') : esc(pn.copyDefault);
     pn.meta.innerHTML = ct && ct.rows ? ct.rows.map(r => '<dt>' + esc(r[0]) + '</dt><dd>' + fmt(r[1]) + '</dd>').join('') : ct ? '<dt>Category</dt><dd>' + esc(ct.category) + '</dd><dt>Descriptor</dt><dd>' + esc(ct.descriptor) + '</dd><dt>Capability</dt><dd>' + esc(ct.signature) + '</dd><dt>Includes</dt><dd>' + esc(ct.intro) + ct.includes.map(x => '<br>' + esc(x)).join('') + '</dd>' : pn.metaDefault;
-    pn.media.style.setProperty('--ar', n.ar); pn.media.style.setProperty('--arn', arOf(n.ar)); pn.media.innerHTML = svg(n.art, true); pn.cap.textContent = 'Placeholder media · ' + n.arLabel;
+    pn.media.style.setProperty('--ar', n.ar); pn.media.style.setProperty('--arn', arOf(n.ar)); pn.media.innerHTML = svg(n.art, true);
+    const capTxt = (ct && ct.mediaCaption) ? ct.mediaCaption : '';
+    pn.cap.textContent = capTxt; pn.cap.hidden = !capTxt;
     const p = nodes[i - 1], x = nodes[i + 1];
     pn.prev.disabled = !p; pn.next.disabled = !x; $('span', pn.prev).textContent = p ? p.name : '—'; $('span', pn.next).textContent = x ? x.name : '—';
     nodeEls.forEach((el, k) => el.setAttribute('aria-pressed', String(k === i))); mods.forEach((m, k) => m.classList.toggle('is-sel', k === i)); axis.dataset.sel = '';
@@ -1860,7 +1868,7 @@ if (document.readyState === 'complete') initFooter(); else addEventListener('loa
       + lay.nodes.map((n, i) => nodeComponent({ id: n.id, category: id, index: i, n: pad2(i), name: n.name || 'Node ' + pad2(i), art: n.art, aria: n.name ? n.name + ', ' + cap(c.name) + ' category node ' + (i + 1) + ' of ' + lay.nodes.length : 'Node ' + pad2(i) + ', prototype placeholder, ' + cap(c.name) + ' category',
           style: 'grid-column:' + n.column + ' / span ' + n.span + ';grid-row:' + n.row,
           labelBelow: lay.links.some(([a, b, m]) => m === 'v' && ((a === i && lay.nodes[b].row < n.row) || (b === i && lay.nodes[a].row < n.row))) })).join('')
-      + '<p class="net__tag">' + c.n + ' ' + cap(c.name) + ' · prototype structure · ' + (lay.nodes.some(n => n.content) ? (lay.nodes.every(n => n.content) ? 'content added, media placeholders' : lay.nodes.filter(n => n.content).length + ' of ' + lay.nodes.length + ' nodes have content') : 'placeholder nodes, no content') + '</p>';
+      + '<p class="net__tag">' + c.n + ' ' + cap(c.name) + (c.desc ? ' · ' + c.desc : '') + '</p>';
     fitLabels(); L.nodes = lay.nodes.map((n, i) => ({ n: pad2(i), name: n.name || 'Node ' + pad2(i), art: n.art, ar: n.ar, arLabel: n.arLabel, content: n.content })); L.mods = $$('.mod', L.el); L.els = $$('.node', L.el); L.host = L.el; L.cat = id; L.br = $('.br', L.el); L.links = lay.links.map(([a, b, m]) => ({ a, b, m, p: { v: 1 } })); L.lk = $$('.lk', L.el).map(g => [...g.children]);
   }
   /* path pieces along a polyline between two lengths */
