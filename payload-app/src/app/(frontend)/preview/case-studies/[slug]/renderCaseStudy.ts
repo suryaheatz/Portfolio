@@ -107,8 +107,8 @@ function render(b: Content): string {
       : ''
     const heroUrl = asset(b.heroImage)
     const heroSection = heroUrl
-      ? `<div class="hero-image-section"><img id="hero-img" src="${esc(heroUrl)}" alt="${esc(b.heroAlt)}"></div>`
-      : `<div class="container" style="margin-bottom:48px">${bpSlot('Hero Visual (Full-Bleed 16:9)', '16:9 Aspect Ratio  |  1920x1080px recommended  |  object-fit: cover', '320px')}</div>`
+      ? `<div class="hero-image-section" data-st-01="pin"><img id="hero-img" src="${esc(heroUrl)}" alt="${esc(b.heroAlt)}"></div>`
+      : `<div class="hero-image-section" data-st-01="pin" style="padding:32px 0"><div class="container">${bpSlot('Hero Visual (Full-Bleed 16:9)', '16:9 Aspect Ratio  |  1920x1080px recommended  |  object-fit: cover', '320px', true)}</div></div>`
     const eyebrowHtml = b.eyebrow ? text(b.eyebrow) : '<span style="opacity:.55">Domain / Client  -  Year</span>'
     const roleHtml = b.role ? text(b.role) : '<span style="opacity:.55">Your Role (e.g. Senior UX Designer)</span>'
     const titleHtml = b.title ? text(b.title) : '<span style="opacity:.45">Case Study Headline (Bricolage Grotesque)</span>'
@@ -138,7 +138,7 @@ function render(b: Content): string {
       </div>`
     const bodyHtml = lexToHtml(b.narrativeBody) || '<p style="opacity:.48">Frame the core design challenge here -- what constraint changed, who the user or customer was, and what your design needed to prove.</p>'
     return `
-      <section class="st-card st-brief">
+      <section class="st-card st-brief" data-st-01="pin">
         <div class="brief-centre">
           ${meta}
           ${bodyHtml}
@@ -162,7 +162,7 @@ function render(b: Content): string {
       ? `<figure class="scope-sketch"><img src="${esc(sketchUrl)}" alt="${esc(b.sketchAlt)}"></figure>`
       : `<div style="padding:32px 0 48px">${bpSlot('Optional Scope Sketch / System Architecture Diagram', '16:9 or 21:9 Diagram  |  12px Radius  |  object-fit: contain', '180px', true)}</div>`
     return `
-      <section class="st-card st-scope">
+      <section class="st-card st-scope" data-st-01="pin">
         <div class="container">
           <div class="section" style="padding-bottom:0">
             <div class="scope-strip">${facts}</div>
@@ -759,6 +759,186 @@ function buildVisualShowcaseHtml(
     </div>`
 }
 
+const PROTO_HOST = 'https://surya-zf-centronic.vercel.app'
+
+function buildPrototypeHtml(slug: string): string {
+  const s = slug.toLowerCase()
+  if (s === 'centronic') {
+    const v1 = `${PROTO_HOST}/prototypes/v1/index.html`
+    const v2 = `${PROTO_HOST}/prototypes/v2/index.html`
+    return `
+      <div class="section container" style="padding-bottom:0">
+        <div class="proto-card" data-proto-card data-proto-default="${esc(v1)}">
+          <div class="proto-header">
+            <span class="proto-header-title">Interactive Prototype  -  Centronic HMI</span>
+            <div class="proto-controls">
+              <div class="proto-pill" role="tablist">
+                <button type="button" class="proto-pill-btn active" data-proto-src="${esc(v1)}" data-proto-hint="Scroll wheel to rotate  &middot;  Click knob to select  &middot;  Long-press for home">Version 1  -  Driver Mode</button>
+                <button type="button" class="proto-pill-btn" data-proto-src="${esc(v2)}" data-proto-hint="Swipe to navigate  &middot;  Pinch to zoom  &middot;  Pull knob to switch mode">Version 2  -  Autonomous Mode</button>
+              </div>
+              <button type="button" class="proto-fs-btn" data-proto-fs>
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 4.5V1h3.5M7.5 1H11v3.5M11 7.5V11H7.5M4.5 11H1V7.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Fullscreen
+              </button>
+            </div>
+          </div>
+          <div class="proto-stage" data-proto-stage>
+            <iframe class="proto-iframe" data-proto-iframe src="${esc(v1)}" title="Centronic HMI Interactive Prototype" loading="lazy" allow="fullscreen"></iframe>
+          </div>
+          <div class="proto-hint-bar">
+            <span class="proto-hint-text" data-proto-hint-text>Scroll wheel to rotate  &middot;  Click knob to select  &middot;  Long-press for home</span>
+            <a class="proto-open-tab" data-proto-open-tab href="${esc(v1)}" target="_blank" rel="noopener">Open in new tab &nearr;</a>
+          </div>
+        </div>
+      </div>`
+  }
+  if (s === 'haptix') {
+    const desk = `${PROTO_HOST}/case-studies/haptix/prototype/index.html`
+    const phone = `${PROTO_HOST}/case-studies/haptix/prototype/index.html?view=phone`
+    return `
+      <div class="container" style="margin-top:32px;margin-bottom:16px">
+        <div class="proto-card" data-proto-card data-proto-default="${esc(desk)}">
+          <div class="proto-header">
+            <span class="proto-header-title">Interactive Prototype  -  Haptix Demonstrator</span>
+            <div class="proto-controls">
+              <div class="proto-pill" role="tablist">
+                <button type="button" class="proto-pill-btn active" data-proto-src="${esc(desk)}" data-proto-mode="desktop" data-proto-hint="Scroll or drag the thumbwheel  &middot;  Click to press  &middot;  Explore climate, media &amp; seat modes">Desktop view</button>
+                <button type="button" class="proto-pill-btn" data-proto-src="${esc(phone)}" data-proto-mode="phone" data-proto-hint="Phone-friendly layout  &middot;  Tap or swipe the thumbwheel to operate the display">Phone view</button>
+              </div>
+              <button type="button" class="proto-fs-btn" data-proto-fs>
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 4.5V1h3.5M7.5 1H11v3.5M11 7.5V11H7.5M4.5 11H1V7.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Fullscreen
+              </button>
+            </div>
+          </div>
+          <div class="proto-stage" data-proto-stage>
+            <iframe class="proto-iframe" data-proto-iframe src="${esc(desk)}" title="Haptix Thumbwheel Interactive Prototype" loading="lazy" allow="fullscreen"></iframe>
+          </div>
+          <div class="proto-hint-bar">
+            <span class="proto-hint-text" data-proto-hint-text>Scroll or drag the thumbwheel  &middot;  Click to press  &middot;  Explore climate, media &amp; seat modes</span>
+            <a class="proto-open-tab" data-proto-open-tab href="${esc(desk)}" target="_blank" rel="noopener">Open in new tab &nearr;</a>
+          </div>
+        </div>
+      </div>`
+  }
+  return ''
+}
+
+type ChapterMeta = {
+  idx: number
+  id: string
+  num: string
+  shortTitle: string
+  desc: string
+  block: Content
+}
+
+function extractChapterMeta(b: Content, idx: number): ChapterMeta {
+  const fallbackNum = String(idx + 1).padStart(2, '0')
+  const rawEyebrow = String(b.eyebrow || b.sectionKey || '').trim()
+  const rawHeading = String(b.heading || b.title || b.sectionHeading || '').trim()
+  const rawSub = String(b.subtitle || '').trim()
+  const bType = String(b.blockType || '')
+
+  let num = fallbackNum
+  let shortTitle = ''
+
+  const m = rawEyebrow.match(/^(\d{1,2})\s*(?:[\u00b7/|]|--|-)\s*(.+)$/)
+  if (m) {
+    num = m[1].padStart(2, '0')
+    shortTitle = m[2].trim()
+  } else if (rawEyebrow) {
+    shortTitle = rawEyebrow
+  } else if (bType === 'pullquote') {
+    shortTitle = 'The Interaction Model'
+  } else if (rawHeading) {
+    shortTitle = rawHeading
+  } else {
+    shortTitle = `Chapter ${fallbackNum}`
+  }
+
+  let desc = ''
+  if (rawHeading && rawHeading.toLowerCase() !== shortTitle.toLowerCase()) {
+    desc = rawHeading
+  } else if (rawSub) {
+    desc = rawSub
+  } else if (bType === 'pullquote') {
+    desc = 'Core interaction principle & gesture feedback'
+  } else {
+    desc = shortTitle
+  }
+
+  return {
+    idx,
+    id: `cs-ch-${idx}`,
+    num,
+    shortTitle,
+    desc,
+    block: b,
+  }
+}
+
+function buildChapterNavHtml(chapters: ChapterMeta[]): { indexHtml: string; railHtml: string } {
+  if (chapters.length === 0) return { indexHtml: '', railHtml: '' }
+
+  const rowsHtml = chapters.map((ch) => `
+    <a class="chapter-item" href="#${esc(ch.id)}" data-ch-jump="${esc(ch.id)}" data-ch-idx="${ch.idx}">
+      <span class="chapter-num">${esc(ch.num)}</span>
+      <span class="chapter-title">${esc(ch.shortTitle)}</span>
+      <span class="chapter-desc">${esc(ch.desc)}</span>
+      <span class="chapter-arrow">&rarr;</span>
+    </a>`).join('')
+
+  const indexHtml = `
+    <div class="section container" id="chapter-section" style="padding-bottom:24px">
+      <div class="cs-context-layout" style="margin-bottom:24px">
+        <div class="cs-context-margin">
+          <p class="cs-label">Contents</p>
+        </div>
+        <div class="cs-context-main">
+          <h3 class="cs-h3">Chapters in this case study</h3>
+        </div>
+      </div>
+      <div class="chapter-list" id="chapter-list">
+        ${rowsHtml}
+      </div>
+    </div>`
+
+  const dotsHtml = chapters.map((ch, i) => `
+    <button type="button" class="rail-dot${i === 0 ? ' active' : ''}" data-ch-jump="${esc(ch.id)}" data-ch-idx="${ch.idx}" aria-label="Jump to chapter ${esc(ch.num)}: ${esc(ch.shortTitle)}">
+      <span class="rail-dot-pip"></span>
+      <span class="rail-dot-label">${esc(ch.num)} &middot; ${esc(ch.shortTitle)}</span>
+    </button>`).join('')
+
+  const drawerRowsHtml = chapters.map((ch, i) => `
+    <button type="button" class="drawer-ch-item${i === 0 ? ' active' : ''}" data-ch-jump="${esc(ch.id)}" data-ch-idx="${ch.idx}">
+      <span class="drawer-ch-num">${esc(ch.num)}</span>
+      <span class="drawer-ch-name">${esc(ch.shortTitle)}</span>
+      <span class="drawer-ch-sub">${esc(ch.desc)}</span>
+    </button>`).join('')
+
+  const firstCh = chapters[0]
+  const railHtml = `
+    <nav id="cs-rail" aria-label="Chapter progress">
+      ${dotsHtml}
+    </nav>
+    <div id="cs-pill" role="button" tabindex="0" aria-label="Open chapter list">
+      <span id="pill-Dot"></span>
+      <span id="pill-text">${esc(firstCh.num)} &middot; ${esc(firstCh.shortTitle)}</span>
+      <span id="pill-chevron">&#9662;</span>
+    </div>
+    <div id="cs-drawer-backdrop"></div>
+    <div id="cs-drawer" role="dialog" aria-label="Chapters">
+      <div id="cs-drawer-handle"></div>
+      <div id="cs-drawer-header">Chapters</div>
+      <div id="cs-drawer-list">
+        ${drawerRowsHtml}
+      </div>
+    </div>`
+
+  return { indexHtml, railHtml }
+}
+
 function buildPageBody(doc: Record<string, unknown> | undefined, slug: string, tplParam?: string | null) {
   const docSlides = Array.isArray(doc?.slides) ? (doc?.slides as Content[]) : []
   const rawTpl = String(tplParam || doc?.template || (slug === 'haptix' ? 'narrative-slides' : 'narrative'))
@@ -783,7 +963,7 @@ function buildPageBody(doc: Record<string, unknown> | undefined, slug: string, t
   }
 
   const hasUserSlides = docSlides.length > 0
-  const defaultTab = hasUserSlides ? 'slides' : 'case'
+  const defaultTab = 'case'
   const slidesList = hasUserSlides ? docSlides : [
     { variant: 'light', eyebrow: 'Slide 01 / Blueprint', heading: 'Presentation Slide (Light Variant)', body: '40% editorial text on the left, 60% full-bleed visual on the right (16:10 or 4:3, object-fit: cover).' },
     { variant: 'dark',  eyebrow: 'Slide 02 / Blueprint', heading: 'Presentation Slide (Dark Variant)',  body: 'Add slides in the "Presentation Slides Deck" array on the left to populate this interactive deck.' },
@@ -793,12 +973,12 @@ function buildPageBody(doc: Record<string, unknown> | undefined, slug: string, t
       <div class="container sk-switch-inner">
         <span class="sk-switch-label">Format: Narrative + Presentation Deck</span>
         <div class="sk-switch-tabs" role="tablist">
-          <button type="button" class="sk-switch-tab${defaultTab === 'case' ? ' active' : ''}" data-switch-target="case" role="tab" aria-selected="${defaultTab === 'case' ? 'true' : 'false'}">Case study</button>
-          <button type="button" class="sk-switch-tab${defaultTab === 'slides' ? ' active' : ''}" data-switch-target="slides" role="tab" aria-selected="${defaultTab === 'slides' ? 'true' : 'false'}">Slides (${slidesList.length})</button>
+          <button type="button" class="sk-switch-tab active" data-switch-target="case" role="tab" aria-selected="true">Case study</button>
+          <button type="button" class="sk-switch-tab" data-switch-target="slides" role="tab" aria-selected="false">Slides (${slidesList.length})</button>
         </div>
       </div>
     </div>
-    <section id="p-slides" class="container" style="display:${defaultTab === 'slides' ? 'block' : 'none'};padding:48px var(--col-pad)">
+    <section id="p-slides" class="container" style="display:none;padding:48px var(--col-pad)">
       <div class="sk-deck" data-deck>
         ${slidesList.map((s, idx) => {
           const sUrl = asset(s.image)
@@ -823,8 +1003,46 @@ function buildPageBody(doc: Record<string, unknown> | undefined, slug: string, t
         </div>
       </div>
     </section>` : ''
-  const caseDisplay = (activeTemplate === 'narrative-slides' && defaultTab === 'slides') ? 'style="display:none"' : ''
-  const body = slidesDeckHtml + `<div id="p-case" ${caseDisplay}>` + (page.layout ?? []).map(b => render(b)).join('') + `</div>`
+
+  const INTRO_TYPES = new Set(['caseStudyHero', 'caseStudyBrief', 'caseStudyScope'])
+  const introBlocks: Content[] = []
+  const narrativeBlocks: Content[] = []
+  for (const b of (page.layout ?? [])) {
+    if (INTRO_TYPES.has(String(b.blockType ?? '')) && narrativeBlocks.length === 0) {
+      introBlocks.push(b)
+    } else {
+      narrativeBlocks.push(b)
+    }
+  }
+
+  const chapters = narrativeBlocks.map((b, idx) => extractChapterMeta(b, idx))
+  const { indexHtml, railHtml } = buildChapterNavHtml(chapters)
+  const introHtml = introBlocks.map(b => render(b)).join('')
+  const topProtoHtml = slug.toLowerCase() === 'centronic' ? buildPrototypeHtml('centronic') : ''
+
+  const chaptersHtml = chapters.map((ch) => {
+    const isHaptixProtoChapter =
+      slug.toLowerCase() === 'haptix' &&
+      (ch.shortTitle.toLowerCase().includes('prototype') || String(ch.block.heading || '').toLowerCase().includes('prototype'))
+    const inlineProto = isHaptixProtoChapter ? buildPrototypeHtml('haptix') : ''
+    return `
+      <section class="cs-chapter-sec" id="${esc(ch.id)}" data-ch-idx="${ch.idx}" data-ch-num="${esc(ch.num)}" data-ch-title="${esc(ch.shortTitle)}">
+        ${inlineProto}
+        ${render(ch.block)}
+      </section>`
+  }).join('')
+
+  const body =
+    slidesDeckHtml +
+    railHtml +
+    `<div id="p-case">` +
+    `<div class="transition-stack">${introHtml}</div>` +
+    `<div class="post-stack-content">` +
+    topProtoHtml +
+    indexHtml +
+    chaptersHtml +
+    `</div>` +
+    `</div>`
   return { page, isSample, activeTemplate, body }
 }
 
@@ -960,6 +1178,7 @@ export async function renderCaseStudyResponse(req: Request, slug: string, isPrev
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;400;500;600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=DM+Serif+Display:ital@0;1&family=Manrope:wght@300;400;500;600&display=swap">
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=zodiak@300,301,400,401&display=swap">
   <style>
     /* -- SK Design System tokens (inlined -- no public/ in payload-app) -- */
     :root {
@@ -991,7 +1210,7 @@ export async function renderCaseStudyResponse(req: Request, slug: string, isPrev
       --sp-12:48px;--sp-16:64px; --sp-20:80px;--sp-24:96px;
       --font-display: 'Bricolage Grotesque', system-ui, sans-serif;
       --font-sans:    'Manrope', system-ui, sans-serif;
-      --font-quote:   Georgia, serif;
+      --font-quote:   'Zodiak', Georgia, serif;
       --bento-gap: 16px;
       --r-bento: 24px;
       --bento-row: 200px;
@@ -1467,6 +1686,419 @@ export async function renderCaseStudyResponse(req: Request, slug: string, isPrev
       padding: 24px 0 48px;
     }
 
+    /* -- Transition Stack (Hero -> Brief -> Scope pin-over-pin) -- */
+    .transition-stack { position: relative; }
+    .post-stack-content { position: relative; z-index: 5; background: var(--bg); }
+    .cs-chapter-sec { scroll-margin-top: 64px; position: relative; }
+
+    /* -- Interactive Prototype Card (Centronic & Haptix commonized) -- */
+    .proto-card {
+      background: var(--proto-bg);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.22);
+    }
+    .proto-card.proto-fullscreen {
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      z-index: 980 !important;
+      border-radius: 0 !important;
+      display: flex;
+      flex-direction: column;
+    }
+    .proto-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      gap: 12px;
+      flex-wrap: wrap;
+      background: rgba(255,255,255,0.02);
+    }
+    .proto-header-title {
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.65);
+      letter-spacing: 0.02em;
+    }
+    .proto-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .proto-pill {
+      display: inline-flex;
+      background: rgba(255,255,255,0.08);
+      border-radius: 999px;
+      padding: 3px;
+      gap: 2px;
+    }
+    .proto-pill-btn {
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 14px;
+      border-radius: 999px;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.58);
+      cursor: pointer;
+      transition: background 0.18s ease, color 0.18s ease;
+    }
+    .proto-pill-btn.active {
+      background: var(--sun);
+      color: #fff;
+    }
+    .proto-fs-btn {
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.72);
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 999px;
+      padding: 5px 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.18s ease;
+    }
+    .proto-fs-btn:hover {
+      background: rgba(255,255,255,0.16);
+      color: #fff;
+    }
+    .proto-stage {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      min-height: 520px;
+      position: relative;
+      background: var(--proto-bg);
+    }
+    .proto-card.proto-fullscreen .proto-stage {
+      flex: 1;
+      aspect-ratio: auto;
+      min-height: 0;
+    }
+    .proto-iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+    .proto-hint-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      font-family: var(--font-sans);
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .proto-open-tab {
+      color: rgba(255,255,255,0.75);
+      font-weight: 500;
+      text-decoration: none;
+    }
+    .proto-open-tab:hover {
+      color: var(--sun);
+      text-decoration: none;
+    }
+
+    /* -- Chapter Index (#chapter-section) -- */
+    .chapter-list {
+      border-top: 1px solid var(--rule);
+    }
+    .chapter-item {
+      display: grid;
+      grid-template-columns: 44px 220px 1fr 28px;
+      align-items: baseline;
+      gap: 16px;
+      padding: 16px 12px;
+      border-bottom: 1px solid var(--rule);
+      text-decoration: none;
+      color: inherit;
+      border-radius: var(--r-sm);
+      transition: background 0.16s ease, padding-left 0.18s var(--ease-out);
+    }
+    .chapter-item:hover {
+      background: rgba(17,17,16,0.035);
+      padding-left: 18px;
+      text-decoration: none;
+    }
+    .chapter-item.active {
+      background: var(--sun-muted);
+    }
+    .chapter-num {
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink-3);
+      font-variant-numeric: tabular-nums;
+      transition: color 0.16s ease;
+    }
+    .chapter-item:hover .chapter-num,
+    .chapter-item.active .chapter-num {
+      color: var(--sun);
+    }
+    .chapter-title {
+      font-family: var(--font-display);
+      font-size: 17px;
+      font-weight: 500;
+      color: var(--ink);
+      transition: color 0.16s ease;
+    }
+    .chapter-item:hover .chapter-title,
+    .chapter-item.active .chapter-title {
+      color: var(--sun);
+    }
+    .chapter-desc {
+      font-family: var(--font-sans);
+      font-size: 13px;
+      color: var(--ink-2);
+      line-height: 1.45;
+    }
+    .chapter-arrow {
+      font-size: 14px;
+      color: var(--ink-3);
+      text-align: right;
+      transition: transform 0.18s var(--ease-out), color 0.16s ease;
+    }
+    .chapter-item:hover .chapter-arrow,
+    .chapter-item.active .chapter-arrow {
+      color: var(--sun);
+      transform: translateX(3px);
+    }
+
+    /* -- Desktop Left Chapter Progress Rail (#cs-rail) -- */
+    #cs-rail {
+      position: fixed;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%) translateX(-8px);
+      z-index: 95;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s var(--ease-out), transform 0.25s var(--ease-out);
+      padding: 8px 6px;
+      border-radius: 16px;
+    }
+    #cs-rail.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(-50%) translateX(0);
+    }
+    .rail-dot {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      padding: 4px 6px;
+      background: none;
+      border: none;
+      text-align: left;
+      border-radius: 999px;
+      position: relative;
+    }
+    .rail-dot-pip {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--rule);
+      border: 1px solid rgba(17,17,16,0.22);
+      flex-shrink: 0;
+      transition: background 0.2s ease, transform 0.2s var(--ease-out), box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .rail-dot:hover .rail-dot-pip {
+      background: var(--ink-2);
+      transform: scale(1.25);
+    }
+    .rail-dot.active .rail-dot-pip {
+      background: var(--sun);
+      border-color: var(--sun);
+      transform: scale(1.35);
+      box-shadow: 0 0 0 3px rgba(232,73,15,0.18);
+    }
+    .rail-dot-label {
+      font-family: var(--font-sans);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--ink-2);
+      white-space: nowrap;
+      opacity: 0;
+      transform: translateX(-4px);
+      transition: opacity 0.18s ease, transform 0.18s ease, color 0.18s ease;
+      pointer-events: none;
+      background: rgba(245,244,240,0.92);
+      backdrop-filter: blur(6px);
+      padding: 2px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--rule);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    #cs-rail:hover .rail-dot-label,
+    .rail-dot:focus-visible .rail-dot-label,
+    .rail-dot.active .rail-dot-label {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .rail-dot.active .rail-dot-label {
+      color: var(--ink);
+      font-weight: 600;
+      border-color: rgba(232,73,15,0.35);
+    }
+
+    /* -- Mobile Chapter Pill & Drawer (#cs-pill, #cs-drawer) -- */
+    #cs-pill {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(12px);
+      z-index: 95;
+      background: rgba(26,25,23,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      color: var(--bg);
+      border-radius: 999px;
+      padding: 9px 18px;
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 500;
+      display: none;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s var(--ease-out);
+      white-space: nowrap;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    }
+    #cs-pill.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(-50%) translateY(0);
+    }
+    #pill-Dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--sun);
+      flex-shrink: 0;
+    }
+    #pill-chevron {
+      font-size: 10px;
+      color: rgba(245,244,240,0.55);
+    }
+    #cs-drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 199;
+      background: rgba(17,17,16,0.4);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    #cs-drawer-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    #cs-drawer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 200;
+      background: var(--ink-dark);
+      border-radius: 20px 20px 0 0;
+      padding: 16px 24px 32px;
+      transform: translateY(100%);
+      transition: transform 0.3s var(--ease-out);
+      max-height: 72vh;
+      overflow-y: auto;
+    }
+    #cs-drawer.open {
+      transform: translateY(0);
+    }
+    #cs-drawer-handle {
+      width: 36px;
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(245,244,240,0.2);
+      margin: 0 auto 16px;
+    }
+    #cs-drawer-header {
+      font-family: var(--font-sans);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(245,244,240,0.45);
+      margin-bottom: 8px;
+    }
+    .drawer-ch-item {
+      display: grid;
+      grid-template-columns: 32px 1fr;
+      gap: 4px 10px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(245,244,240,0.08);
+      cursor: pointer;
+      background: none;
+      border-left: none;
+      border-right: none;
+      border-top: none;
+      width: 100%;
+      text-align: left;
+    }
+    .drawer-ch-num {
+      font-family: var(--font-sans);
+      font-size: 12px;
+      color: rgba(245,244,240,0.45);
+      grid-row: 1 / 3;
+      align-self: center;
+    }
+    .drawer-ch-name {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--bg);
+    }
+    .drawer-ch-sub {
+      font-family: var(--font-sans);
+      font-size: 12px;
+      color: rgba(245,244,240,0.5);
+    }
+    .drawer-ch-item.active .drawer-ch-num,
+    .drawer-ch-item.active .drawer-ch-name {
+      color: var(--sun);
+    }
+
+    @media(max-width:1180px){
+      #cs-rail .rail-dot.active .rail-dot-label { opacity: 0; }
+      #cs-rail:hover .rail-dot-label { opacity: 1; }
+    }
+    @media(max-width:900px){
+      #cs-rail { display: none; }
+      #cs-pill { display: flex; }
+      .chapter-item { grid-template-columns: 36px 1fr 24px; }
+      .chapter-desc { grid-column: 2 / 3; }
+      .chapter-arrow { grid-column: 3; grid-row: 1 / 3; align-self: center; }
+    }
+
     /* -- Responsive -- */
     @media(max-width:640px){
       .container{padding:0 var(--col-pad-m)}
@@ -1485,6 +2117,7 @@ export async function renderCaseStudyResponse(req: Request, slug: string, isPrev
       .sk-slide{grid-template-columns:1fr}
       .sk-slide-image{height:280px;position:relative}
       .sk-slide-text{padding:var(--sp-12) var(--col-pad-m)}
+      .proto-stage{min-height:320px}
       .vs-shell{flex-direction:column;height:auto}
       .vs-main{padding:12px;height:auto}
       .vs-sidebar{flex:0 0 72px;width:100%;height:72px;flex-direction:row;align-items:center;border-left:none;border-top:1px solid var(--vs-rule)}
@@ -1494,6 +2127,7 @@ export async function renderCaseStudyResponse(req: Request, slug: string, isPrev
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/ScrollTrigger.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/Flip.min.js"></script>
 </head>
 <body>
@@ -1819,15 +2453,15 @@ window.__skInitAll = function(){
         pCase.style.display   = target === 'slides' ? 'none'  : 'block'
         pSlides.style.display = target === 'slides' ? 'block' : 'none'
       }
+      if (typeof window.__skUpdateRail === 'function') {
+        window.__skUpdateRail()
+      }
     }
     if (switchTabs.length) {
       var savedTab = null
       try { savedTab = sessionStorage.getItem(storageKey) } catch(e) {}
       var defaultTab = switchBar ? switchBar.getAttribute('data-default-tab') : null
       var initialTab = window.__skUserForcedTab || savedTab || defaultTab || window.__skActiveTab || 'case'
-      if (defaultTab === 'slides' && !window.__skUserClickedTab) {
-        initialTab = 'slides'
-      }
       applyTab(initialTab, false)
     }
     switchTabs.forEach(function(tab){
@@ -2126,6 +2760,205 @@ window.__skInitAll = function(){
       })
     })
   })()
+
+  // -- GSAP Pin-Over-Pin Transition Stack (Hero Image -> Brief -> Scope) + Hero Parallax --
+  ;(function st01Init(){
+    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return
+    gsap.registerPlugin(ScrollTrigger)
+    if (Array.isArray(window.__skStTriggers)) {
+      window.__skStTriggers.forEach(function(t){ try { t.kill() } catch(e){} })
+    }
+    window.__skStTriggers = []
+    if (window.innerWidth <= 640) return
+
+    var heroImg = document.getElementById('hero-img')
+    var heroSec = document.querySelector('.hero-image-section')
+    if (heroImg && heroSec) {
+      var tw = gsap.fromTo(heroImg,
+        { scale: 1.04 },
+        {
+          scale: 1,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: heroSec,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: true
+          }
+        }
+      )
+      if (tw && tw.scrollTrigger) window.__skStTriggers.push(tw.scrollTrigger)
+    }
+
+    var items = Array.from(document.querySelectorAll('[data-st-01="pin"]'))
+    items.forEach(function(item, index){
+      item.style.zIndex = String(index + 1)
+      if (index === items.length - 1) return
+      var next = items[index + 1]
+      var trig = ScrollTrigger.create({
+        trigger: item,
+        start: function(){ return item.offsetHeight < window.innerHeight ? 'top top' : 'bottom bottom' },
+        endTrigger: next,
+        end: 'top top',
+        pin: true,
+        pinSpacing: false,
+        invalidateOnRefresh: true
+      })
+      window.__skStTriggers.push(trig)
+    })
+  })()
+
+  // -- Interactive Prototype Card (Version / View Toggle + Fullscreen) --
+  ;(function protoInit(){
+    document.querySelectorAll('[data-proto-card]').forEach(function(card){
+      var iframe   = card.querySelector('[data-proto-iframe]')
+      var pillBtns = Array.from(card.querySelectorAll('.proto-pill-btn'))
+      var fsBtn    = card.querySelector('[data-proto-fs]')
+      var hintText = card.querySelector('[data-proto-hint-text]')
+      var openTab  = card.querySelector('[data-proto-open-tab]')
+      if (!iframe) return
+
+      pillBtns.forEach(function(btn){
+        btn.addEventListener('click', function(){
+          pillBtns.forEach(function(b){ b.classList.remove('active') })
+          btn.classList.add('active')
+          var src  = btn.getAttribute('data-proto-src') || ''
+          var hint = btn.getAttribute('data-proto-hint') || ''
+          var mode = btn.getAttribute('data-proto-mode') || ''
+          if (src && iframe.getAttribute('src') !== src) {
+            iframe.setAttribute('src', src)
+          }
+          if (mode && iframe.contentWindow) {
+            try { iframe.contentWindow.postMessage({ type: 'haptix-view', view: mode }, '*') } catch(e) {}
+          }
+          if (hintText && hint) hintText.textContent = hint
+          if (openTab && src) openTab.setAttribute('href', src)
+        })
+      })
+
+      if (fsBtn) {
+        fsBtn.addEventListener('click', function(){
+          var isFs = card.classList.toggle('proto-fullscreen')
+          document.body.style.overflow = isFs ? 'hidden' : ''
+          fsBtn.innerHTML = isFs
+            ? '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4 1v3H1M8 1v3h3M11 8H8v3M1 8h3v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Exit Fullscreen'
+            : '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 4.5V1h3.5M7.5 1H11v3.5M11 7.5V11H7.5M4.5 11H1V7.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg> Fullscreen'
+        })
+      }
+    })
+  })()
+
+  // -- Chapter Index + Side Progress Rail + Mobile Pill/Drawer (Continuous Scroll-Position Spy) --
+  ;(function csNavInit(){
+    var rail       = document.getElementById('cs-rail')
+    var pill       = document.getElementById('cs-pill')
+    var pillText   = document.getElementById('pill-text')
+    var drawer     = document.getElementById('cs-drawer')
+    var backdrop   = document.getElementById('cs-drawer-backdrop')
+    var chapSec    = document.getElementById('chapter-section')
+    var sections   = Array.from(document.querySelectorAll('.cs-chapter-sec'))
+    var railDots   = Array.from(document.querySelectorAll('#cs-rail .rail-dot'))
+    var indexRows  = Array.from(document.querySelectorAll('#chapter-list .chapter-item'))
+    var drawerRows = Array.from(document.querySelectorAll('#cs-drawer-list .drawer-ch-item'))
+
+    if (!sections.length) return
+
+    function closeDrawer() {
+      if (drawer)   drawer.classList.remove('open')
+      if (backdrop) backdrop.classList.remove('open')
+    }
+
+    function jumpToChapter(id) {
+      var target = document.getElementById(id)
+      if (!target) return
+      closeDrawer()
+      var top = target.getBoundingClientRect().top + window.scrollY - 36
+      window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' })
+    }
+
+    document.querySelectorAll('[data-ch-jump]').forEach(function(el){
+      el.addEventListener('click', function(e){
+        e.preventDefault()
+        var targetId = el.getAttribute('data-ch-jump')
+        if (targetId) jumpToChapter(targetId)
+      })
+    })
+
+    if (pill && drawer && backdrop) {
+      pill.addEventListener('click', function(){
+        var isOpen = drawer.classList.toggle('open')
+        backdrop.classList.toggle('open', isOpen)
+      })
+      backdrop.addEventListener('click', closeDrawer)
+    }
+
+    function setActiveChapter(idx) {
+      if (idx < 0 || idx >= sections.length) return
+      railDots.forEach(function(d, i){ d.classList.toggle('active', i === idx) })
+      indexRows.forEach(function(r, i){ r.classList.toggle('active', i === idx) })
+      drawerRows.forEach(function(dr, i){ dr.classList.toggle('active', i === idx) })
+      if (pillText && sections[idx]) {
+        var num = sections[idx].getAttribute('data-ch-num') || String(idx + 1).padStart(2, '0')
+        var title = sections[idx].getAttribute('data-ch-title') || ''
+        pillText.textContent = num + ' \u00b7 ' + title
+      }
+    }
+
+    function updateScrollSpy() {
+      if (!sections.length) return
+      if (window.__skActiveTab === 'slides') {
+        if (rail) rail.classList.remove('visible')
+        if (pill) pill.classList.remove('visible')
+        closeDrawer()
+        return
+      }
+
+      var vh = window.innerHeight
+      var firstRect = sections[0].getBoundingClientRect()
+      var lastRect  = sections[sections.length - 1].getBoundingClientRect()
+      var startAnchorTop = chapSec ? chapSec.getBoundingClientRect().bottom : firstRect.top
+      var inRange = startAnchorTop < vh * 0.72 && lastRect.bottom > vh * 0.25
+
+      if (rail) rail.classList.toggle('visible', inRange)
+      if (pill) pill.classList.toggle('visible', inRange)
+
+      var triggerLine = vh * 0.36
+      var activeIdx = 0
+      for (var i = 0; i < sections.length; i++) {
+        var r = sections[i].getBoundingClientRect()
+        if (r.top <= triggerLine) {
+          activeIdx = i
+        } else {
+          break
+        }
+      }
+      // If scrolled to the very bottom of the page, highlight the final chapter
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 100) {
+        activeIdx = sections.length - 1
+      }
+      setActiveChapter(activeIdx)
+    }
+
+    window.__skUpdateRail = updateScrollSpy
+
+    if (window.__skScrollListener) {
+      window.removeEventListener('scroll', window.__skScrollListener)
+    }
+    var ticking = false
+    window.__skScrollListener = function() {
+      if (!ticking) {
+        ticking = true
+        requestAnimationFrame(function(){
+          updateScrollSpy()
+          ticking = false
+        })
+      }
+    }
+    window.addEventListener('scroll', window.__skScrollListener, { passive: true })
+    window.addEventListener('resize', updateScrollSpy, { passive: true })
+    requestAnimationFrame(updateScrollSpy)
+    setTimeout(updateScrollSpy, 220)
+  })()
 }
 
 window.__skInitAll()
@@ -2174,8 +3007,6 @@ window.__skInitAll()
             window.__skActiveSlide = changedIdx
             try { sessionStorage.setItem('sk_preview_tab_' + window.location.pathname, 'slides') } catch(err) {}
           }
-        } else if (curSigs.length > 0 && !window.__skUserClickedTab) {
-          window.__skActiveTab = 'slides'
         }
         prevSlidesSigs = curSigs
       }

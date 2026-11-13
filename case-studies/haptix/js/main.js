@@ -156,7 +156,7 @@ go(0);
   chapters.forEach(function(ch,i){
     var dot=document.createElement('button');
     dot.className='rail-dot';
-    dot.setAttribute('data-label',ch.label);
+    dot.setAttribute('data-label',('0'+(i+1)).slice(-2)+' \u00b7 '+ch.label);
     dot.setAttribute('aria-label',ch.label);
     dot.onclick=function(){var t=document.getElementById(ch.id);if(t)t.scrollIntoView({behavior:'smooth'})};
     rail.appendChild(dot);
@@ -177,29 +177,40 @@ go(0);
     ritems.forEach(function(li,k){li.classList.toggle('drawer-active',k===i)});
     pill.textContent=('0'+(i+1)).slice(-2)+' / '+chapters.length;
   }
-  /* IntersectionObserver */
+  /* Continuous scroll-position spy + hide when Slides tab is active */
   var sectionEls=chapters.map(function(ch){return document.getElementById(ch.id)});
-  var io2=new IntersectionObserver(function(entries){
-    entries.forEach(function(e){
-      if(!e.isIntersecting) return;
-      var idx=sectionEls.indexOf(e.target);
-      if(idx>-1) setActive(idx);
-    });
-  },{rootMargin:'-20% 0px -60% 0px',threshold:0});
-  sectionEls.forEach(function(t){if(t)io2.observe(t)});
-  /* last section fix — activate final dot when near bottom of page */
-  window.addEventListener('scroll',function(){
-    var scrollBottom=window.scrollY+window.innerHeight;
-    var pageHeight=document.documentElement.scrollHeight;
-    if(pageHeight-scrollBottom<80) setActive(chapters.length-1);
-  },{passive:true});
-  /* rail visibility — show after hero image scrolls away */
   var heroImg=document.querySelector('.hero-image-section');
-  var railObserver=new IntersectionObserver(function(entries){
-    rail.classList.toggle('rail-visible',!entries[0].isIntersecting);
-    pill.classList.toggle('pill-visible',!entries[0].isIntersecting);
-  },{threshold:0});
-  if(heroImg) railObserver.observe(heroImg);
+  function updateHaptixSpy(){
+    if(ps && !ps.hidden){
+      rail.classList.remove('rail-visible');
+      pill.classList.remove('pill-visible');
+      return;
+    }
+    var vh=window.innerHeight;
+    var pastHero=heroImg ? heroImg.getBoundingClientRect().bottom < vh*0.5 : window.scrollY > 400;
+    rail.classList.toggle('rail-visible',pastHero);
+    pill.classList.toggle('pill-visible',pastHero);
+    var triggerLine=vh*0.36;
+    var best=0;
+    for(var i=0;i<sectionEls.length;i++){
+      var el=sectionEls[i];
+      if(!el) continue;
+      if(el.getBoundingClientRect().top<=triggerLine){
+        best=i;
+      } else {
+        break;
+      }
+    }
+    if(window.scrollY+vh>=document.documentElement.scrollHeight-80){
+      best=chapters.length-1;
+    }
+    setActive(best);
+  }
+  window.addEventListener('scroll',updateHaptixSpy,{passive:true});
+  window.addEventListener('resize',updateHaptixSpy,{passive:true});
+  if(tc) tc.addEventListener('click',function(){setTimeout(updateHaptixSpy,40)});
+  if(ts) ts.addEventListener('click',function(){setTimeout(updateHaptixSpy,40)});
+  requestAnimationFrame(updateHaptixSpy);
   /* pill / drawer */
   function openDrawer(){drawer.classList.add('drawer-open');document.body.style.overflow='hidden'}
   function closeDrawer(){drawer.classList.remove('drawer-open');document.body.style.overflow=''}

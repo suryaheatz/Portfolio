@@ -24,6 +24,7 @@ import * as addCaseStudySlidesAndTemplateLock from './20261105_020000_add_case_s
 import * as enableAutosaveLivePreview from './20261105_030000_enable_autosave_live_preview';
 import * as addHomePageGlobal from './20261109_000000_add_home_page_global';
 import * as addAtlasStructuredNodes from './20261111_000000_add_atlas_structured_nodes';
+import * as commonizeCentronicHaptixChapters from './20261113_000000_commonize_centronic_haptix_chapters';
 
 export const migrations = [
   { up: migration_20261028_125058.up, down: migration_20261028_125058.down, name: '20261028_125058' },
@@ -52,4 +53,5 @@ export const migrations = [
   { up: enableAutosaveLivePreview.up, down: enableAutosaveLivePreview.down, name: '20261105_030000_enable_autosave_live_preview' },
   { up: addHomePageGlobal.up, down: addHomePageGlobal.down, name: '20261109_000000_add_home_page_global' },
   { up: addAtlasStructuredNodes.up, down: addAtlasStructuredNodes.down, name: '20261111_000000_add_atlas_structured_nodes' },
+  { up: commonizeCentronicHaptixChapters.up, down: commonizeCentronicHaptixChapters.down, name: '20261113_000000_commonize_centronic_haptix_chapters' },
 ];
